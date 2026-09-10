@@ -1,0 +1,557 @@
+/* Bakery Management System - Internationalization & Language Switcher Engine */
+
+(function () {
+    const translations = {
+        EN: {
+            // Navigation
+            "dashboard": "Dashboard",
+            "products": "Products",
+            "categories": "Categories",
+            "ingredients": "Ingredients",
+            "recipes": "Recipes",
+            "suppliers": "Suppliers",
+            "purchase_orders": "Purchase Orders",
+            "orders": "Orders",
+            "production": "Production",
+            "reports": "Sales & Reports",
+            "users": "Users",
+            "settings": "Settings",
+            "logout": "Logout",
+            "pos": "POS Cashier",
+            "pos_terminal": "POS Terminal",
+            "search_products": "Search bakery items by name, SKU, or code...",
+            "all_categories": "All Items",
+            "current_sale": "Current Sale",
+            "clear_cart": "Clear Cart",
+            "customer": "Customer Name",
+            "cart_empty": "Your cart is empty",
+            "cart_empty_sub": "Click products on the left to add items",
+            "payment_method": "Payment Method",
+            "cash": "Cash",
+            "qr_code": "KHQR",
+            "card": "Card",
+            "subtotal": "Subtotal",
+            "discount_label": "Discount",
+            "tax_label": "Tax",
+            "grand_total": "Grand Total",
+            "complete_sale": "Complete Sale",
+            "print_receipt": "Print Receipt",
+            "new_sale": "New Sale",
+            "out_of_stock": "Out of Stock",
+            "system_title": "Bakery Management System",
+            "main": "Main",
+            "management": "Management",
+            "inventory": "Inventory",
+            "analytics": "Analytics",
+            "system": "System",
+            "users_staff": "Users & Staff",
+
+            // Settings Page Labels & Headings
+            "settings_header": "System Settings",
+            "settings_subtitle": "Configure store profile, taxation, receipts, security access, and app appearance.",
+            "shop_info": "Shop Information",
+            "shop_info_sub": "Bakery profile details and branding logo",
+            "shop_name": "Shop Name",
+            "phone_number": "Phone Number",
+            "address": "Address",
+            "shop_logo": "Shop Logo",
+            "upload_new_logo": "Upload New Logo",
+            "tax_discount": "Tax & Discount",
+            "tax_discount_sub": "POS tax rates and default promotional discounts",
+            "tax_rate": "Tax Rate (%)",
+            "discount": "Discount (%)",
+            "receipt_config": "Receipt Configuration",
+            "receipt_config_sub": "Custom receipt header and footer messages",
+            "receipt_header": "Receipt Header",
+            "receipt_footer": "Receipt Footer",
+            "user_security": "User & Security",
+            "user_security_sub": "User access controls and account password update",
+            "manage_users": "Manage Users & Staff Roles",
+            "current_password": "Current Password",
+            "new_password": "New Password",
+            "confirm_password": "Confirm New Password",
+            "update_password": "Update Password",
+            "general_preferences": "General Preferences",
+            "general_preferences_sub": "Currency, date formats, and language settings",
+            "currency": "Currency",
+            "date_format": "Date Format",
+            "language": "Language",
+            "save_preferences": "Save Preferences",
+            "save_changes": "Save Changes",
+            "appearance_notifications": "Appearance & Notifications",
+            "appearance_notifications_sub": "Application theme and system notifications",
+            "theme_mode": "Theme Mode",
+            "light": "Light",
+            "dark": "Dark",
+            "glass": "Glass",
+            "system_notifications": "System Notifications",
+            "notifications_sub": "Enable low stock & new order alert popups",
+
+            // Messages & Feedback
+            "lang_changed": "Language switched to English!",
+            "settings_saved": "Settings saved successfully!",
+
+            // Customer Management & Loyalty
+            "customers": "Customers",
+            "add_customer": "Add Customer",
+            "edit_customer": "Edit Customer",
+            "delete_customer": "Delete Customer",
+            "customer_name": "Customer Name",
+            "phone": "Phone",
+            "email": "Email",
+            "address": "Address",
+            "purchase_history": "Purchase History",
+            "loyalty": "Loyalty",
+            "loyalty_points": "Loyalty Points",
+            "loyalty_tier": "Loyalty Tier",
+            "search_customer": "Search customer by name or phone...",
+            "select_customer": "Select Customer",
+            "no_customer": "Walk-in Customer",
+            "remove_customer": "Remove Customer",
+            "customer_details": "Customer Details",
+            "total_purchases": "Total Purchases",
+            "total_spent": "Total Spent",
+            "points_earned": "Points Earned",
+            "quick_add_customer": "Quick Add Customer",
+
+            // Production
+            "production_management": "Production Management",
+            "production_batch": "Production Batch",
+            "schedule_production_batch": "Schedule Production Batch",
+            "batch_number": "Batch #",
+            "baker": "Baker",
+            "scheduled": "Scheduled",
+            "in_progress": "In Progress",
+            "completed": "Completed",
+            "cancelled": "Cancelled",
+            "start_production": "Start Baking",
+            "cancel_production": "Cancel Batch",
+            "ingredient_requirements": "Ingredient Requirements",
+            "active_batches": "Active Batches",
+            "all_batches": "All Batches",
+            "assigned_to_me": "Assigned to Me",
+            "completed_history": "Completed History",
+
+            // Orders
+            "order_management": "Order Management",
+            "order_number": "Order #",
+            "order_date": "Order Date",
+            "preparing": "Preparing",
+            "ready_for_pickup": "Ready for Pickup",
+            "out_for_delivery": "Out for Delivery",
+            "order_status": "Order Status",
+            "update_order": "Update Order",
+            "cancel_order": "Cancel Order",
+            "order_details": "Order Details",
+            "order_tracking": "Order Tracking",
+            "custom_order": "Custom Order",
+            "custom_cake": "Custom Cake",
+            "special_instructions": "Special Instructions",
+            "walk_in_customer": "Walk-in Customer",
+            "todays_revenue": "Today's Revenue",
+            "low_stock_items": "Low Stock Items",
+            "total_customers": "Total Customers",
+            "active_products": "Active Products",
+            "active_productions": "Active Productions",
+            "pending_purchase_orders": "Pending Purchase Orders",
+            "reports_title": "Reports",
+            "reports_subtitle": "Analyze bakery sales, orders, inventory, production and financial performance.",
+            "report_sales": "Sales Report",
+            "report_revenue": "Revenue Report",
+            "report_orders": "Order Report",
+            "report_products": "Product Report",
+            "report_inventory": "Inventory Report",
+            "report_low_stock": "Low Stock Report",
+            "report_production": "Production Report",
+            "report_customers": "Customer Report",
+            "report_purchases": "Supplier Report",
+            "report_profit_loss": "Profit & Loss",
+            "last_month": "Last Month",
+            "custom_range": "Custom Range",
+            "start_date": "Start Date",
+            "end_date": "End Date",
+            "export_pdf": "Export PDF",
+            "export_excel": "Export Excel",
+            "print_report": "Print Report",
+            "total_sales": "Total Sales",
+            "number_of_sales": "Number of Sales",
+            "average_sale_value": "Average Sale Value",
+            "total_discount": "Total Discount",
+            "total_tax": "Total Tax",
+            "net_sales": "Net Sales",
+            "completion_rate": "Completion Rate",
+            "cancellation_rate": "Cancellation Rate",
+            "cost_of_goods_sold": "Cost of Goods Sold (COGS)",
+            "gross_profit": "Gross Profit",
+            "profit_margin": "Profit Margin",
+            "total_procurement_spend": "Total Procurement Spend",
+            "estimated_restock_cost": "Est. Restock Cost",
+            "total_batches": "Total Batches",
+            "payment_method_breakdown": "Payment Method Breakdown",
+            "revenue_by_day": "Revenue by Day",
+            "gross_profit_note": "Gross profit based on recorded product costs",
+            "analytics_timeframe": "Analytics Timeframe",
+            "apply": "Apply",
+            "no_data_period": "No records found for the selected period.",
+
+            // Notifications
+            "notifications": "Notifications",
+            "notification_center": "Notification Center",
+            "notification_center_subtitle": "Live database alerts, operational updates, and event notifications.",
+            "total_notifications": "Total Notifications",
+            "unread_alerts": "Unread Alerts",
+            "critical_action_required": "Critical / Out of Stock",
+            "inventory_alerts": "Inventory Alerts",
+            "notification_activity": "Notification Activity",
+            "view_all_notifications": "View All Notifications",
+            "no_notifications": "No new notifications at this time!",
+            "no_notifications_found": "No Notifications Found",
+            "all_caught_up": "You're all caught up! There are currently no notifications matching this criteria.",
+            "mark_all_read": "Mark All as Read",
+            "mark_as_read": "Mark as read",
+            "view_details": "View Details",
+
+            // User & Staff Management
+            "users_staff": "Users & Staff",
+            "manage_users": "Manage Users & Staff Roles",
+            "users_management": "User & Staff Management",
+            "users_management_subtitle": "Centralized account management, role delegation, security permissions & audit tracking",
+            "total_staff": "Total Staff",
+            "active_accounts": "Active Accounts",
+            "inactive_accounts": "Inactive Accounts",
+            "suspended_accounts": "Suspended Accounts",
+            "create_user": "Create New Staff",
+            "edit_user": "Edit Staff Member",
+            "reset_password": "Reset Password",
+            "manage_permissions": "Manage Permissions",
+            "user_details": "Staff Details & Activity",
+            "search_users_placeholder": "Search by name, username, email, phone...",
+            "all_roles": "All Roles",
+            "all_statuses": "All Statuses",
+            "temporary_password": "Temporary Password",
+            "force_password_change": "Force password change on next login",
+            "custom_permissions": "Custom Permissions",
+            "role_defaults_hint": "Permissions with defaults applied from user role.",
+            "audit_trail": "Audit Trail",
+            "no_users_found": "No Staff Accounts Found",
+            "save_permissions": "Save Permissions",
+            "suspended": "Suspended",
+            "role_baker": "Baker"
+        },
+        KM: {
+            // Navigation
+            "dashboard": "ផ្ទាំងព័ត៌មាន",
+            "products": "បញ្ជីផលិតផល",
+            "categories": "ប្រភេទផលិតផល",
+            "ingredients": "គ្រឿងផ្សំ និងស្តុក",
+            "recipes": "រូបមន្តផលិត",
+            "suppliers": "អ្នកផ្គត់ផ្គង់",
+            "purchase_orders": "ការបញ្ជាទិញទំនិញ",
+            "production": "ការផលិត",
+            "orders": "ការលក់ និងការកុម្ម៉ង់",
+            "pos": "កន្លែងគិតប្រាក់ POS",
+            "pos_terminal": "ប្រព័ន្ធគិតប្រាក់ POS",
+            "search_products": "ស្វែងរកផលិតផលតាមឈ្មោះ ឬកូដ...",
+            "all_categories": "ទាំងអស់",
+            "current_sale": "ការលក់បច្ចុប្បន្ន",
+            "clear_cart": "សម្អាតកន្ត្រក",
+            "customer": "ឈ្មោះអតិថិជន",
+            "cart_empty": "កន្ត្រកទំនិញទទេ",
+            "cart_empty_sub": "ចុចលើផលិតផលនៅខាងឆ្វេងដើម្បីបន្ថែមទំនិញ",
+            "payment_method": "វិធីសាស្ត្រទូទាត់",
+            "cash": "សាច់ប្រាក់",
+            "qr_code": "KHQR",
+            "card": "កាត",
+            "subtotal": "សរុបរង",
+            "discount_label": "បញ្ចុះតម្លៃ",
+            "tax_label": "ពន្ធ",
+            "grand_total": "សរុបរួម",
+            "complete_sale": "បញ្ចប់ការលក់",
+            "print_receipt": "បោះពុម្ពបង្កាន់ដៃ",
+            "new_sale": "ការលក់ថ្មី",
+            "out_of_stock": "អស់ពីស្តុក",
+            "reports": "របាយការណ៍",
+            "users": "គ្រប់គ្រងអ្នកប្រើ",
+            "settings": "ការកំណត់",
+            "logout": "ចាកចេញ",
+            "system_title": "ប្រព័ន្ធគ្រប់គ្រងហាងនំ",
+            "main": "ចម្បង",
+            "management": "ការគ្រប់គ្រង",
+            "inventory": "សារពើភ័ណ្ឌ",
+            "analytics": "ការវិភាគ",
+            "system": "ប្រព័ន្ធ",
+            "users_staff": "អ្នកប្រើប្រាស់ និងបុគ្គលិក",
+
+            // Settings Page Labels & Headings
+            "settings_header": "ការកំណត់ប្រព័ន្ធ",
+            "settings_subtitle": "កំណត់ព័ត៌មានហាង ពន្ធ បង្កាន់ដៃ សុវត្ថិភាព និងទម្រង់រូបរាងកម្មវិធី។",
+            "shop_info": "ព័ត៌មានហាង",
+            "shop_info_sub": "ព័ត៌មានលម្អិត និងរូបសញ្ញាអាជីវកម្ម",
+            "shop_name": "ឈ្មោះហាង",
+            "phone_number": "លេខទូរស័ព្ទ",
+            "address": "អាសយដ្ឋាន",
+            "shop_logo": "រូបសញ្ញាហាង",
+            "upload_new_logo": "ផ្លាស់ប្តូររូបសញ្ញាថ្មី",
+            "tax_discount": "ពន្ធ និងការបញ្ចុះតម្លៃ",
+            "tax_discount_sub": "អត្រាពន្ធ POS និងការបញ្ចុះតម្លៃផ្សព្វផ្សាយ",
+            "tax_rate": "អត្រាពន្ធ (%)",
+            "discount": "ការបញ្ចុះតម្លៃ (%)",
+            "receipt_config": "ការកំណត់បង្កាន់ដៃ",
+            "receipt_config_sub": "សារនៅលើក្បាល និងបាតនៃបង្កាន់ដៃ",
+            "receipt_header": "ក្បាលបង្កាន់ដៃ",
+            "receipt_footer": "បាតបង្កាន់ដៃ",
+            "user_security": "អ្នកប្រើប្រាស់ និងសុវត្ថិភាព",
+            "user_security_sub": "ការគ្រប់គ្រងសិទ្ធិ និងបច្ចុប្បន្នភាពពាក្យសម្ងាត់",
+            "manage_users": "គ្រប់គ្រងអ្នកប្រើប្រាស់ និងតួនាទី",
+            "current_password": "ពាក្យសម្ងាត់បច្ចុប្បន្ន",
+            "new_password": "ពាក្យសម្ងាត់ថ្មី",
+            "confirm_password": "បញ្ជាក់ពាក្យសម្ងាត់ថ្មី",
+            "update_password": "បច្ចុប្បន្នភាពពាក្យសម្ងាត់",
+            "general_preferences": "ការកំណត់ទូទៅ",
+            "general_preferences_sub": "រូបិយប័ណ្ណ ទម្រង់កាលបរិច្ឆេទ និងភាសា",
+            "currency": "រូបិយប័ណ្ណ",
+            "date_format": "ទម្រង់កាលបរិច្ឆេទ",
+            "language": "ភាសា",
+            "save_preferences": "រក្សាទុកការកំណត់",
+            "save_changes": "រក្សាទុកការផ្លាស់ប្តូរ",
+            "appearance_notifications": "រូបរាង និងការជូនដំណឹង",
+            "appearance_notifications_sub": "ទម្រង់រូបរាងកម្មវិធី និងការជូនដំណឹងប្រព័ន្ធ",
+            "theme_mode": "ទម្រង់រូបរាង",
+            "light": "ពន្លឺ",
+            "dark": "ងងឹត",
+            "glass": "កញ្ចក់",
+            "system_notifications": "ការជូនដំណឹងប្រព័ន្ធ",
+            "notifications_sub": "បើកការជូនដំណឹងស្តុកទាប និងការកុម្ម៉ង់ថ្មី",
+
+            // Messages & Feedback
+            "lang_changed": "ភាសាត្រូវបានផ្លាស់ប្តូរទៅជា ភាសាខ្មែរ!",
+            "settings_saved": "ការកំណត់ត្រូវបានរក្សាទុកដោយជោគជ័យ!",
+
+            // Customer Management & Loyalty
+            "customers": "អតិថិជន",
+            "add_customer": "បន្ថែមអតិថិជន",
+            "edit_customer": "កែប្រែអតិថិជន",
+            "delete_customer": "លុបអតិថិជន",
+            "customer_name": "ឈ្មោះអតិថិជន",
+            "phone": "លេខទូរស័ព្ទ",
+            "email": "អ៊ីមែល",
+            "address": "អាសយដ្ឋាន",
+            "purchase_history": "ប្រវត្តិនៃការទិញ",
+            "loyalty": "ភាពស្មោះត្រង់",
+            "loyalty_points": "ពិន្ទុភាពស្មោះត្រង់",
+            "loyalty_tier": "កម្រិតភាពស្មោះត្រង់",
+            "search_customer": "ស្វែងរកអតិថិជនតាមឈ្មោះ ឬលេខទូរស័ព្ទ...",
+            "select_customer": "ជ្រើសរើសអតិថិជន",
+            "no_customer": "អតិថិជនទូទៅ",
+            "remove_customer": "ដកអតិថិជនចេញ",
+            "customer_details": "ព័ត៌មានលម្អិតអតិថិជន",
+            "total_purchases": "ការទិញសរុប",
+            "total_spent": "ចំណាយសរុប",
+            "points_earned": "ពិន្ទុដែលទទួលបាន",
+            "quick_add_customer": "ចុះឈ្មោះអតិថិជនរហ័ស",
+
+            // Production
+            "production_management": "ការគ្រប់គ្រងការផលិត",
+            "production_batch": "បាច់ផលិត",
+            "schedule_production_batch": "កំណត់ពេលបាច់ផលិត",
+            "batch_number": "លេខបាច់ #",
+            "baker": "អ្នកដុតនំ",
+            "scheduled": "បានកំណត់ពេល",
+            "in_progress": "កំពុងដំណើរការ",
+            "completed": "បានបញ្ចប់",
+            "cancelled": "បានបោះបង់",
+            "start_production": "ចាប់ផ្តើមដុតនំ",
+            "cancel_production": "បោះបង់បាច់",
+            "ingredient_requirements": "តម្រូវការគ្រឿងផ្សំ",
+            "active_batches": "បាច់កំពុងសកម្ម",
+            "all_batches": "បាច់ទាំងអស់",
+            "assigned_to_me": "ចាត់តាំងមកខ្ញុំ",
+            "completed_history": "ប្រវត្តិនៃការបញ្ចប់",
+
+            // Orders
+            "order_management": "ការគ្រប់គ្រងការកុម្ម៉ង់",
+            "order_number": "លេខកូដកុម្ម៉ង់",
+            "order_date": "កាលបរិច្ឆេទកុម្ម៉ង់",
+            "preparing": "កំពុងរៀបចំ/ដុតនំ",
+            "ready_for_pickup": "រួចរាល់សម្រាប់មកយក",
+            "out_for_delivery": "កំពុងដឹកជញ្ជូន",
+            "order_status": "ស្ថានភាពការកុម្ម៉ង់",
+            "update_order": "កែប្រែការកុម្ម៉ង់",
+            "cancel_order": "បោះបង់ការកុម្ម៉ង់",
+            "order_details": "ព័ត៌មានលម្អិតការកុម្ម៉ង់",
+            "order_tracking": "ការតាមដានការកុម្ម៉ង់",
+            "custom_order": "ការកុម្ម៉ង់តាមតម្រូវការ",
+            "custom_cake": "នំខេកតាមតម្រូវការ",
+            "special_instructions": "ការណែនាំពិសេស",
+            "walk_in_customer": "អតិថិជនទូទៅ",
+            "todays_revenue": "ចំណូលថ្ងៃនេះ",
+            "low_stock_items": "ទំនិញជិតអស់ពីស្តុក",
+            "total_customers": "អតិថិជនសរុប",
+            "active_products": "ផលិតផលសកម្ម",
+            "active_productions": "ការផលិតកំពុងដំណើរការ",
+            "pending_purchase_orders": "ការបញ្ជាទិញរង់ចាំ",
+            "reports_title": "របាយការណ៍",
+            "reports_subtitle": "វិភាគការលក់ ការកុម្ម៉ង់ ស្តុក ការផលិត និងប្រសិទ្ធភាពហិរញ្ញវត្ថុរបស់ហាងនំ។",
+            "report_sales": "របាយការណ៍ការលក់",
+            "report_revenue": "របាយការណ៍ចំណូល",
+            "report_orders": "របាយការណ៍ការកុម្ម៉ង់",
+            "report_products": "របាយការណ៍ផលិតផល",
+            "report_inventory": "របាយការណ៍ស្តុក",
+            "report_low_stock": "របាយការណ៍ស្តុកទាប",
+            "report_production": "របាយការណ៍ផលិតកម្ម",
+            "report_customers": "របាយការណ៍អតិថិជន",
+            "report_purchases": "របាយការណ៍ការទិញទំនិញ",
+            "report_profit_loss": "ចំណេញ និងខាត",
+            "last_month": "ខែមុន",
+            "custom_range": "ចន្លោះកាលបរិច្ឆេទផ្ទាល់ខ្លួន",
+            "start_date": "ថ្ងៃចាប់ផ្តើម",
+            "end_date": "ថ្ងៃបញ្ចប់",
+            "export_pdf": "ទាញយកជា PDF",
+            "export_excel": "ទាញយកជា Excel",
+            "print_report": "បោះពុម្ពរបាយការណ៍",
+            "total_sales": "ការលក់សរុប",
+            "number_of_sales": "ចំនួននៃការលក់",
+            "average_sale_value": "តម្លៃលក់ជាមធ្យម",
+            "total_discount": "ការបញ្ចុះតម្លៃសរុប",
+            "total_tax": "ពន្ធសរុប",
+            "net_sales": "ការលក់សុទ្ធ",
+            "completion_rate": "អត្រាជោគជ័យ",
+            "cancellation_rate": "អត្រាបោះបង់",
+            "cost_of_goods_sold": "ថ្លៃដើមទំនិញលក់ (COGS)",
+            "gross_profit": "ប្រាក់ចំណេញដុល",
+            "profit_margin": "រឹមប្រាក់ចំណេញ",
+            "total_procurement_spend": "ការចំណាយលើការបញ្ជាទិញសរុប",
+            "estimated_restock_cost": "ការចំណាយប៉ាន់ស្មានដើម្បីបំពេញស្តុក",
+            "total_batches": "ចំនួនបាច់សរុប",
+            "payment_method_breakdown": "ការបែងចែកតាមវិធីសាស្ត្រទូទាត់",
+            "revenue_by_day": "ចំណូលតាមថ្ងៃ",
+            "gross_profit_note": "ប្រាក់ចំណេញដុលផ្អែកលើថ្លៃដើមដែលបានកត់ត្រា",
+            "analytics_timeframe": "ចន្លោះពេលវេលាវិភាគ",
+            "apply": "អនុវត្ត",
+            "no_data_period": "មិនមានទិន្នន័យសម្រាប់ចន្លោះពេលដែលបានជ្រើសរើសទេ។",
+
+            // Notifications
+            "notifications": "ការជូនដំណឹង",
+            "notification_center": "មជ្ឈមណ្ឌលជូនដំណឹង",
+            "notification_center_subtitle": "ការជូនដំណឹងផ្ទាល់ពីមូលដ្ឋានទិន្នន័យ ការធ្វើបច្ចុប្បន្នភាពប្រតិបត្តិការ និងព្រឹត្តិការណ៍ប្រព័ន្ធ។",
+            "total_notifications": "ការជូនដំណឹងសរុប",
+            "unread_alerts": "ការជូនដំណឹងមិនទាន់អាន",
+            "critical_action_required": "បន្ទាន់ / អស់ពីស្តុក",
+            "inventory_alerts": "ការជូនដំណឹងស្តុក",
+            "notification_activity": "សកម្មភាពជូនដំណឹង",
+            "view_all_notifications": "មើលការជូនដំណឹងទាំងអស់",
+            "no_notifications": "មិនមានការជូនដំណឹងថ្មីនៅពេលនេះទេ!",
+            "no_notifications_found": "រកមិនឃើញការជូនដំណឹងទេ",
+            "all_caught_up": "អ្នកបានអានគ្រប់យ៉ាងហើយ! មិនមានការជូនដំណឹងដែលត្រូវគ្នានឹងលក្ខខណ្ឌនេះទេ។",
+            "mark_all_read": "កំណត់ថាបានអានទាំងអស់",
+            "mark_as_read": "កំណត់ថាបានអាន",
+            "view_details": "មើលព័ត៌មានលម្អិត",
+
+            // User & Staff Management
+            "users_staff": "អ្នកប្រើប្រាស់ និងបុគ្គលិក",
+            "manage_users": "គ្រប់គ្រងអ្នកប្រើប្រាស់ និងតួនាទីបុគ្គលិក",
+            "users_management": "ការគ្រប់គ្រងអ្នកប្រើប្រាស់ និងបុគ្គលិក",
+            "users_management_subtitle": "ការគ្រប់គ្រងគណនីកណ្តាល ការកំណត់តួនាទី សិទ្ធិសុវត្ថិភាព និងកំណត់ត្រាត្រួតពិនិត្យ",
+            "total_staff": "បុគ្គលិកសរុប",
+            "active_accounts": "គណនីសកម្ម",
+            "inactive_accounts": "គណនីអសកម្ម",
+            "suspended_accounts": "គណនីផ្អាកបណ្តោះអាសន្ន",
+            "create_user": "បង្កើតគណនីបុគ្គលិកថ្មី",
+            "edit_user": "កែសម្រួលគណនីបុគ្គលិក",
+            "reset_password": "កំណត់ពាក្យសម្ងាត់ឡើងវិញ",
+            "manage_permissions": "គ្រប់គ្រងសិទ្ធិប្រើប្រាស់",
+            "user_details": "ព័ត៌មានលម្អិត និងសកម្មភាពបុគ្គលិក",
+            "search_users_placeholder": "ស្វែងរកតាមឈ្មោះ ឈ្មោះអ្នកប្រើ អ៊ីមែល លេខទូរស័ព្ទ...",
+            "all_roles": "គ្រប់តួនាទី",
+            "all_statuses": "គ្រប់ស្ថានភាព",
+            "temporary_password": "ពាក្យសម្ងាត់បណ្តោះអាសន្ន",
+            "force_password_change": "តម្រូវឱ្យប្តូរពាក្យសម្ងាត់ពេលចូលលើកក្រោយ",
+            "custom_permissions": "សិទ្ធិប្រើប្រាស់ពិសេស",
+            "role_defaults_hint": "សិទ្ធិដែលបានកំណត់តាមលំនាំដើមនៃតួនាទី។",
+            "audit_trail": "កំណត់ត្រាសកម្មភាព",
+            "no_users_found": "រកមិនឃើញគណនីបុគ្គលិកទេ",
+            "save_permissions": "រក្សាទុកសិទ្ធិ",
+            "suspended": "បានផ្អាក",
+            "role_baker": "អ្នកដុតនំ"
+        }
+    };
+
+    function getSavedLanguage() {
+        const htmlLang = document.documentElement.getAttribute('lang');
+        if (htmlLang && (htmlLang.toUpperCase() === 'KM' || htmlLang.toUpperCase() === 'EN')) {
+            localStorage.setItem('bakery_lang', htmlLang.toUpperCase());
+            return htmlLang.toUpperCase();
+        }
+        return localStorage.getItem('bakery_lang') || 'EN';
+    }
+
+    function setSavedLanguage(lang) {
+        localStorage.setItem('bakery_lang', lang);
+    }
+
+    window.applyLanguage = function (langCode) {
+        const lang = (langCode || getSavedLanguage()).toUpperCase();
+        const dict = translations[lang] || translations.EN;
+        setSavedLanguage(lang);
+
+        document.documentElement.setAttribute('lang', lang.toLowerCase());
+
+        // Data-lang-key Elements
+        document.querySelectorAll('[data-lang-key]').forEach(el => {
+            const key = el.getAttribute('data-lang-key');
+            if (dict[key]) {
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    el.placeholder = dict[key];
+                } else {
+                    el.textContent = dict[key];
+                }
+            }
+        });
+
+        // Sync Language Dropdown if present
+        const langSelect = document.getElementById('language_select');
+        if (langSelect && langSelect.value !== lang) {
+            langSelect.value = lang;
+        }
+
+        return lang;
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentLang = getSavedLanguage();
+        window.applyLanguage(currentLang);
+
+        const langSelect = document.getElementById('language_select');
+        if (langSelect) {
+            langSelect.value = currentLang;
+            langSelect.addEventListener('change', function () {
+                const newLang = this.value;
+                window.applyLanguage(newLang);
+
+                // Show toast notification feedback
+                const toastMsg = document.getElementById('toast_message');
+                const toast = document.getElementById('settings_toast');
+                const msg = translations[newLang]?.lang_changed || 'Language updated!';
+                if (toastMsg) toastMsg.textContent = msg;
+                if (toast) {
+                    toast.classList.add('show');
+                    setTimeout(() => toast.classList.remove('show'), 3000);
+                }
+
+                // Send AJAX update to backend
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                if (csrfToken) {
+                    fetch('/admin/settings/update', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ language: newLang })
+                    }).catch(err => console.log('Backend setting sync:', err));
+                }
+            });
+        }
+    });
+})();

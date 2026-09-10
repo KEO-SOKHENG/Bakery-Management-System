@@ -1,0 +1,1003 @@
+/* Bakery Management System - Multi-Device Responsive System */
+
+/* ==========================================
+   iPad & Tablets (min-width: 768px) and (max-width: 1180px)
+   Polished 72px Compact Sidebar & Overlay Drawer
+   ========================================== */
+@media (min-width: 768px) and (max-width: 1180px) {
+    /* Clean Compact 72px Sidebar Rail for iPad / Tablets */
+    .bakery-sidebar {
+        width: 72px !important;
+        padding: 1.15rem 0.65rem 0.75rem 0.65rem !important;
+        background-color: var(--sidebar-bg, #ffffff) !important;
+        background: var(--sidebar-bg, #ffffff) !important;
+        border-right: 1px solid var(--border-color, rgba(0, 0, 0, 0.08)) !important;
+        border-radius: 0;
+        margin: 0;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        box-sizing: border-box !important;
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        flex-shrink: 0;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.05);
+        transition: width 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+        overflow: hidden !important;
+    }
+
+    [data-theme="dark"] .bakery-sidebar,
+    [data-theme="glass"] .bakery-sidebar {
+        background-color: #0b101d !important;
+        background: #0b101d !important;
+        border-right-color: rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Brand / Logo Area with Hamburger Toggle */
+    .bakery-logo-area {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding-bottom: 0.85rem;
+        margin-bottom: 0.85rem;
+        border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06)) !important;
+        width: 100%;
+        gap: 10px;
+        flex-shrink: 0 !important;
+    }
+
+    [data-theme="dark"] .bakery-logo-area,
+    [data-theme="glass"] .bakery-logo-area {
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    /* Hide text labels in collapsed 72px rail */
+    .bakery-sidebar:not(.sidebar-expanded) .bakery-logo-text,
+    .bakery-sidebar:not(.sidebar-expanded) .bakery-logo-title,
+    .bakery-sidebar:not(.sidebar-expanded) .bakery-logo-subtitle {
+        display: none !important;
+    }
+
+    /* Suppress duplicate toggle and close buttons - only 1 single unified button in header */
+    .sidebar-toggle-btn,
+    .sidebar-close-btn {
+        display: none !important;
+    }
+
+    .bakery-sidebar:not(.sidebar-expanded) .bakery-brand-icon {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        margin: 0 auto;
+    }
+
+    /* Tablet (768px - 1180px) when sidebar is closed: clean full-width content */
+    body.sidebar-is-closed .bakery-sidebar {
+        width: 0 !important;
+        min-width: 0 !important;
+        max-width: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+    }
+
+    body.sidebar-is-closed .bakery-main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        flex: 1 1 100% !important;
+        padding-left: 1.5rem !important;
+    }
+
+    body.sidebar-is-closed .header-sidebar-toggle-btn,
+    .header-sidebar-toggle-btn.is-closed-state {
+        left: 1.25rem !important;
+        top: 1.25rem !important;
+    }
+
+    /* Navigation Links in 72px Rail - Centered & Comfortably Spaced */
+    .sidebar-nav {
+        width: 100%;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.65rem;
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        scrollbar-width: thin;
+    }
+
+    .sidebar-nav-item {
+        width: 46px !important;
+        height: 46px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        color: var(--text-body, #60636d) !important;
+        cursor: pointer !important;
+        background: transparent !important;
+        transition: all 0.2s ease;
+        margin: 0 auto;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    [data-theme="dark"] .sidebar-nav-item,
+    [data-theme="glass"] .sidebar-nav-item {
+        color: #94a3b8 !important;
+    }
+
+    .sidebar-nav-item svg {
+        width: 22px;
+        height: 22px;
+        color: inherit !important;
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .sidebar-nav-item:hover {
+        background: rgba(0, 0, 0, 0.05) !important;
+    }
+
+    [data-theme="dark"] .sidebar-nav-item:hover,
+    [data-theme="glass"] .sidebar-nav-item:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .sidebar-nav-item:hover svg {
+        transform: scale(1.08);
+    }
+
+    /* Floating Tooltip on Hover in Collapsed Rail (Desktop / Mouse viewports) */
+    @media (hover: hover) {
+        .bakery-sidebar:not(.sidebar-expanded) .sidebar-nav-item span {
+            display: none;
+        }
+
+        .bakery-sidebar:not(.sidebar-expanded) .sidebar-nav-item:hover span {
+            display: flex !important;
+            position: absolute;
+            left: 58px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #1e293b;
+            color: #ffffff !important;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 8px;
+            white-space: nowrap;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            z-index: 1200;
+            pointer-events: none;
+        }
+    }
+
+    @media (hover: none) {
+        .bakery-sidebar:not(.sidebar-expanded) .sidebar-nav-item span {
+            display: none !important;
+        }
+    }
+
+    /* Active Highlighted Items */
+    .sidebar-nav-item.active,
+    .sidebar-nav-item.pill-highlighted,
+    .sidebar-nav-item.highlighted {
+        color: #ffffff !important;
+    }
+
+    .sidebar-nav-item.active svg,
+    .sidebar-nav-item.pill-highlighted svg,
+    .sidebar-nav-item.highlighted svg {
+        color: #ffffff !important;
+    }
+
+    /* Red Circular Logout Button - Fixed at Bottom */
+    .sidebar-logout {
+        margin-top: auto !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.25rem !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        z-index: 10;
+    }
+
+    .logout-btn {
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 14px !important;
+        background: rgba(239, 68, 68, 0.12) !important;
+        color: #ef4444 !important;
+        border: 1px solid rgba(239, 68, 68, 0.25) !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 !important;
+        transition: all 0.2s ease;
+    }
+
+    .logout-btn:hover {
+        background: #ef4444 !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+    }
+
+    .logout-btn span {
+        display: none !important;
+    }
+
+    /* Overlay Drawer State when Expanded (Floats over content with ZERO content shifting) */
+    .bakery-sidebar.sidebar-expanded {
+        width: 250px !important;
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        box-sizing: border-box !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 1.15rem 1rem 0.75rem 1rem !important;
+        z-index: 1100;
+        box-shadow: 12px 0 40px rgba(0, 0, 0, 0.2);
+        background-color: var(--sidebar-bg, #ffffff) !important;
+        background: var(--sidebar-bg, #ffffff) !important;
+        overflow: hidden !important;
+    }
+
+    [data-theme="dark"] .bakery-sidebar.sidebar-expanded,
+    [data-theme="glass"] .bakery-sidebar.sidebar-expanded {
+        background-color: #0b101d !important;
+        background: #0b101d !important;
+        box-shadow: 12px 0 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .bakery-sidebar.sidebar-expanded .bakery-logo-area {
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 12px;
+        flex-shrink: 0 !important;
+    }
+
+    .bakery-sidebar.sidebar-expanded .bakery-logo-text {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+    }
+
+    .bakery-sidebar.sidebar-expanded .bakery-logo-title {
+        display: block !important;
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--text-title, #29150d);
+        line-height: 1.2;
+    }
+
+    .bakery-sidebar.sidebar-expanded .bakery-logo-subtitle {
+        display: block !important;
+        font-size: 0.725rem;
+        font-weight: 500;
+        color: var(--text-muted, #9ca3af);
+        line-height: 1.2;
+    }
+
+    [data-theme="dark"] .bakery-sidebar.sidebar-expanded .bakery-logo-title,
+    [data-theme="glass"] .bakery-sidebar.sidebar-expanded .bakery-logo-title {
+        color: #ffffff !important;
+    }
+
+    .bakery-sidebar.sidebar-expanded .sidebar-nav {
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        align-items: stretch !important;
+        padding-right: 2px;
+        margin-bottom: 0.5rem;
+    }
+
+    .bakery-sidebar.sidebar-expanded .sidebar-nav-item span {
+        display: inline-block !important;
+        position: static !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        transform: none !important;
+    }
+
+    .bakery-sidebar.sidebar-expanded .logout-btn span {
+        display: inline-block !important;
+        position: static !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        transform: none !important;
+    }
+
+    .bakery-sidebar.sidebar-expanded .sidebar-nav-item {
+        width: 100% !important;
+        height: 48px !important;
+        border-radius: 14px !important;
+        padding: 0 1rem !important;
+        justify-content: flex-start !important;
+        gap: 12px !important;
+        margin: 0 !important;
+    }
+
+    .bakery-sidebar.sidebar-expanded .sidebar-logout {
+        margin-top: auto !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.25rem !important;
+        width: 100% !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+    }
+
+    .bakery-sidebar.sidebar-expanded .logout-btn {
+        width: 100% !important;
+        height: 44px !important;
+        border-radius: 14px !important;
+        padding: 0.7rem !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    /* Main Content Area - Expands smoothly */
+    .bakery-main-content {
+        padding: 1.25rem 1.5rem;
+        flex: 1;
+        min-width: 0;
+        margin-left: 0 !important;
+        overflow-x: hidden;
+    }
+
+    /* Top Header Bar - Fluid & Naturally Reorganizing */
+    .top-header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.35rem;
+        width: 100%;
+    }
+
+    .header-greeting {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .header-greeting h1 {
+        font-size: 1.35rem;
+        font-weight: 800;
+        line-height: 1.25;
+    }
+
+    .header-greeting p {
+        font-size: 0.8rem;
+        color: #71717a;
+        margin-top: 0.1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        flex: 0 1 auto;
+        flex-wrap: wrap;
+    }
+
+    .header-search-box {
+        width: 180px;
+        flex: 1 1 160px;
+        min-width: 130px;
+        max-width: 240px;
+    }
+
+    .header-search-input {
+        padding: 0.5rem 0.75rem 0.5rem 2.2rem;
+        font-size: 0.8rem;
+    }
+
+    .icon-bell-btn {
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+    }
+
+    .user-profile-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.25rem 0.6rem 0.25rem 0.25rem;
+        background: #ffffff;
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 9999px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+        max-width: 165px;
+    }
+
+    [data-theme="dark"] .user-profile-pill {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    [data-theme="dark"] .user-profile-pill span {
+        color: #ffffff !important;
+    }
+
+    .user-profile-pill span {
+        font-size: 0.78rem;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 90px;
+    }
+
+    .user-profile-pill:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Stat Cards Row - Clean 2x2 Grid on Tablet */
+    .dash-stat-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.85rem;
+        margin-bottom: 1.35rem;
+    }
+
+    .stat-card {
+        padding: 1rem 0.85rem;
+        gap: 0.75rem;
+        border-radius: var(--radius-md);
+    }
+
+    .stat-icon-box {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+    }
+
+    .stat-icon-box svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+    }
+
+    .stat-value {
+        font-size: 1.35rem;
+        margin: 0.1rem 0;
+    }
+
+    .stat-trend {
+        font-size: 0.7rem;
+    }
+
+    /* Quick Actions Grid - 3 Columns with Fluid Sizing */
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1.35rem;
+    }
+
+    .quick-action-btn {
+        padding: 0.75rem 0.65rem;
+        font-size: 0.82rem;
+        gap: 0.45rem;
+        justify-content: center;
+        border-radius: 50px !important;
+    }
+
+    .quick-action-btn span {
+        white-space: normal;
+        text-align: center;
+        line-height: 1.2;
+    }
+
+    .quick-action-icon-circle {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+
+    .quick-action-icon-circle svg {
+        width: 15px;
+        height: 15px;
+    }
+
+    /* Two-Column Section - Stacked for Tablet Width */
+    .dash-two-col-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .settings-glass-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pos-container {
+        grid-template-columns: 1fr;
+    }
+
+    .pos-product-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* Responsive Table Action Icon Buttons (Tablet) */
+    .action-btn-group {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.45rem !important;
+    }
+
+    .table-icon-btn {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 10px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    .table-icon-btn svg {
+        width: 18px !important;
+        height: 18px !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Card & Table Responsiveness for iPad / Tablet */
+    .bakery-card {
+        padding: 1rem 1.15rem !important;
+        border-radius: var(--radius-md) !important;
+        overflow: hidden;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .table-responsive-wrapper {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 0;
+    }
+
+    .recent-orders-table th,
+    .bakery-table th {
+        padding: 0.65rem 0.75rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    .recent-orders-table td,
+    .bakery-table td {
+        padding: 0.75rem 0.75rem !important;
+        font-size: 0.825rem !important;
+    }
+
+    /* Table Date Responsiveness (Tablet) */
+    .table-date-text,
+    .table-date-cell,
+    .table-date-badge,
+    .table-date-pill {
+        font-size: 0.775rem !important;
+        padding: 0.18rem 0.45rem !important;
+        white-space: nowrap !important;
+    }
+}
+
+/* Specific Auto-Reorganization for Tight Tablet Widths (768px - 860px) */
+@media (min-width: 768px) and (max-width: 860px) {
+    .top-header-bar {
+        row-gap: 0.85rem;
+    }
+
+    .header-greeting {
+        width: 100%;
+        flex: 1 1 100%;
+    }
+
+    .header-actions {
+        width: 100%;
+        flex: 1 1 100%;
+        justify-content: space-between;
+    }
+
+    .header-search-box {
+        flex: 1;
+        max-width: none;
+    }
+}
+
+/* ==========================================
+   Mobile Phones (iPhone 12/13/14/15 Pro Max, Galaxy, Pixel: max-width: 767px)
+   Top Header Bar & Navigation Drawer
+   ========================================== */
+@media (max-width: 767px) {
+    .bakery-app-layout {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    /* Mobile Sticky Top Navigation Header */
+    /* .bakery-sidebar {
+        margin: 0;
+        width: 100%;
+        height: auto;
+        border-radius: 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        padding: 0.75rem 1rem;
+        background-color: #ffffff;
+        border-bottom: 1px solid var(--border-color);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    } */
+
+    /* .bakery-logo-area {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .bakery-logo-icon {
+        display: flex !important;
+        width: 36px;
+        height: 36px;
+        margin-bottom: 0;
+    }
+
+    .bakery-logo-icon svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .bakery-logo-title {
+        display: inline-block !important;
+        font-size: 1.15rem;
+    }
+
+    .bakery-logo-subtitle {
+        display: none !important;
+    }
+
+    .sidebar-toggle-btn,
+    .sidebar-close-btn {
+        display: none !important;
+    }
+
+    /* Mobile Collapsed Navigation Drawer */
+    .sidebar-nav {
+        display: none;
+        flex-direction: column;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border-subtle);
+        margin-top: 0.75rem;
+        gap: 0.35rem;
+        width: 100%;
+    }
+
+    /* When Hamburger ☰ is tapped */
+    .bakery-sidebar.sidebar-expanded .sidebar-nav {
+        display: flex !important;
+    }
+
+    .sidebar-nav-item {
+        width: 100% !important;
+        height: auto !important;
+        padding: 0.7rem 0.85rem !important;
+        border-radius: 50px !important;
+        justify-content: flex-start !important;
+        border-bottom: none !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        color: #52525b;
+    }
+
+    .sidebar-nav-item.pill-highlighted,
+    .sidebar-nav-item.highlighted,
+    .sidebar-nav-item.pill-highlighted:hover {
+        background: transparent !important;
+        background-color: transparent !important;
+        color: #ffffff !important;
+    }
+
+    .sidebar-nav-item.pill-highlighted svg,
+    .sidebar-nav-item.highlighted svg,
+    .sidebar-nav-item.pill-highlighted:hover svg,
+    .sidebar-nav-item.pill-highlighted span,
+    .sidebar-nav-item.highlighted span,
+    .sidebar-nav-item.pill-highlighted:hover span {
+        color: #ffffff !important;
+    }
+
+    .sidebar-nav-item span {
+        display: inline-block !important;
+    }
+
+    .sidebar-nav-item svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .sidebar-logout {
+        display: none;
+    }
+
+    .bakery-sidebar.sidebar-expanded .sidebar-logout {
+        display: flex !important;
+        padding-top: 0.5rem;
+        width: 100%;
+    }
+
+    .bakery-sidebar.sidebar-expanded .logout-btn {
+        width: 100% !important;
+        height: auto !important;
+        padding: 0.7rem !important;
+        border-radius: 12px !important;
+        justify-content: center !important;
+    }
+
+    .bakery-sidebar.sidebar-expanded .logout-btn span {
+        display: inline-block !important;
+    }
+
+    /* Main Content Layout on Mobile (iPhone 12/13/14/15 Pro Max, 390px, 375px) */
+    .bakery-main-content {
+        padding: 1.15rem 0.85rem;
+        width: 100%;
+        min-width: 0;
+        margin-left: 0 !important;
+    }
+
+    .top-header-bar {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        margin-bottom: 1.15rem;
+    }
+
+    .header-greeting {
+        width: 100%;
+    }
+
+    .header-greeting h1 {
+        font-size: 1.25rem;
+        line-height: 1.3;
+    }
+
+    .header-greeting p {
+        font-size: 0.78rem;
+    }
+
+    .header-actions {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.65rem;
+    }
+
+    .header-actions-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .header-search-box {
+        width: 100%;
+        order: 2;
+    }
+
+    .header-search-input {
+        font-size: 0.8rem;
+        padding: 0.55rem 0.75rem 0.55rem 2.2rem;
+    }
+
+    .user-profile-pill {
+        padding: 0.2rem;
+        border-radius: 50%;
+    }
+
+    .user-profile-pill span,
+    .user-profile-pill svg:last-child {
+        display: none;
+    }
+
+    /* Stat Cards - 2-Column on Mobile (375px - 767px) */
+    .dash-stat-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+        margin-bottom: 1.15rem;
+    }
+
+    .stat-card {
+        padding: 0.75rem 0.65rem;
+        gap: 0.5rem;
+        border-radius: var(--radius-md);
+    }
+
+    .stat-icon-box {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-sm);
+    }
+
+    .stat-icon-box svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .stat-label {
+        font-size: 0.68rem;
+    }
+
+    .stat-value {
+        font-size: 1.15rem;
+    }
+
+    .stat-trend {
+        font-size: 0.65rem;
+    }
+
+    /* Stacked Quick Actions on Mobile for Touch Usability */
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.55rem;
+        margin-bottom: 1.15rem;
+    }
+
+    .quick-action-btn {
+        padding: 0.8rem 1rem;
+        font-size: 0.85rem;
+        justify-content: flex-start;
+        border-radius: 14px !important;
+    }
+
+    /* 1-Column Stacking for Cards */
+    .dash-two-col-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .products-grid,
+    .categories-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .settings-glass-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .pos-container {
+        grid-template-columns: 1fr;
+    }
+
+    .pos-product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    /* Mobile Table Action Icon Buttons */
+    .action-btn-group {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.45rem !important;
+    }
+
+    .table-icon-btn {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 10px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    .table-icon-btn svg {
+        width: 18px !important;
+        height: 18px !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Card & Table Responsiveness for Mobile */
+    .bakery-card {
+        padding: 0.85rem 0.75rem !important;
+        border-radius: var(--radius-md) !important;
+        overflow: hidden;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .table-responsive-wrapper {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 0;
+    }
+
+    .recent-orders-table th,
+    .bakery-table th {
+        padding: 0.55rem 0.65rem !important;
+        font-size: 0.725rem !important;
+    }
+
+    .recent-orders-table td,
+    .bakery-table td {
+        padding: 0.65rem 0.65rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Table Date Responsiveness (Mobile) */
+    .table-date-text,
+    .table-date-cell,
+    .table-date-badge,
+    .table-date-pill {
+        font-size: 0.725rem !important;
+        padding: 0.15rem 0.4rem !important;
+        white-space: nowrap !important;
+    }
+}
+
+/* Extra Small Mobile (max-width: 420px: iPhone SE, Galaxy Fold) */
+@media (max-width: 420px) {
+    .dash-stat-row {
+        grid-template-columns: 1fr;
+        gap: 0.65rem;
+    }
+
+    .stat-card {
+        padding: 0.85rem 0.75rem;
+    }
+
+    .pos-product-grid {
+        grid-template-columns: 1fr;
+    }
+}

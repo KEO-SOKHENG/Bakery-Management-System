@@ -1,0 +1,43 @@
+/* Ingredients Inventory Stylesheet - ingredients.css */
+.ingredients-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.ingredients-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.ingredients-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ingredients-table th,
+.ingredients-table td {
+    padding: 1rem 0.85rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.ingredients-table th {
+    background-color: #fafafa;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.unit-badge {
+    padding: 0.2rem 0.5rem;
+    background-color: #f3f4f6;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}

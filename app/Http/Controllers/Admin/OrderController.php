@@ -1,0 +1,669 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Customer;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Sale;
+use App\Models\Setting;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+class OrderController extends Controller
+{
+    /**
+     * Display a paginated listing of orders with search, filters, and metrics.
+     */
+    public function index(Request $request)
+    {
+        $query = Order::with(['items.product', 'customer', 'user', 'sale', 'payments']);
+
+        // 1. Search by order number, customer name, or customer phone
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $like = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $query->where(function ($q) use ($search, $like) {
+                $q->where('order_number', $like, "%{$search}%")
+                  ->orWhere('customer_name', $like, "%{$search}%")
+                  ->orWhereHas('customer', function ($cq) use ($search, $like) {
+                      $cq->where('name', $like, "%{$search}%")
+                         ->orWhere('phone', $like, "%{$search}%");
+                  });
+            });
+        }
+
+        // 2. Filter by status
+        if ($request->filled('status') && $request->status !== 'all') {
+            $status = strtolower(trim($request->status));
+            if ($status === 'preparing') {
+                $query->whereIn('order_status', ['preparing', 'baking', 'in baking']);
+            } elseif ($status === 'ready_for_pickup') {
+                $query->whereIn('order_status', ['ready_for_pickup', 'ready']);
+            } else {
+                $query->where('order_status', $status);
+            }
+        }
+
+        // 3. Filter by payment method
+        if ($request->filled('payment_method') && $request->payment_method !== 'all') {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        // 4. Filter by payment status
+        if ($request->filled('payment_status') && $request->payment_status !== 'all') {
+            $query->where('payment_status', $request->payment_status);
+        }
+
+        // 5. Filter by order type (Custom Cake vs Standard POS)
+        if ($request->filled('type') && $request->type !== 'all') {
+            if ($request->type === 'custom') {
+                $query->where('is_custom', true);
+            } elseif ($request->type === 'pos') {
+                $query->where('is_custom', false);
+            }
+        }
+
+        // 6. Filter by date range
+        if ($request->filled('date')) {
+            $dateFilter = $request->date;
+            if ($dateFilter === 'today') {
+                $query->whereDate('created_at', today());
+            } elseif ($dateFilter === 'yesterday') {
+                $query->whereDate('created_at', today()->subDay());
+            } elseif ($dateFilter === 'this_week') {
+                $query->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+            } elseif ($dateFilter === 'this_month') {
+                $query->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
+            }
+        }
+
+        $orders = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
+
+        // Summary KPI Metrics
+        $totalOrdersCount = Order::count();
+        $pendingCount = Order::where('order_status', 'pending')->count();
+        $preparingCount = Order::whereIn('order_status', ['preparing', 'baking'])->count();
+        $readyCount = Order::whereIn('order_status', ['ready_for_pickup', 'ready'])->count();
+        $outForDeliveryCount = Order::where('order_status', 'out_for_delivery')->count();
+        $completedCount = Order::where('order_status', 'completed')->count();
+        $cancelledCount = Order::where('order_status', 'cancelled')->count();
+        $totalRevenue = (float) Order::where('order_status', 'completed')->sum('total');
+        $customOrdersCount = Order::where('is_custom', true)->count();
+
+        $currency = Setting::get('currency', '$');
+        $taxPercentage = (float) Setting::get('tax_percentage', Setting::get('tax_rate', 10.0));
+        $products = Product::where('status', 'active')->where('stock', '>', 0)->orderBy('name')->get();
+
+        return view('admin.orders.index', compact(
+            'orders',
+            'totalOrdersCount',
+            'pendingCount',
+            'preparingCount',
+            'readyCount',
+            'outForDeliveryCount',
+            'completedCount',
+            'cancelledCount',
+            'totalRevenue',
+            'customOrdersCount',
+            'currency',
+            'taxPercentage',
+            'products'
+        ));
+    }
+
+    /**
+     * Show the form for creating a new Customer / Custom Cake / Pre-Order.
+     */
+    public function create()
+    {
+        $products = Product::where('status', 'active')->orderBy('name')->get();
+        $customers = Customer::where('status', 'active')->orderBy('name')->get();
+        $taxPercentage = (float) Setting::get('tax_percentage', Setting::get('tax_rate', 10.0));
+        $currency = Setting::get('currency', '$');
+
+        return view('admin.orders.create', compact('products', 'customers', 'taxPercentage', 'currency'));
+    }
+
+    /**
+     * Store a newly created order with strict server calculation and stock safety.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'customer_id'          => 'nullable|exists:customers,id',
+            'customer_name'        => 'nullable|string|max:255',
+            'payment_method'       => 'required|string|in:cash,card,qr_code',
+            'payment_status'       => 'nullable|string|in:paid,unpaid',
+            'order_status'         => 'nullable|string|in:pending,preparing,ready_for_pickup,completed',
+            'is_custom'            => 'nullable|boolean',
+            'special_instructions' => 'nullable|string|max:2000',
+            'pickup_date'          => 'nullable|date',
+            'discount'             => 'nullable|numeric|min:0',
+            'items'                => 'required|array|min:1',
+            'items.*.product_id'   => 'required|exists:products,id',
+            'items.*.quantity'     => 'required|integer|min:1',
+        ]);
+
+        $taxPercentage = (float) Setting::get('tax_percentage', Setting::get('tax_rate', 10.0));
+        $taxRate = $taxPercentage / 100.0;
+        $userEnteredDiscount = max(0, (float) ($validated['discount'] ?? 0));
+        $initialStatus = $validated['order_status'] ?? 'pending';
+        $paymentMethod = $validated['payment_method'];
+        $isCustom = (bool) ($validated['is_custom'] ?? false);
+
+        try {
+            $order = DB::transaction(function () use (
+                $validated,
+                $taxRate,
+                $userEnteredDiscount,
+                $initialStatus,
+                $paymentMethod,
+                $isCustom
+            ) {
+                // Resolve customer
+                $customer = null;
+                if (!empty($validated['customer_id'])) {
+                    $customer = Customer::lockForUpdate()->find($validated['customer_id']);
+                }
+
+                $customerName = $customer
+                    ? $customer->name
+                    : (trim($validated['customer_name'] ?? '') ?: 'Walk-in Customer');
+
+                $subtotal = 0.0;
+                $itemsToCreate = [];
+
+                foreach ($validated['items'] as $itemData) {
+                    $productId = (int) $itemData['product_id'];
+                    $qty = (int) $itemData['quantity'];
+
+                    $product = Product::lockForUpdate()->find($productId);
+
+                    if (!$product || $product->status !== 'active') {
+                        throw new \Exception("Product '{$productId}' is inactive or unavailable.");
+                    }
+
+                    if ($product->stock < $qty) {
+                        throw new \Exception("Insufficient stock for '{$product->name}'. Available: {$product->stock}, Requested: {$qty}.");
+                    }
+
+                    $unitPrice = (float) $product->price;
+                    $lineTotal = round($unitPrice * $qty, 2);
+                    $subtotal += $lineTotal;
+
+                    // Reserve/deduct product stock
+                    $product->decrement('stock', $qty);
+
+                    $itemsToCreate[] = [
+                        'product_id' => $product->id,
+                        'quantity'   => $qty,
+                        'price'      => $unitPrice,
+                        'subtotal'   => $lineTotal,
+                    ];
+                }
+
+                $discount = min($userEnteredDiscount, $subtotal);
+                $taxableAmount = max(0.0, $subtotal - $discount);
+                $tax = round($taxableAmount * $taxRate, 2);
+                $grandTotal = round($taxableAmount + $tax, 2);
+
+                $orderNumber = 'ORD-' . strtoupper(uniqid());
+                $paymentRef  = 'PAY-' . strtoupper(uniqid());
+
+                $isPaid = ($initialStatus === 'completed') || (($validated['payment_status'] ?? '') === 'paid');
+                $paymentStatus = $isPaid ? 'paid' : 'unpaid';
+
+                // 1. Create Order
+                $order = Order::create([
+                    'user_id'              => Auth::id(),
+                    'customer_id'          => $customer ? $customer->id : null,
+                    'order_number'         => $orderNumber,
+                    'customer_name'        => $customerName,
+                    'subtotal'             => $subtotal,
+                    'discount'             => $discount,
+                    'tax'                  => $tax,
+                    'total'                => $grandTotal,
+                    'payment_method'       => $paymentMethod,
+                    'payment_status'       => $paymentStatus,
+                    'order_status'         => $initialStatus,
+                    'is_custom'            => $isCustom,
+                    'special_instructions' => $validated['special_instructions'] ?? null,
+                    'pickup_date'          => !empty($validated['pickup_date']) ? $validated['pickup_date'] : null,
+                ]);
+
+                // 2. Create Order Items
+                foreach ($itemsToCreate as $item) {
+                    $order->items()->create($item);
+                }
+
+                // 3. Create Sale & Payment if completed/paid
+                if ($isPaid) {
+                    Sale::create([
+                        'order_id'       => $order->id,
+                        'user_id'        => Auth::id(),
+                        'total'          => $grandTotal,
+                        'payment_method' => $paymentMethod,
+                        'payment_status' => 'paid',
+                        'sold_at'        => now(),
+                    ]);
+
+                    Payment::create([
+                        'order_id'          => $order->id,
+                        'user_id'           => Auth::id(),
+                        'payment_method'    => $paymentMethod,
+                        'amount'            => $grandTotal,
+                        'payment_status'    => 'completed',
+                        'payment_reference' => $paymentRef,
+                        'payment_date'      => now(),
+                        'notes'             => "Order Payment completed by " . (Auth::user()->name ?? 'Staff'),
+                    ]);
+
+                    // Loyalty points
+                    if ($customer) {
+                        $pointsEarned = (int) floor($grandTotal);
+                        $customer->addLoyaltyPoints($pointsEarned);
+                    }
+                }
+
+                return $order;
+            });
+
+            // Dispatch notification for order creation
+            try {
+                app(\App\Services\NotificationService::class)->notifyOrderCreated($order);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Failed to dispatch order notification: " . $e->getMessage());
+            }
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Order #{$order->order_number} created successfully.",
+                    'order'   => $order->load('items.product'),
+                ]);
+            }
+
+            return redirect()->route('admin.orders.show', $order)
+                ->with('success', "Order #{$order->order_number} created successfully!");
+        } catch (\Exception $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            }
+            return redirect()->back()->with('error', $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Display the detailed order view with customer info, items, timeline tracking, and receipt preview.
+     */
+    public function show(Order $order)
+    {
+        $order->load(['items.product.category', 'customer', 'user', 'sale', 'payments', 'delivery']);
+
+        $taxPercentage = (float) Setting::get('tax_percentage', Setting::get('tax_rate', 10.0));
+        $currency = Setting::get('currency', '$');
+        $bakeryName = Setting::get('bakery_name', Setting::get('shop_name', 'Sweet Delights Bakery'));
+        $bakeryPhone = Setting::get('bakery_phone', Setting::get('shop_phone', '+855 23 123 456'));
+        $bakeryAddress = Setting::get('bakery_address', Setting::get('shop_address', 'Monivong Blvd, Phnom Penh, Cambodia'));
+        $receiptHeader = Setting::get('receipt_header', "Sweet Delights Bakery & Cafe\nFresh Daily Artisan Breads");
+        $receiptFooter = Setting::get('receipt_footer', "Thank you for visiting!\nFollow us @sweetdelights.bakery");
+
+        return view('admin.orders.show', compact(
+            'order',
+            'taxPercentage',
+            'currency',
+            'bakeryName',
+            'bakeryPhone',
+            'bakeryAddress',
+            'receiptHeader',
+            'receiptFooter'
+        ));
+    }
+
+    /**
+     * Show form to edit a pending order.
+     */
+    public function edit(Order $order)
+    {
+        if (!$order->canBeEdited()) {
+            return redirect()->route('admin.orders.show', $order)
+                ->with('error', "Only Pending orders can be modified. Current status is '{$order->order_status}'.");
+        }
+
+        $order->load(['items.product', 'customer']);
+        $products = Product::where('status', 'active')->orderBy('name')->get();
+        $customers = Customer::where('status', 'active')->orderBy('name')->get();
+        $taxPercentage = (float) Setting::get('tax_percentage', Setting::get('tax_rate', 10.0));
+        $currency = Setting::get('currency', '$');
+
+        return view('admin.orders.edit', compact('order', 'products', 'customers', 'taxPercentage', 'currency'));
+    }
+
+    /**
+     * Update order details safely with stock adjustment.
+     */
+    public function update(Request $request, Order $order)
+    {
+        // If order is preparing, allow updating instructions & pickup date only
+        if ($order->isPreparing()) {
+            $validated = $request->validate([
+                'special_instructions' => 'nullable|string|max:2000',
+                'pickup_date'          => 'nullable|date',
+            ]);
+
+            $order->update([
+                'special_instructions' => $validated['special_instructions'] ?? $order->special_instructions,
+                'pickup_date'          => !empty($validated['pickup_date']) ? $validated['pickup_date'] : $order->pickup_date,
+            ]);
+
+            return redirect()->route('admin.orders.show', $order)
+                ->with('success', "Order #{$order->order_number} notes and pickup schedule updated.");
+        }
+
+        // Only pending orders can have full modification
+        if (!$order->isPending()) {
+            return redirect()->route('admin.orders.show', $order)
+                ->with('error', "Cannot modify an order with status '{$order->order_status}'.");
+        }
+
+        $validated = $request->validate([
+            'customer_id'          => 'nullable|exists:customers,id',
+            'customer_name'        => 'nullable|string|max:255',
+            'payment_method'       => 'required|string|in:cash,card,qr_code',
+            'is_custom'            => 'nullable|boolean',
+            'special_instructions' => 'nullable|string|max:2000',
+            'pickup_date'          => 'nullable|date',
+            'discount'             => 'nullable|numeric|min:0',
+            'items'                => 'required|array|min:1',
+            'items.*.product_id'   => 'required|exists:products,id',
+            'items.*.quantity'     => 'required|integer|min:1',
+        ]);
+
+        $taxPercentage = (float) Setting::get('tax_percentage', Setting::get('tax_rate', 10.0));
+        $taxRate = $taxPercentage / 100.0;
+        $userEnteredDiscount = max(0, (float) ($validated['discount'] ?? 0));
+
+        try {
+            DB::transaction(function () use ($request, $order, $validated, $taxRate, $userEnteredDiscount) {
+                $lockedOrder = Order::lockForUpdate()->findOrFail($order->id);
+
+                if (!$lockedOrder->isPending()) {
+                    throw new \Exception("Order status changed concurrently. Cannot modify non-pending order.");
+                }
+
+                // Map existing items: product_id => qty
+                $oldItemsMap = [];
+                foreach ($lockedOrder->items as $item) {
+                    $oldItemsMap[$item->product_id] = ($oldItemsMap[$item->product_id] ?? 0) + $item->quantity;
+                }
+
+                // Map new items: product_id => qty
+                $newItemsMap = [];
+                foreach ($validated['items'] as $item) {
+                    $pid = (int) $item['product_id'];
+                    $newItemsMap[$pid] = ($newItemsMap[$pid] ?? 0) + (int) $item['quantity'];
+                }
+
+                // Collect all product IDs affected
+                $allProductIds = array_unique(array_merge(array_keys($oldItemsMap), array_keys($newItemsMap)));
+
+                foreach ($allProductIds as $pid) {
+                    $oldQty = $oldItemsMap[$pid] ?? 0;
+                    $newQty = $newItemsMap[$pid] ?? 0;
+                    $diff = $newQty - $oldQty;
+
+                    if ($diff !== 0) {
+                        $product = Product::lockForUpdate()->find($pid);
+                        if (!$product) {
+                            throw new \Exception("Product #{$pid} not found.");
+                        }
+
+                        if ($diff > 0) {
+                            // Needs more stock
+                            if ($product->stock < $diff) {
+                                throw new \Exception("Insufficient stock for '{$product->name}'. Available: {$product->stock}, Additional needed: {$diff}.");
+                            }
+                            $product->decrement('stock', $diff);
+                        } else {
+                            // Return surplus stock
+                            $product->increment('stock', abs($diff));
+                        }
+                    }
+                }
+
+                // Calculate fresh subtotal from database prices
+                $subtotal = 0.0;
+                $newOrderItems = [];
+                foreach ($validated['items'] as $itemData) {
+                    $product = Product::find($itemData['product_id']);
+                    $qty = (int) $itemData['quantity'];
+                    $unitPrice = (float) $product->price;
+                    $lineTotal = round($unitPrice * $qty, 2);
+                    $subtotal += $lineTotal;
+
+                    $newOrderItems[] = [
+                        'product_id' => $product->id,
+                        'quantity'   => $qty,
+                        'price'      => $unitPrice,
+                        'subtotal'   => $lineTotal,
+                    ];
+                }
+
+                $discount = min($userEnteredDiscount, $subtotal);
+                $taxableAmount = max(0.0, $subtotal - $discount);
+                $tax = round($taxableAmount * $taxRate, 2);
+                $grandTotal = round($taxableAmount + $tax, 2);
+
+                $customer = null;
+                if (!empty($validated['customer_id'])) {
+                    $customer = Customer::find($validated['customer_id']);
+                }
+                $customerName = $customer ? $customer->name : (trim($validated['customer_name'] ?? '') ?: 'Walk-in Customer');
+
+                // Delete old items and insert updated items
+                $lockedOrder->items()->delete();
+                foreach ($newOrderItems as $item) {
+                    $lockedOrder->items()->create($item);
+                }
+
+                // Update Order header
+                $lockedOrder->update([
+                    'customer_id'          => $customer ? $customer->id : null,
+                    'customer_name'        => $customerName,
+                    'subtotal'             => $subtotal,
+                    'discount'             => $discount,
+                    'tax'                  => $tax,
+                    'total'                => $grandTotal,
+                    'payment_method'       => $validated['payment_method'],
+                    'is_custom'            => (bool) ($validated['is_custom'] ?? false),
+                    'special_instructions' => $validated['special_instructions'] ?? null,
+                    'pickup_date'          => !empty($validated['pickup_date']) ? $validated['pickup_date'] : null,
+                ]);
+            });
+
+            return redirect()->route('admin.orders.show', $order)
+                ->with('success', "Order #{$order->order_number} updated successfully.");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage())->withInput();
+        }
+    }
+
+    /**
+     * Transition order status server-side strictly following the defined workflow.
+     */
+    public function updateStatus(Request $request, Order $order)
+    {
+        $validated = $request->validate([
+            'status' => 'required|string',
+        ]);
+
+        $targetStatus = strtolower(trim($validated['status']));
+
+        try {
+            DB::transaction(function () use ($order, $targetStatus) {
+                $lockedOrder = Order::lockForUpdate()->findOrFail($order->id);
+
+                if (!$lockedOrder->canTransitionTo($targetStatus)) {
+                    throw new \Exception("Invalid order status transition from '{$lockedOrder->order_status}' to '{$targetStatus}'.");
+                }
+
+                // If completing the order, ensure payment and sales records exist
+                if ($targetStatus === Order::STATUS_COMPLETED) {
+                    $lockedOrder->order_status = Order::STATUS_COMPLETED;
+                    $lockedOrder->payment_status = 'paid';
+
+                    // Ensure Sale record exists
+                    if (!$lockedOrder->sale) {
+                        Sale::create([
+                            'order_id'       => $lockedOrder->id,
+                            'user_id'        => Auth::id(),
+                            'total'          => $lockedOrder->total,
+                            'payment_method' => $lockedOrder->payment_method,
+                            'payment_status' => 'paid',
+                            'sold_at'        => now(),
+                        ]);
+                    }
+
+                    // Ensure Payment record exists
+                    if ($lockedOrder->payments()->count() === 0) {
+                        Payment::create([
+                            'order_id'          => $lockedOrder->id,
+                            'user_id'           => Auth::id(),
+                            'payment_method'    => $lockedOrder->payment_method,
+                            'amount'            => $lockedOrder->total,
+                            'payment_status'    => 'completed',
+                            'payment_reference' => 'PAY-' . strtoupper(uniqid()),
+                            'payment_date'      => now(),
+                            'notes'             => "Order Completed by " . (Auth::user()->name ?? 'Staff'),
+                        ]);
+                    }
+
+                    // Award loyalty points if customer attached and not already awarded
+                    if ($lockedOrder->customer) {
+                        $points = (int) floor($lockedOrder->total);
+                        $lockedOrder->customer->addLoyaltyPoints($points);
+                    }
+                } else {
+                    $lockedOrder->order_status = $targetStatus;
+                }
+
+                $lockedOrder->save();
+            });
+
+            // Dispatch notification for order status change
+            try {
+                $freshOrder = Order::find($order->id);
+                if ($freshOrder) {
+                    app(\App\Services\NotificationService::class)->notifyOrderStatusUpdated($freshOrder, $targetStatus);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Failed to dispatch order status notification: " . $e->getMessage());
+            }
+
+            $humanStatus = ucwords(str_replace('_', ' ', $targetStatus));
+            return redirect()->back()
+                ->with('success', "Order #{$order->order_number} status updated to {$humanStatus}.");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Cancel an active pending or preparing order and safely restore reserved stock.
+     */
+    public function cancel(Order $order)
+    {
+        if (!$order->canBeCancelled()) {
+            return redirect()->back()
+                ->with('error', "Order with status '{$order->order_status}' cannot be cancelled.");
+        }
+
+        try {
+            DB::transaction(function () use ($order) {
+                $lockedOrder = Order::lockForUpdate()->findOrFail($order->id);
+
+                if (!$lockedOrder->canBeCancelled()) {
+                    throw new \Exception("Order status changed concurrently. Cannot cancel '{$lockedOrder->order_status}' order.");
+                }
+
+                // Restore reserved inventory for each item
+                foreach ($lockedOrder->items as $item) {
+                    if ($item->product_id && $item->quantity > 0) {
+                        $product = Product::lockForUpdate()->find($item->product_id);
+                        if ($product) {
+                            $product->increment('stock', $item->quantity);
+                        }
+                    }
+                }
+
+                $lockedOrder->order_status = Order::STATUS_CANCELLED;
+                $lockedOrder->save();
+            });
+
+            // Dispatch notification for order cancellation
+            try {
+                $freshOrder = Order::find($order->id);
+                if ($freshOrder) {
+                    app(\App\Services\NotificationService::class)->notifyOrderStatusUpdated($freshOrder, Order::STATUS_CANCELLED);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning("Failed to dispatch order cancellation notification: " . $e->getMessage());
+            }
+
+            return redirect()->route('admin.orders.show', $order)
+                ->with('success', "Order #{$order->order_number} has been cancelled and reserved items restored to inventory.");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete an order (Admin / Manager only, strictly non-completed orders).
+     */
+    public function destroy(Order $order, Request $request)
+    {
+        if ($order->isCompleted() || $order->sale) {
+            $msg = "Cannot delete a completed order with financial sales records.";
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
+        try {
+            DB::transaction(function () use ($order) {
+                // If pending/preparing, restore inventory before deletion
+                if ($order->canBeCancelled()) {
+                    foreach ($order->items as $item) {
+                        if ($item->product_id && $item->quantity > 0) {
+                            $product = Product::lockForUpdate()->find($item->product_id);
+                            if ($product) {
+                                $product->increment('stock', $item->quantity);
+                            }
+                        }
+                    }
+                }
+
+                $order->items()->delete();
+                $order->payments()->delete();
+                $order->delete();
+            });
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Order deleted successfully!']);
+            }
+
+            return redirect()->route('admin.orders')->with('success', 'Order deleted successfully!');
+        } catch (\Exception $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            }
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+}

@@ -1,0 +1,862 @@
+/* Analytical Reports Stylesheet - reports.css */
+.reports-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.reports-subtitle {
+    font-size: 0.825rem;
+    color: var(--text-secondary, #71717a);
+    margin-top: 0.2rem;
+}
+
+.report-period-badge {
+    font-weight: 800;
+    font-size: 0.775rem;
+    color: #15803d;
+    background-color: rgba(22, 163, 74, 0.1);
+    padding: 0.45rem 1.15rem;
+    border-radius: 50px !important;
+    border: 1px solid rgba(22, 163, 74, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #16a34a;
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+    animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+    0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
+.btn-print-report {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.35rem !important;
+    border-radius: 50px !important;
+    border: 1.5px solid #eee9e0 !important;
+    background: #ffffff !important;
+    color: var(--text-title) !important;
+    font-weight: 700 !important;
+    font-size: 0.825rem !important;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-print-report:hover {
+    background: #563020 !important;
+    border-color: #563020 !important;
+    color: #ffffff !important;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 18px rgba(86, 48, 32, 0.2);
+}
+
+.reports-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.85rem;
+}
+
+.report-stat-card {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(238, 233, 224, 0.85);
+    border-radius: 24px;
+    padding: 1.35rem 1.25rem;
+    box-shadow: 0 8px 24px rgba(86, 48, 32, 0.04);
+    transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.report-stat-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 16px 32px rgba(86, 48, 32, 0.09);
+    border-color: rgba(86, 48, 32, 0.2);
+}
+
+.report-stat-title {
+    font-size: 0.8rem;
+    color: #71717a;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.report-stat-val {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: var(--text-title, #29150d);
+    margin-top: 0.25rem;
+    letter-spacing: -0.02em;
+}
+
+.report-stat-val.val-green {
+    color: #16a34a;
+}
+
+.report-stat-val.val-amber {
+    color: #d97706;
+}
+
+.report-stat-val.val-blue {
+    color: #2563eb;
+}
+
+/* Revenue Channel Breakdown Card Styles */
+.revenue-channel-card-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 1.15rem;
+    color: var(--text-title, #29150d);
+}
+
+.channel-breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.95rem;
+}
+
+.channel-breakdown-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.85rem 1.1rem;
+    background: rgba(250, 247, 243, 0.75);
+    border: 1px solid rgba(238, 233, 224, 0.8);
+    border-radius: 18px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.channel-breakdown-item:hover {
+    background: #ffffff;
+    transform: translateX(4px);
+    box-shadow: 0 4px 14px rgba(86, 48, 32, 0.05);
+}
+
+.channel-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.channel-breakdown-label {
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--text-title, #27272a);
+}
+
+.channel-breakdown-val {
+    font-weight: 800;
+    font-size: 0.95rem;
+}
+
+.channel-breakdown-val.pos {
+    color: #16a34a;
+}
+
+.channel-breakdown-val.preorder {
+    color: #d97706;
+}
+
+.channel-breakdown-val.wholesale {
+    color: #2563eb;
+}
+
+.channel-progress-track {
+    width: 100%;
+    height: 6px;
+    background: rgba(228, 228, 231, 0.6);
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.channel-progress-fill {
+    height: 100%;
+    border-radius: 50px;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.channel-progress-fill.pos { background: linear-gradient(90deg, #16a34a, #34d399); }
+.channel-progress-fill.preorder { background: linear-gradient(90deg, #d97706, #fbbf24); }
+.channel-progress-fill.wholesale { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+
+.report-chart-card {
+    background-color: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #eee9e0);
+    border-radius: var(--radius-lg, 18px);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card, 0 4px 20px rgba(0, 0, 0, 0.03));
+}
+
+.report-chart-card h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--espresso-dark, #29150d);
+    margin-bottom: 1rem;
+}
+
+.report-chart-placeholder {
+    height: 220px;
+    background-color: #faf7f3;
+    border: 1px dashed var(--border-color, #eee9e0);
+    border-radius: var(--radius-md, 12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary, #6b7280);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   DARK MODE OVERRIDES ([data-theme="dark"])
+   ========================================================================== */
+[data-theme="dark"] .reports-subtitle {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .report-period-badge {
+    background-color: #171717 !important;
+    border-color: #292929 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .report-stat-card {
+    background-color: #0f0f0f !important;
+    border-color: #242424 !important;
+}
+
+[data-theme="dark"] .report-stat-title {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .report-stat-val.val-default {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .report-stat-val.val-green {
+    color: #4ade80 !important;
+}
+
+[data-theme="dark"] .report-stat-val.val-amber {
+    color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .report-stat-val.val-blue {
+    color: #60a5fa !important;
+}
+
+[data-theme="dark"] .revenue-channel-card-title {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .channel-breakdown-item {
+    background-color: #171717 !important;
+    border-color: #262626 !important;
+}
+
+[data-theme="dark"] .channel-breakdown-label {
+    color: #f3f4f6 !important;
+}
+
+[data-theme="dark"] .channel-breakdown-val.pos {
+    color: #4ade80 !important;
+}
+
+[data-theme="dark"] .channel-breakdown-val.preorder {
+    color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .channel-breakdown-val.wholesale {
+    color: #60a5fa !important;
+}
+
+[data-theme="dark"] .report-chart-placeholder {
+    background-color: #121212 !important;
+    border-color: #292929 !important;
+    color: #a3a3a3 !important;
+}
+
+/* ==========================================================================
+   GLASS MODE OVERRIDES ([data-theme="glass"])
+   ========================================================================== */
+[data-theme="glass"] .reports-subtitle {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+[data-theme="glass"] .report-period-badge {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    backdrop-filter: blur(10px);
+}
+
+[data-theme="glass"] .report-stat-card {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(12px);
+}
+
+[data-theme="glass"] .report-stat-title {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme="glass"] .report-stat-val.val-default {
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .report-stat-val.val-green {
+    color: #4ade80 !important;
+}
+
+[data-theme="glass"] .report-stat-val.val-amber {
+    color: #fbbf24 !important;
+}
+
+[data-theme="glass"] .report-stat-val.val-blue {
+    color: #60a5fa !important;
+}
+
+[data-theme="glass"] .revenue-channel-card-title {
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .channel-breakdown-item {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(10px);
+}
+
+[data-theme="glass"] .channel-breakdown-label {
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .channel-breakdown-val.pos {
+    color: #4ade80 !important;
+}
+
+[data-theme="glass"] .channel-breakdown-val.preorder {
+    color: #fbbf24 !important;
+}
+
+[data-theme="glass"] .channel-breakdown-val.wholesale {
+    color: #60a5fa !important;
+}
+
+[data-theme="glass"] .report-chart-placeholder {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   REPORT NAVIGATION TABS
+   ========================================================================== */
+.report-nav-tabs-container {
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+.report-nav-tabs {
+    display: inline-flex;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 0.4rem;
+    border-radius: 50px;
+    border: 1px solid var(--border-color, #eee9e0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    min-width: max-content;
+}
+
+.report-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 1.15rem;
+    border-radius: 50px;
+    font-size: 0.825rem;
+    font-weight: 700;
+    color: var(--text-secondary, #71717a);
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+}
+
+.report-tab-btn:hover {
+    color: #563020;
+    background: rgba(86, 48, 32, 0.06);
+}
+
+.report-tab-btn.active {
+    background: #563020;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(86, 48, 32, 0.25);
+}
+
+.report-tab-btn svg {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2.2;
+}
+
+/* Filter controls bar */
+.report-controls-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--border-color, #eee9e0);
+    border-radius: 20px;
+    padding: 1.15rem 1.35rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.report-filter-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.report-export-group {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.btn-export-pdf, .btn-export-excel {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 1.15rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    border: 1px solid transparent;
+}
+
+.btn-export-pdf {
+    background: #ef4444;
+    color: #ffffff;
+}
+.btn-export-pdf:hover {
+    background: #dc2626;
+    transform: translateY(-1.5px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-export-excel {
+    background: #16a34a;
+    color: #ffffff;
+}
+.btn-export-excel:hover {
+    background: #15803d;
+    transform: translateY(-1.5px);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+.data-filter-row {
+    display: flex;
+    gap: 0.85rem;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border-color, #eee9e0);
+    flex-wrap: wrap;
+}
+
+.report-search-input {
+    flex: 1;
+    min-width: 220px;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color, #eee9e0);
+    background: #ffffff;
+    font-size: 0.85rem;
+    color: var(--text-title, #27272a);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.report-search-input:focus {
+    border-color: #563020;
+}
+
+.report-select-filter {
+    padding: 0.5rem 1.1rem;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color, #eee9e0);
+    background: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-title, #27272a);
+    outline: none;
+    cursor: pointer;
+}
+
+.report-select-filter:focus {
+    border-color: #563020;
+}
+
+/* Table Styles */
+.report-table-wrapper {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color, #eee9e0);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    margin-bottom: 1.75rem;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.875rem;
+}
+
+.report-table th {
+    background: #faf7f3;
+    padding: 0.95rem 1.15rem;
+    font-weight: 800;
+    font-size: 0.775rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #71717a;
+    border-bottom: 1px solid var(--border-color, #eee9e0);
+}
+
+.report-table td {
+    padding: 0.95rem 1.15rem;
+    border-bottom: 1px solid rgba(238, 233, 224, 0.7);
+    color: var(--text-title, #27272a);
+    font-weight: 500;
+}
+
+.report-table tr:hover td {
+    background: rgba(86, 48, 32, 0.02);
+}
+
+.report-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Status & Type Pills */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: capitalize;
+}
+
+.status-badge.completed, .status-badge.received, .status-badge.paid, .status-badge.in_stock {
+    background: rgba(22, 163, 74, 0.12);
+    color: #15803d;
+    border: 1px solid rgba(22, 163, 74, 0.25);
+}
+
+.status-badge.pending, .status-badge.draft, .status-badge.low_stock {
+    background: rgba(202, 138, 4, 0.12);
+    color: #a16207;
+    border: 1px solid rgba(202, 138, 4, 0.25);
+}
+
+.status-badge.preparing, .status-badge.ordered, .status-badge.in_progress {
+    background: rgba(37, 99, 235, 0.12);
+    color: #1d4ed8;
+    border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.status-badge.cancelled, .status-badge.out_of_stock, .status-badge.expired {
+    background: rgba(220, 38, 38, 0.12);
+    color: #b91c1c;
+    border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
+.status-badge.ready, .status-badge.ready_for_pickup {
+    background: rgba(147, 51, 234, 0.12);
+    color: #7e22ce;
+    border: 1px solid rgba(147, 51, 234, 0.25);
+}
+
+.status-badge.scheduled {
+    background: rgba(100, 116, 139, 0.12);
+    color: #475569;
+    border: 1px solid rgba(100, 116, 139, 0.25);
+}
+
+/* Empty State */
+.report-empty-state {
+    text-align: center;
+    padding: 3.5rem 1.5rem;
+    color: #71717a;
+}
+
+.report-empty-state svg {
+    margin-bottom: 0.75rem;
+    color: #a1a1aa;
+}
+
+.report-empty-state h4 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-title, #27272a);
+    margin-bottom: 0.35rem;
+}
+
+.report-empty-state p {
+    font-size: 0.85rem;
+    color: #71717a;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+/* Print Specific Elements */
+.print-only-header {
+    display: none;
+}
+
+@media print {
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 9pt !important;
+    }
+
+    .bakery-sidebar,
+    .top-header-bar,
+    .dash-filter-bar,
+    .report-nav-tabs-container,
+    .report-export-group,
+    .btn-print-report,
+    .data-filter-row,
+    .pagination,
+    .report-period-badge,
+    #fireflies_layer,
+    .header-sidebar-toggle-btn {
+        display: none !important;
+    }
+
+    .bakery-app-layout, .bakery-main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .print-only-header {
+        display: block !important;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #333;
+    }
+
+    .print-bakery-name {
+        font-size: 18pt;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .print-report-title {
+        font-size: 14pt;
+        margin-top: 4px;
+        color: #333;
+    }
+
+    .print-meta-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+        font-size: 8pt;
+        color: #555;
+    }
+
+    .report-stat-card {
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        break-inside: avoid;
+    }
+
+    .report-table-wrapper {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+        border-radius: 0 !important;
+    }
+
+    .report-table th {
+        background: #f0f0f0 !important;
+        color: #000 !important;
+        border: 1px solid #ccc !important;
+    }
+
+    .report-table td {
+        border: 1px solid #ddd !important;
+        color: #000 !important;
+    }
+
+    .status-badge {
+        border: 1px solid #888 !important;
+        background: transparent !important;
+        color: #000 !important;
+    }
+}
+
+/* ==========================================================================
+   DARK MODE OVERRIDES FOR NEW ELEMENTS
+   ========================================================================== */
+[data-theme="dark"] .report-nav-tabs {
+    background: rgba(23, 23, 23, 0.8) !important;
+    border-color: #292929 !important;
+}
+
+[data-theme="dark"] .report-tab-btn {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .report-tab-btn:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .report-tab-btn.active {
+    background: #78350f !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .report-controls-card {
+    background: #0f0f0f !important;
+    border-color: #242424 !important;
+}
+
+[data-theme="dark"] .data-filter-row {
+    border-top-color: #262626 !important;
+}
+
+[data-theme="dark"] .report-search-input,
+[data-theme="dark"] .report-select-filter {
+    background: #171717 !important;
+    border-color: #2e2e2e !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .report-table-wrapper {
+    background: #0f0f0f !important;
+    border-color: #242424 !important;
+}
+
+[data-theme="dark"] .report-table th {
+    background: #171717 !important;
+    border-bottom-color: #262626 !important;
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .report-table td {
+    border-bottom-color: #1f1f1f !important;
+    color: #f3f4f6 !important;
+}
+
+[data-theme="dark"] .report-table tr:hover td {
+    background: rgba(255, 255, 255, 0.03) !important;
+}
+
+[data-theme="dark"] .report-empty-state h4 {
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   GLASS MODE OVERRIDES FOR NEW ELEMENTS
+   ========================================================================== */
+[data-theme="glass"] .report-nav-tabs {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="glass"] .report-tab-btn {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme="glass"] .report-tab-btn:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="glass"] .report-tab-btn.active {
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+[data-theme="glass"] .report-controls-card {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(12px) !important;
+}
+
+[data-theme="glass"] .data-filter-row {
+    border-top-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme="glass"] .report-search-input,
+[data-theme="glass"] .report-select-filter {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .report-table-wrapper {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(14px) !important;
+}
+
+[data-theme="glass"] .report-table th {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .report-table td {
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .report-table tr:hover td {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="glass"] .report-empty-state h4 {
+    color: #ffffff !important;
+}
+
+

@@ -1,0 +1,205 @@
+/* Bakery Management System - Recipes CSS */
+
+.recipes-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.recipes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.recipe-card {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #eee9e0);
+    border-radius: var(--radius-lg, 18px);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.recipe-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.recipe-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-title, #29150d);
+    margin: 0 0 0.25rem 0;
+}
+
+.recipe-product-tag {
+    font-size: 0.775rem;
+    font-weight: 700;
+    color: #f97316;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+}
+
+.recipe-meta-box {
+    display: flex;
+    gap: 0.85rem;
+    margin-bottom: 1rem;
+    background: #faf7f3;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-body, #52525b);
+    flex-wrap: wrap;
+    border: 1px solid var(--border-subtle, #f0eae1);
+}
+
+.recipe-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.recipe-section-heading {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-title, #29150d);
+    margin-bottom: 0.35rem;
+}
+
+.recipe-ingredients-box {
+    font-size: 0.825rem;
+    color: var(--text-body, #4b5563);
+    line-height: 1.5;
+    background: #faf7f3;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.65rem;
+    border: 1px dashed var(--border-color, #e4ded7);
+    margin: 0 0 1rem 0;
+}
+
+.recipe-notes-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary, #71717a);
+    line-height: 1.45;
+    margin: 0 0 1rem 0;
+}
+
+.recipe-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border-subtle, #f0eae1);
+    margin-top: 0.5rem;
+}
+
+.recipe-cost-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #71717a);
+    display: block;
+    font-weight: 600;
+}
+
+.recipe-cost-value {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #16a34a;
+}
+
+/* ==========================================================================
+   THEME OVERRIDES FOR RECIPES
+   ========================================================================== */
+
+/* DARK MODE */
+[data-theme="dark"] .recipe-card {
+    background-color: #141414 !important;
+    border-color: #262626 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+}
+
+[data-theme="dark"] .recipe-title {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .recipe-product-tag {
+    color: #fb923c !important;
+}
+
+[data-theme="dark"] .recipe-meta-box {
+    background-color: #1c1c1e !important;
+    border-color: #2c2c2e !important;
+    color: #e5e5e5 !important;
+}
+
+[data-theme="dark"] .recipe-section-heading {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .recipe-ingredients-box {
+    background-color: #19191b !important;
+    border-color: #333336 !important;
+    color: #d4d4d8 !important;
+}
+
+[data-theme="dark"] .recipe-notes-text {
+    color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .recipe-card-footer {
+    border-top-color: #262626 !important;
+}
+
+[data-theme="dark"] .recipe-cost-label {
+    color: #a1a1aa !important;
+}
+
+[data-theme="dark"] .recipe-cost-value {
+    color: #4ade80 !important;
+}
+
+/* GLASS MODE */
+[data-theme="glass"] .recipe-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(20px) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="glass"] .recipe-title {
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .recipe-meta-box {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .recipe-section-heading {
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .recipe-ingredients-box {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #e5e5e5 !important;
+}
+
+[data-theme="glass"] .recipe-notes-text {
+    color: #cbd5e1 !important;
+}
+
+[data-theme="glass"] .recipe-card-footer {
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
+}

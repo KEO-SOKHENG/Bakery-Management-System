@@ -1,0 +1,316 @@
+/* Bakery Management System - Glassmorphic Login Stylesheet */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary-brown: #4a2c20;
+    --primary-brown-hover: #372017;
+    --text-dark: #2d1b14;
+    --text-muted: #73635c;
+    --accent-amber: #c25e17;
+    --font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background-color: #1c130e;
+}
+
+/* Bakery Warm Background Blur Overlay */
+.login-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(to bottom, rgba(30, 20, 15, 0.45), rgba(20, 10, 5, 0.65)),
+                      url('https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    filter: blur(4px);
+    transform: scale(1.05);
+    z-index: 1;
+}
+
+/* Glassmorphism Form Card */
+.login-card-container {
+    position: relative;
+    z-index: 10;
+    width: 90%;
+    max-width: 440px;
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1.5px solid rgba(255, 255, 255, 0.65);
+    border-radius: 32px;
+    padding: 2.5rem 2.25rem;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Logo Badge */
+.login-logo-badge {
+    width: 58px;
+    height: 58px;
+    background-color: var(--primary-brown);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: #ffffff;
+    box-shadow: 0 8px 20px rgba(74, 44, 32, 0.35);
+    margin-bottom: 1rem;
+}
+
+.login-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.login-subtitle {
+    font-size: 0.775rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Role Selector Segmented Tabs (Liquid Animated) */
+.role-selector-tabs {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 9999px;
+    padding: 4px;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    gap: 4px;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.role-tab-pointer-pill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: var(--primary-brown);
+    border-radius: 9999px;
+    box-shadow: 0 4px 14px rgba(74, 44, 32, 0.35);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    will-change: transform, width, height, opacity;
+    transition: transform 0.45s cubic-bezier(.22, 1, .36, 1),
+                width 0.45s cubic-bezier(.22, 1, .36, 1),
+                height 0.45s cubic-bezier(.22, 1, .36, 1),
+                opacity 0.25s ease;
+}
+
+.role-tab-btn {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    padding: 0.55rem 0.75rem;
+    border-radius: 9999px !important;
+    border: none;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.25s ease,
+                transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.role-tab-btn:hover {
+    color: var(--text-dark);
+    transform: scale(1.04);
+}
+
+.role-tab-btn.active,
+.role-tab-btn.pill-highlighted {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Static fallback before JS runs */
+.role-selector-tabs:not(:has(.role-tab-pointer-pill[style*="opacity: 1"])) .role-tab-btn.active {
+    background-color: var(--primary-brown) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(74, 44, 32, 0.25) !important;
+}
+
+/* Form Styles */
+.login-form {
+    width: 100%;
+    text-align: left;
+}
+
+.form-group-item {
+    margin-bottom: 1.15rem;
+}
+
+.form-field-label {
+    display: block;
+    font-size: 0.675rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #594840;
+    margin-bottom: 0.4rem;
+    padding-left: 0.5rem;
+}
+
+.input-pill-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.input-icon-left {
+    position: absolute;
+    left: 1.15rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8c7b73;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-icon-left svg {
+    width: 18px;
+    height: 18px;
+}
+
+.input-icon-right {
+    position: absolute;
+    right: 1.15rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8c7b73;
+    cursor: pointer;
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-icon-right svg {
+    width: 18px;
+    height: 18px;
+}
+
+.pill-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 1rem 0 2.85rem;
+    background-color: #ffffff;
+    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    border-radius: 9999px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+
+.pill-input.has-right-icon {
+    padding-right: 2.85rem;
+}
+
+.pill-input:focus {
+    outline: none;
+    border-color: var(--primary-brown);
+    box-shadow: 0 0 0 4px rgba(74, 44, 32, 0.15);
+}
+
+/* Remember Me & Forgot Password Row */
+.form-options-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+    font-size: 0.8rem;
+}
+
+.remember-me-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4a3d36;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.remember-me-checkbox {
+    accent-color: var(--primary-brown);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.forgot-password-link {
+    color: var(--accent-amber);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.forgot-password-link:hover {
+    text-decoration: underline;
+}
+
+/* Submit Button */
+.submit-pill-btn {
+    width: 100%;
+    height: 50px;
+    border-radius: 9999px;
+    background-color: var(--primary-brown);
+    color: #ffffff;
+    border: none;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(74, 44, 32, 0.3);
+    transition: all 0.2s ease;
+}
+
+.submit-pill-btn:hover {
+    background-color: var(--primary-brown-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(74, 44, 32, 0.4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .login-card-container {
+        padding: 2rem 1.5rem;
+        border-radius: 24px;
+    }
+}

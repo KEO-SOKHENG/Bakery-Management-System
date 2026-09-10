@@ -1,0 +1,470 @@
+/* Products Management Stylesheet - products.css */
+
+.products-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 1.5rem;
+}
+
+.product-card {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #eee9e0);
+    border-radius: var(--radius-xl, 20px);
+    overflow: hidden;
+    box-shadow: var(--shadow-card, 0 4px 20px rgba(0, 0, 0, 0.03));
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.product-card-preview {
+    height: 140px;
+    background: linear-gradient(135deg, #fdfbf7 0%, #f4ede6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.75rem;
+    position: relative;
+    border-bottom: 1px solid var(--border-subtle, #f3efe9);
+    overflow: hidden;
+}
+
+.product-card-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.product-image-preview-box {
+    margin-top: 0.65rem;
+    display: none;
+    text-align: center;
+    background: #fafafa;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    border: 1.5px dashed #d4d4d8;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-image-preview-box img {
+    max-width: 100%;
+    max-height: 130px;
+    border-radius: 8px;
+    object-fit: contain;
+    display: inline-block;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.btn-delete-product-icon {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.65rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.product-card:hover .btn-delete-product-icon {
+    opacity: 1;
+}
+
+.btn-delete-product-icon:hover {
+    background-color: #fee2e2;
+    transform: scale(1.1);
+}
+
+.product-card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.product-card-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-title, #29150d);
+    margin-bottom: 0.25rem;
+}
+
+.product-category-tag {
+    font-size: 0.75rem;
+    color: var(--text-muted, #6b7280);
+    font-weight: 600;
+    margin-bottom: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.product-description-text {
+    font-size: 0.825rem;
+    color: var(--text-secondary, #4b5563);
+    line-height: 1.45;
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+.product-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border-subtle, #f3efe9);
+}
+
+.product-price-badge {
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--accent-brown, #4d2c20);
+}
+
+/* Modal Window for Add Product */
+.product-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    padding: 1rem;
+}
+
+.product-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.product-modal-content {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #eee9e0);
+    border-radius: var(--radius-xl, 24px);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.75rem;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+    transform: scale(0.94) translateY(10px);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.product-modal-content::-webkit-scrollbar {
+    width: 6px;
+}
+.product-modal-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+.product-modal-content::-webkit-scrollbar-thumb {
+    background: rgba(160, 160, 160, 0.4);
+    border-radius: 9999px;
+}
+
+.product-modal-overlay.active .product-modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--border-subtle, #f3efe9);
+}
+
+.modal-header h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-title, #29150d);
+}
+
+.btn-close-modal {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--text-muted, #9ca3af);
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-close-modal:hover {
+    color: var(--text-title, #29150d);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Modal Form Fields */
+.modal-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+}
+
+.modal-form .form-label {
+    font-size: 0.825rem;
+    font-weight: 700;
+    color: var(--text-title, #29150d);
+    letter-spacing: 0.01em;
+}
+
+.modal-form .ios-input-field,
+.modal-form .ios-select-field,
+.modal-form input,
+.modal-form select,
+.modal-form textarea {
+    width: 100%;
+    padding: 0.75rem 1rem !important;
+    background-color: #f7ede6 !important;
+    border: 1.5px solid var(--border-color, #eee9e0) !important;
+    border-radius: 16px !important;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-title, #29150d) !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s ease;
+    box-sizing: border-box !important;
+}
+
+.modal-form .ios-select-field,
+.modal-form select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 1.1rem center !important;
+    background-size: 16px 16px !important;
+    padding-right: 2.75rem !important;
+    cursor: pointer !important;
+}
+
+.modal-form .ios-input-field:focus,
+.modal-form .ios-select-field:focus,
+.modal-form input:focus,
+.modal-form select:focus,
+.modal-form textarea:focus {
+    outline: none !important;
+    border-color: var(--accent-brown, #4d2c20) !important;
+    box-shadow: 0 0 0 3.5px rgba(77, 44, 32, 0.15) !important;
+    background-color: #ffffff !important;
+}
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-subtle, #f3efe9);
+}
+
+/* Toast Feedback */
+.product-toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background-color: var(--accent-brown, #4d2c20);
+    color: #ffffff;
+    padding: 0.85rem 1.5rem;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    z-index: 100000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.product-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Theme Overrides */
+[data-theme="dark"] .product-card {
+    background-color: #171717 !important;
+    border-color: #292929 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .product-card-preview {
+    background: linear-gradient(135deg, #222224 0%, #171717 100%) !important;
+    border-color: #292929 !important;
+}
+
+[data-theme="dark"] .product-card-preview svg {
+    stroke: #f97316 !important;
+}
+
+[data-theme="dark"] .btn-delete-product-icon {
+    background-color: #242424 !important;
+    border-color: #383838 !important;
+}
+
+[data-theme="dark"] .product-card-body {
+    background-color: #171717 !important;
+}
+
+[data-theme="dark"] .product-card-title {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .product-category-tag {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .product-description-text {
+    color: #d4d4d8 !important;
+}
+
+[data-theme="dark"] .product-card-footer {
+    border-top-color: #292929 !important;
+}
+
+[data-theme="dark"] .product-price-badge {
+    color: #f97316 !important;
+}
+
+[data-theme="dark"] .product-modal-content {
+    background-color: #121212 !important;
+    border-color: #282828 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .modal-form .form-label {
+    color: #e5e5e5 !important;
+}
+
+[data-theme="dark"] .modal-form .ios-input-field,
+[data-theme="dark"] .modal-form .ios-select-field,
+[data-theme="dark"] .modal-form input,
+[data-theme="dark"] .modal-form select,
+[data-theme="dark"] .modal-form textarea {
+    background-color: #1c1c1e !important;
+    border-color: #2c2c2e !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .modal-form .ios-select-field,
+[data-theme="dark"] .modal-form select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+}
+
+[data-theme="dark"] .product-image-preview-box {
+    background-color: #1a1a1c !important;
+    border-color: #333336 !important;
+}
+
+/* Glass Theme Overrides */
+[data-theme="glass"] .product-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(16px) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="glass"] .product-card-preview {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="glass"] .product-card-preview svg {
+    stroke: #fb923c !important;
+}
+
+[data-theme="glass"] .btn-delete-product-icon {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="glass"] .product-card-body {
+    background: transparent !important;
+}
+
+[data-theme="glass"] .product-card-title {
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .product-category-tag {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+[data-theme="glass"] .product-description-text {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+[data-theme="glass"] .product-card-footer {
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="glass"] .product-price-badge {
+    color: #fb923c !important;
+}
+
+[data-theme="glass"] .product-modal-content {
+    background: rgba(15, 23, 42, 0.85) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(28px) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .modal-form .form-label {
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .modal-form .ios-input-field,
+[data-theme="glass"] .modal-form .ios-select-field,
+[data-theme="glass"] .modal-form input,
+[data-theme="glass"] .modal-form select,
+[data-theme="glass"] .modal-form textarea {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="glass"] .modal-form .ios-select-field,
+[data-theme="glass"] .modal-form select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+}
