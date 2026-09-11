@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
+use App\Services\AuditLogService;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -43,7 +44,7 @@ class NotificationController extends Controller
 
         // Filter: Category / Type
         $typeFilter = $request->get('type', 'all');
-        if ($typeFilter !== 'all' && in_array($typeFilter, ['inventory', 'expiring', 'order', 'production', 'purchase_order', 'custom_order', 'system'])) {
+        if ($typeFilter !== 'all' && in_array($typeFilter, ['inventory', 'expiring', 'order', 'production', 'purchase_order', 'custom_order', 'system', 'promotion'])) {
             $query->where('type', $typeFilter);
         }
 
@@ -145,6 +146,28 @@ class NotificationController extends Controller
     }
 
     /**
+     * Mark a single notification as unread.
+     */
+    public function markAsUnread(Request $request, Notification $notification)
+    {
+        // Strict Authorization: User must own the notification
+        if ($notification->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $notification->markAsUnread();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success'      => true,
+                'unread_count' => Notification::forUser(Auth::id())->unread()->count(),
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Notification marked as unread.');
+    }
+
+    /**
      * Mark all unread notifications of authenticated user as read.
      */
     public function markAllAsRead(Request $request)
@@ -183,5 +206,55 @@ class NotificationController extends Controller
         }
 
         return redirect()->back()->with('success', 'Notification removed.');
+    }
+
+    /**
+     * Send / broadcast a manual promotion or system announcement (Admin only).
+     */
+    public function sendPromotion(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user || (!$user->isAdmin() && !$user->hasPermission('notifications.promote'))) {
+            abort(403, 'Unauthorized action. Only administrators can broadcast promotions.');
+        }
+
+        $validated = $request->validate([
+            'title'       => 'required|string|max:150',
+            'message'     => 'required|string|max:1000',
+            'target_role' => 'nullable|string|in:all,admin,manager,cashier,baker',
+            'severity'    => 'nullable|string|in:info,warning,success,danger,critical',
+        ]);
+
+        $targetRole = $validated['target_role'] ?? 'all';
+        $severity   = $validated['severity'] ?? 'info';
+
+        $count = $this->notificationService->broadcastPromotion(
+            $validated['title'],
+            $validated['message'],
+            $targetRole,
+            $severity
+        );
+
+        AuditLogService::log(
+            'notification.promotion_sent',
+            "Broadcast announcement '{$validated['title']}' sent to {$count} users ({$targetRole})",
+            null,
+            [
+                'title'           => $validated['title'],
+                'target_role'     => $targetRole,
+                'severity'        => $severity,
+                'recipient_count' => $count,
+            ]
+        );
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Promotion successfully broadcast to {$count} users.",
+                'count'   => $count,
+            ]);
+        }
+
+        return redirect()->route('admin.notifications')->with('success', "Promotion successfully broadcast to {$count} users.");
     }
 }

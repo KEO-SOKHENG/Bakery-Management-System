@@ -69,4 +69,14 @@ class Notification extends Model
         $this->read_at = now();
         return $this->save();
     }
+
+    public function markAsUnread(): bool
+    {
+        if (!$this->isRead()) {
+            return true;
+        }
+
+        $this->read_at = null;
+        return $this->save();
+    }
 }

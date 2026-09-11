@@ -38,6 +38,18 @@
                     Stock: {{ $product->stock }}
                 </span>
             </div>
+            @if($product->shelf_life || $product->expiry_date)
+                <div style="display: flex; justify-content: space-between; font-size: 0.775rem; color: #71717a; margin-top: 0.4rem; padding: 0.25rem 0.5rem; background: #fafafa; border-radius: 6px;">
+                    @if($product->shelf_life)
+                        <span>Shelf Life: <strong>{{ $product->shelf_life }} days</strong></span>
+                    @endif
+                    @if($product->expiry_date)
+                        <span style="{{ $product->isExpired() ? 'color: #dc2626; font-weight: 800;' : ($product->isExpiringSoon() ? 'color: #d97706; font-weight: 700;' : '') }}">
+                            Exp: {{ $product->expiry_date->format('M d, Y') }}
+                        </span>
+                    @endif
+                </div>
+            @endif
             <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem;">
                 <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Delete product?');" style="display: inline;">
                     @csrf
@@ -93,6 +105,16 @@
                 <div>
                     <label style="display: block; font-weight: 700; font-size: 0.825rem; margin-bottom: 0.35rem; color: #27272a;">Minimum Stock Alert</label>
                     <input type="number" name="minimum_stock" value="5" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #d4d4d8;">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.825rem; margin-bottom: 0.35rem; color: #27272a;">Shelf Life (Days)</label>
+                    <input type="number" name="shelf_life" min="1" placeholder="e.g. 3" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #d4d4d8;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 700; font-size: 0.825rem; margin-bottom: 0.35rem; color: #27272a;">Batch Expiry Date</label>
+                    <input type="date" name="expiry_date" style="width: 100%; padding: 0.65rem; border-radius: 6px; border: 1px solid #d4d4d8;">
                 </div>
             </div>
             <div>

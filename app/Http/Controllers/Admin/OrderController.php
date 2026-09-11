@@ -553,6 +553,24 @@ class OrderController extends Controller
                 }
 
                 $lockedOrder->save();
+
+                // Synchronize related delivery record if attached
+                if ($lockedOrder->delivery) {
+                    if ($targetStatus === Order::STATUS_OUT_FOR_DELIVERY) {
+                        $lockedOrder->delivery->update([
+                            'delivery_status' => 'out_for_delivery',
+                        ]);
+                    } elseif ($targetStatus === Order::STATUS_COMPLETED && $lockedOrder->delivery->delivery_status !== 'delivered') {
+                        $lockedOrder->delivery->update([
+                            'delivery_status' => 'delivered',
+                            'delivered_at' => now(),
+                        ]);
+                    } elseif ($targetStatus === Order::STATUS_CANCELLED) {
+                        $lockedOrder->delivery->update([
+                            'delivery_status' => 'cancelled',
+                        ]);
+                    }
+                }
             });
 
             // Dispatch notification for order status change

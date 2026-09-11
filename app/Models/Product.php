@@ -18,9 +18,20 @@ class Product extends Model
         'cost',
         'stock',
         'minimum_stock',
+        'shelf_life',
+        'expiry_date',
         'status',
         'image_emoji',
         'image_path',
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'cost' => 'decimal:2',
+        'stock' => 'integer',
+        'minimum_stock' => 'integer',
+        'shelf_life' => 'integer',
+        'expiry_date' => 'date',
     ];
 
     public function category()
@@ -41,5 +52,18 @@ class Product extends Model
     public function isLowStock(): bool
     {
         return $this->stock <= $this->minimum_stock;
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expiry_date !== null && $this->expiry_date->isPast();
+    }
+
+    public function isExpiringSoon(int $days = 3): bool
+    {
+        if (!$this->expiry_date || $this->isExpired()) {
+            return false;
+        }
+        return $this->expiry_date->lte(now()->addDays($days));
     }
 }

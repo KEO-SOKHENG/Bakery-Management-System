@@ -19,6 +19,8 @@ use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\DeliveryController;
+use App\Http\Controllers\Admin\HrController;
 use App\Http\Controllers\PasswordChangeController;
 use App\Http\Controllers\PosController;
 
@@ -60,15 +62,19 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/users/{user}/permissions', [UserController::class, 'updatePermissions'])->name('users.updatePermissions');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
-        // Settings
-        Route::get('/settings', [SettingController::class, 'index'])->name('settings');
-        Route::post('/settings/update', [SettingController::class, 'update'])->name('settings.update');
+        // System Settings - Admin Exclusive Backup & Restore
+        Route::post('/settings/backup', [SettingController::class, 'createBackup'])->name('settings.backup');
+        Route::post('/settings/restore', [SettingController::class, 'restoreBackup'])->name('settings.restore');
     });
 
     // -------------------------------------------------------------
     // OPERATIONAL ROUTES (Admin & Manager)
     // -------------------------------------------------------------
     Route::middleware(['role:admin,manager'])->prefix('admin')->name('admin.')->group(function () {
+        // System Settings (Admin & Authorized Manager)
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings');
+        Route::post('/settings/update', [SettingController::class, 'update'])->name('settings.update');
+
         Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
         Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
         Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
@@ -117,6 +123,22 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
         // Order Management (Admin & Manager Safe Deletion)
         Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
+
+        // HR & Staff Extensions (Attendance, Work Schedules, Salaries)
+        Route::get('/hr/attendance', [HrController::class, 'attendance'])->name('hr.attendance');
+        Route::post('/hr/attendance', [HrController::class, 'storeAttendance'])->name('hr.attendance.store');
+        Route::put('/hr/attendance/{attendance}', [HrController::class, 'updateAttendance'])->name('hr.attendance.update');
+        Route::delete('/hr/attendance/{attendance}', [HrController::class, 'destroyAttendance'])->name('hr.attendance.destroy');
+
+        Route::get('/hr/schedules', [HrController::class, 'schedules'])->name('hr.schedules');
+        Route::post('/hr/schedules', [HrController::class, 'storeSchedule'])->name('hr.schedules.store');
+        Route::put('/hr/schedules/{workSchedule}', [HrController::class, 'updateSchedule'])->name('hr.schedules.update');
+        Route::delete('/hr/schedules/{workSchedule}', [HrController::class, 'destroySchedule'])->name('hr.schedules.destroy');
+
+        Route::get('/hr/salaries', [HrController::class, 'salaries'])->name('hr.salaries');
+        Route::post('/hr/salaries', [HrController::class, 'storeSalary'])->name('hr.salaries.store');
+        Route::post('/hr/salaries/{salary}/pay', [HrController::class, 'markSalaryPaid'])->name('hr.salaries.markPaid');
+        Route::delete('/hr/salaries/{salary}', [HrController::class, 'destroySalary'])->name('hr.salaries.destroy');
     });
 
     // -------------------------------------------------------------
@@ -148,6 +170,19 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     });
 
+    // -------------------------------------------------------------
+    // DELIVERY MANAGEMENT ROUTES (Admin, Manager, Cashier, Delivery Staff)
+    // -------------------------------------------------------------
+    Route::middleware(['role:admin,manager,cashier,delivery_staff'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries.index');
+        Route::get('/deliveries/create', [DeliveryController::class, 'create'])->name('deliveries.create');
+        Route::post('/deliveries', [DeliveryController::class, 'store'])->name('deliveries.store');
+        Route::get('/deliveries/{delivery}', [DeliveryController::class, 'show'])->name('deliveries.show');
+        Route::put('/deliveries/{delivery}', [DeliveryController::class, 'update'])->name('deliveries.update');
+        Route::post('/deliveries/{delivery}/status', [DeliveryController::class, 'updateStatus'])->name('deliveries.updateStatus');
+        Route::post('/deliveries/{delivery}/assign', [DeliveryController::class, 'assign'])->name('deliveries.assign');
+    });
+
     // MANAGER DASHBOARD
     Route::middleware(['role:admin,manager'])->prefix('manager')->name('manager.')->group(function () {
         Route::get('/dashboard', [ManagerDashboardController::class, 'index'])->name('dashboard');
@@ -170,10 +205,12 @@ Route::middleware(['auth'])->group(function () {
     // NOTIFICATION MANAGEMENT ROUTES
     // -------------------------------------------------------------
     Route::get('/admin/notifications', [NotificationController::class, 'index'])->name('admin.notifications');
+    Route::post('/admin/notifications/promotions', [NotificationController::class, 'sendPromotion'])->name('admin.notifications.promotions')->middleware(['role:admin']);
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
     Route::get('/notifications/feed', [NotificationController::class, 'feed'])->name('notifications.feed');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/{notification}/unread', [NotificationController::class, 'markAsUnread'])->name('notifications.unread');
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 
 });

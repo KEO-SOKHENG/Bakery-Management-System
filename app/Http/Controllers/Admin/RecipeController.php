@@ -12,7 +12,7 @@ class RecipeController extends Controller
 {
     public function index()
     {
-        $recipes = Recipe::with(['product', 'ingredients'])->orderBy('id', 'desc')->get();
+        $recipes = Recipe::with(['product', 'ingredients', 'recipeIngredients.ingredient'])->orderBy('id', 'desc')->get();
         $products = Product::where('status', 'active')->get();
         $ingredients = Ingredient::where('status', 'active')->orderBy('name', 'asc')->get();
 
@@ -26,6 +26,8 @@ class RecipeController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'instructions' => 'nullable|string',
+            'production_time' => 'nullable|integer|min:1',
+            'yield_quantity' => 'nullable|integer|min:1',
             'status' => 'nullable|string|in:active,inactive',
             'ingredients' => 'nullable|array',
             'ingredients.*.ingredient_id' => 'required|exists:ingredients,id',
@@ -38,6 +40,8 @@ class RecipeController extends Controller
             'name' => $validated['name'],
             'description' => $validated['description'] ?? null,
             'instructions' => $validated['instructions'] ?? null,
+            'production_time' => $validated['production_time'] ?? null,
+            'yield_quantity' => $validated['yield_quantity'] ?? 1,
             'status' => $validated['status'] ?? 'active',
         ]);
 
@@ -60,6 +64,8 @@ class RecipeController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'instructions' => 'nullable|string',
+            'production_time' => 'nullable|integer|min:1',
+            'yield_quantity' => 'nullable|integer|min:1',
             'status' => 'required|string|in:active,inactive',
             'ingredients' => 'nullable|array',
             'ingredients.*.ingredient_id' => 'required|exists:ingredients,id',
@@ -72,6 +78,8 @@ class RecipeController extends Controller
             'name' => $validated['name'],
             'description' => $validated['description'] ?? null,
             'instructions' => $validated['instructions'] ?? null,
+            'production_time' => $validated['production_time'] ?? null,
+            'yield_quantity' => $validated['yield_quantity'] ?? 1,
             'status' => $validated['status'],
         ]);
 

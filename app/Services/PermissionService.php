@@ -101,6 +101,24 @@ class PermissionService
                     'orders.delete' => 'Delete Orders',
                 ]
             ],
+            'deliveries' => [
+                'label' => 'Delivery Management',
+                'description' => 'Delivery orders, routes, driver dispatch and tracking',
+                'permissions' => [
+                    'deliveries.view' => 'View Deliveries List & Details',
+                    'deliveries.manage' => 'Assign Staff & Update Delivery Status',
+                    'deliveries.create' => 'Schedule New Deliveries',
+                ]
+            ],
+            'hr' => [
+                'label' => 'Staff & HR Extensions',
+                'description' => 'Staff attendance records, work schedules, and payroll',
+                'permissions' => [
+                    'hr.attendance' => 'View & Record Staff Attendance',
+                    'hr.schedules' => 'Manage Staff Work Schedules',
+                    'hr.salaries' => 'View & Manage Staff Salaries',
+                ]
+            ],
             'pos' => [
                 'label' => 'POS Terminal',
                 'description' => 'Front-of-house point of sale and rapid checkout',
@@ -133,6 +151,7 @@ class PermissionService
                 'permissions' => [
                     'notifications.view' => 'View System Notifications',
                     'notifications.manage' => 'Acknowledge, Read & Clear Notifications',
+                    'notifications.promote' => 'Broadcast Manual & Promotional Announcements',
                 ]
             ],
             'settings' => [
@@ -141,6 +160,7 @@ class PermissionService
                 'permissions' => [
                     'settings.view' => 'View System Settings',
                     'settings.manage' => 'Modify System Configurations',
+                    'settings.backup' => 'Generate and Download System Backups',
                 ]
             ],
         ];
@@ -183,6 +203,8 @@ class PermissionService
                 'purchase_orders.view', 'purchase_orders.create', 'purchase_orders.order', 'purchase_orders.receive', 'purchase_orders.cancel',
                 'production.view', 'production.create', 'production.status',
                 'orders.view', 'orders.create', 'orders.edit', 'orders.status', 'orders.cancel',
+                'deliveries.view', 'deliveries.manage', 'deliveries.create',
+                'hr.attendance', 'hr.schedules',
                 'pos.access', 'pos.checkout',
                 'customers.view', 'customers.create', 'customers.edit',
                 'reports.view', 'reports.export',
@@ -195,9 +217,10 @@ class PermissionService
             return [
                 'pos.access', 'pos.checkout',
                 'orders.view', 'orders.create', 'orders.edit', 'orders.status',
+                'deliveries.view', 'deliveries.create',
                 'customers.view', 'customers.create', 'customers.edit',
                 'products.view',
-                'notifications.view',
+                'notifications.view', 'notifications.manage',
             ];
         }
 
@@ -206,7 +229,16 @@ class PermissionService
                 'production.view', 'production.create', 'production.status',
                 'ingredients.view',
                 'recipes.view',
+                'notifications.view', 'notifications.manage',
+            ];
+        }
+
+        if ($role === 'delivery_staff') {
+            return [
+                'deliveries.view',
+                'deliveries.manage',
                 'notifications.view',
+                'notifications.manage',
             ];
         }
 

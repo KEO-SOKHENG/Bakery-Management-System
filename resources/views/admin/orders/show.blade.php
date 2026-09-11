@@ -352,6 +352,57 @@
                 </div>
             </div>
 
+            <!-- DELIVERY STATUS & DISPATCH CARD -->
+            <div class="detail-card">
+                <div class="detail-card-header">
+                    <span class="detail-card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                        <span>Delivery & Dispatch</span>
+                    </span>
+                    @if($order->delivery)
+                        <span class="status-badge" style="background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.75rem;">
+                            {{ ucwords(str_replace('_', ' ', $order->delivery->delivery_status)) }}
+                        </span>
+                    @endif
+                </div>
+
+                @if($order->delivery)
+                    <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.875rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #64748b;">Tracking Code:</span>
+                            <span style="font-weight: 800; color: #563020;">{{ $order->delivery->tracking_number }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #64748b;">Recipient:</span>
+                            <span style="font-weight: 700;">{{ $order->delivery->recipient_name }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #64748b;">Assigned Driver:</span>
+                            <span>{{ $order->delivery->deliveryStaff ? $order->delivery->deliveryStaff->name : 'Unassigned' }}</span>
+                        </div>
+                        <div>
+                            <span style="color: #64748b; font-size: 0.75rem; font-weight: 700;">Destination Address:</span>
+                            <div style="margin-top: 2px; font-size: 0.85rem; color: #29150d; background: #faf6f0; padding: 0.5rem; border-radius: 8px;">
+                                {{ $order->delivery->delivery_address }}
+                            </div>
+                        </div>
+                        <a href="{{ route('admin.deliveries.show', $order->delivery) }}" class="btn btn-secondary" style="margin-top: 0.5rem; text-align: center; justify-content: center; text-decoration: none; font-weight: 700; border: 1px solid #cbd5e1; border-radius: 50px; padding: 0.5rem; display: flex; align-items: center; gap: 0.35rem;">
+                            <span>Manage Delivery Details →</span>
+                        </a>
+                    </div>
+                @else
+                    <div style="text-align: center; padding: 0.5rem 0;">
+                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem;">No delivery scheduled for this order yet.</p>
+                        @if(!$isCancelled && $normStatus !== 'completed')
+                            <a href="{{ route('admin.deliveries.create', ['order_id' => $order->id]) }}" class="btn btn-primary" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; border-radius: 50px; padding: 0.55rem 1.25rem; font-size: 0.85rem; font-weight: 700; background: #563020; color: #fff; text-decoration: none;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                <span>Schedule Delivery</span>
+                            </a>
+                        @endif
+                    </div>
+                @endif
+            </div>
+
             <!-- CONTEXTUAL STATUS WORKFLOW ACTIONS -->
             <div class="detail-card" style="background: linear-gradient(145deg, #faf6f0 0%, #f4ede4 100%);">
                 <div class="detail-card-header" style="border-bottom: 1px solid rgba(86, 48, 32, 0.15);">

@@ -94,6 +94,26 @@ class User extends Authenticatable
         return $this->role === 'baker';
     }
 
+    public function isDeliveryStaff(): bool
+    {
+        return $this->role === 'delivery_staff';
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function workSchedules()
+    {
+        return $this->hasMany(WorkSchedule::class);
+    }
+
+    public function salaries()
+    {
+        return $this->hasMany(Salary::class);
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';

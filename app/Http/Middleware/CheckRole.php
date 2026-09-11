@@ -49,6 +49,7 @@ class CheckRole
                 'manager' => 'manager.dashboard',
                 'cashier' => 'cashier.dashboard',
                 'baker' => 'admin.production',
+                'delivery_staff' => 'admin.deliveries.index',
                 default => 'login',
             };
 

@@ -27,6 +27,13 @@
                 <span data-lang-key="refresh">Refresh</span>
             </button>
 
+            @if(auth()->user()->isAdmin() || auth()->user()->hasPermission('notifications.promote'))
+                <button type="button" class="btn-notif-action" id="btn_open_promotion_modal" onclick="openPromotionModal();" style="border-color: #d97706; color: #d97706;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span data-lang-key="broadcast_announcement">Broadcast Announcement</span>
+                </button>
+            @endif
+
             @if($stats['unread'] > 0)
                 <button type="button" class="btn-notif-action btn-notif-primary" id="page_mark_all_read">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -121,6 +128,10 @@
                class="filter-pill-btn {{ ($typeFilter ?? '') === 'purchase_order' ? 'active' : '' }}" data-lang-key="purchase_orders">
                 Purchase Orders
             </a>
+            <a href="{{ route('admin.notifications', array_merge(request()->except('type', 'page'), ['type' => 'promotion'])) }}"
+               class="filter-pill-btn {{ ($typeFilter ?? '') === 'promotion' ? 'active' : '' }}" data-lang-key="promotions">
+                Promotions
+            </a>
         </div>
 
         <form action="{{ route('admin.notifications') }}" method="GET" style="display: flex; gap: 0.5rem; align-items: center;">
@@ -190,9 +201,14 @@
                                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                                     <span data-lang-key="mark_as_read">Mark as read</span>
                                 </button>
+                            @else
+                                <button type="button" class="btn-row-action" onclick="markRowUnread({{ $notif->id }});" id="btn_unread_{{ $notif->id }}">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                    <span data-lang-key="mark_as_unread">Mark as unread</span>
+                                </button>
                             @endif
 
-                            <button type="button" class="btn-row-action btn-row-delete" onclick="deleteNotification({{ $notif->id }});" title="Delete notification">
+                            <button type="button" class="btn-row-action btn-row-delete" onclick="deleteNotification({{ $notif->id }});" title="Delete notification" id="btn_delete_{{ $notif->id }}">
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                                 <span data-lang-key="delete">Delete</span>
                             </button>
@@ -218,8 +234,76 @@
     </div>
 </div>
 
+<!-- Promotion / Announcement Modal (Admin) -->
+@if(auth()->user()->isAdmin() || auth()->user()->hasPermission('notifications.promote'))
+    <div class="notif-modal-backdrop" id="promotion_modal">
+        <div class="notif-modal-card">
+            <div class="notif-modal-header">
+                <h3 class="notif-modal-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span data-lang-key="broadcast_announcement">Broadcast Announcement</span>
+                </h3>
+                <button type="button" class="btn-notif-modal-close" id="btn_close_promotion_modal" onclick="closePromotionModal();">&times;</button>
+            </div>
+
+            <form id="promotion_form" action="{{ route('admin.notifications.promotions') }}" method="POST">
+                @csrf
+                <div class="notif-modal-body">
+                    <div class="notif-form-group">
+                        <label class="notif-form-label" for="promotion_title_input" data-lang-key="promotion_title">Announcement Title</label>
+                        <input type="text" id="promotion_title_input" name="title" class="notif-form-input" placeholder="e.g., Weekend Special: 20% Off All Cakes" required maxlength="150">
+                    </div>
+
+                    <div class="notif-form-group">
+                        <label class="notif-form-label" for="promotion_message_input" data-lang-key="promotion_message">Announcement Message</label>
+                        <textarea id="promotion_message_input" name="message" class="notif-form-textarea" placeholder="Enter announcement message for bakery staff..." required maxlength="1000"></textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="notif-form-group">
+                            <label class="notif-form-label" for="promotion_role_select" data-lang-key="target_role">Target Role</label>
+                            <select id="promotion_role_select" name="target_role" class="notif-form-select">
+                                <option value="all" data-lang-key="all_roles">All Roles</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="cashier">Cashier</option>
+                                <option value="baker">Baker</option>
+                            </select>
+                        </div>
+
+                        <div class="notif-form-group">
+                            <label class="notif-form-label" for="promotion_severity_select" data-lang-key="severity">Severity</label>
+                            <select id="promotion_severity_select" name="severity" class="notif-form-select">
+                                <option value="info">Info</option>
+                                <option value="warning">Warning</option>
+                                <option value="success">Success</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notif-modal-footer">
+                    <button type="button" class="btn-notif-action" onclick="closePromotionModal();" data-lang-key="cancel">Cancel</button>
+                    <button type="submit" class="btn-notif-action btn-notif-primary" id="btn_submit_promotion" data-lang-key="send_promotion">Send Promotion</button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endif
+
 <script>
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+    function openPromotionModal() {
+        const modal = document.getElementById('promotion_modal');
+        if (modal) modal.classList.add('is-active');
+    }
+
+    function closePromotionModal() {
+        const modal = document.getElementById('promotion_modal');
+        if (modal) modal.classList.remove('is-active');
+    }
 
     function markRowRead(id) {
         fetch(`/notifications/${id}/read`, {
@@ -234,7 +318,12 @@
             if (row) {
                 row.classList.remove('unread');
                 const readBtn = document.getElementById(`btn_read_${id}`);
-                if (readBtn) readBtn.remove();
+                if (readBtn) {
+                    readBtn.outerHTML = `<button type="button" class="btn-row-action" onclick="markRowUnread(${id});" id="btn_unread_${id}">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span data-lang-key="mark_as_unread">Mark as unread</span>
+                    </button>`;
+                }
             }
             // Update unread badges
             const unreadBadge = document.getElementById('stat_unread_count');
@@ -245,6 +334,44 @@
             if (headerBadge) {
                 if (data.unread_count > 0) {
                     headerBadge.textContent = data.unread_count;
+                    headerBadge.style.display = 'inline-flex';
+                } else {
+                    headerBadge.style.display = 'none';
+                }
+            }
+        }).catch(err => console.error(err));
+    }
+
+    function markRowUnread(id) {
+        fetch(`/notifications/${id}/unread`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken || '',
+                'Accept': 'application/json'
+            }
+        }).then(res => res.json()).then(data => {
+            const row = document.getElementById(`notif_row_${id}`);
+            if (row) {
+                row.classList.add('unread');
+                const unreadBtn = document.getElementById(`btn_unread_${id}`);
+                if (unreadBtn) {
+                    unreadBtn.outerHTML = `<button type="button" class="btn-row-action" onclick="markRowRead(${id});" id="btn_read_${id}">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span data-lang-key="mark_as_read">Mark as read</span>
+                    </button>`;
+                }
+            }
+            // Update unread badges
+            const unreadBadge = document.getElementById('stat_unread_count');
+            if (unreadBadge && data.unread_count !== undefined) {
+                unreadBadge.textContent = data.unread_count;
+            }
+            const headerBadge = document.getElementById('notification_badge');
+            if (headerBadge) {
+                if (data.unread_count > 0) {
+                    headerBadge.textContent = data.unread_count;
+                    headerBadge.style.display = 'inline-flex';
                 } else {
                     headerBadge.style.display = 'none';
                 }
@@ -276,6 +403,7 @@
                 if (headerBadge) {
                     if (data.unread_count > 0) {
                         headerBadge.textContent = data.unread_count;
+                        headerBadge.style.display = 'inline-flex';
                     } else {
                         headerBadge.style.display = 'none';
                     }
@@ -297,14 +425,20 @@
             }).then(res => res.json()).then(data => {
                 document.querySelectorAll('.notif-feed-row.unread').forEach(row => {
                     row.classList.remove('unread');
-                    const btn = row.querySelector('.btn-row-action:not(.btn-row-delete)');
-                    if (btn) btn.remove();
+                    const id = row.dataset.id;
+                    const readBtn = document.getElementById(`btn_read_${id}`);
+                    if (readBtn) {
+                        readBtn.outerHTML = `<button type="button" class="btn-row-action" onclick="markRowUnread(${id});" id="btn_unread_${id}">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <span data-lang-key="mark_as_unread">Mark as unread</span>
+                        </button>`;
+                    }
                 });
                 const statBadge = document.getElementById('stat_unread_count');
                 if (statBadge) statBadge.textContent = '0';
                 const headerBadge = document.getElementById('notification_badge');
                 if (headerBadge) headerBadge.style.display = 'none';
-                markAllBtn.remove();
+                markAllBtn.style.display = 'none';
             }).catch(err => console.error(err));
         });
     }

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AuditLog;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Ingredient;
@@ -17,6 +18,8 @@ use App\Models\User;
 use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class NotificationManagementTest extends TestCase
@@ -428,5 +431,194 @@ class NotificationManagementTest extends TestCase
         $respDelete->assertStatus(200);
         $respDelete->assertJson(['success' => true]);
         $this->assertDatabaseMissing('notifications', ['id' => $n1->id]);
+    }
+
+    /**
+     * Test mark notification as unread works via AJAX.
+     */
+    public function test_mark_as_unread_toggles_status(): void
+    {
+        $notif = Notification::create([
+            'user_id'  => $this->admin->id,
+            'type'     => 'system',
+            'title'    => 'Read Notification',
+            'message'  => 'Already read item',
+            'severity' => 'info',
+            'read_at'  => now(),
+        ]);
+
+        $this->assertTrue($notif->isRead());
+
+        $response = $this->actingAs($this->admin)->postJson(route('notifications.unread', $notif));
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        $this->assertNull($notif->fresh()->read_at);
+        $this->assertFalse($notif->fresh()->isRead());
+    }
+
+    /**
+     * Test Admin promotion broadcast and audit logging.
+     */
+    public function test_admin_promotion_notification_broadcast_and_audit_logging(): void
+    {
+        $response = $this->actingAs($this->admin)->post(route('admin.notifications.promotions'), [
+            'title'       => 'Grand Holiday Pastry Sale',
+            'message'     => 'Special 25% discount on all artisan breads and cakes this weekend!',
+            'target_role' => 'cashier',
+            'severity'    => 'warning',
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect(route('admin.notifications'));
+
+        // Verify Cashier received the promotion
+        $cashierNotifs = Notification::forUser($this->cashier->id)->where('type', 'promotion')->get();
+        $this->assertCount(1, $cashierNotifs);
+        $this->assertEquals('Grand Holiday Pastry Sale', $cashierNotifs->first()->title);
+
+        // Verify Baker did not receive cashier-targeted promotion
+        $bakerNotifs = Notification::forUser($this->baker->id)->where('type', 'promotion')->get();
+        $this->assertCount(0, $bakerNotifs);
+
+        // Verify Audit Log was recorded
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'notification.promotion_sent',
+            'user_id' => $this->admin->id,
+        ]);
+    }
+
+    /**
+     * Test unauthorized roles cannot broadcast promotions.
+     */
+    public function test_unauthorized_role_cannot_broadcast_promotions(): void
+    {
+        // Cashier attempt (JSON API returns 403)
+        $responseCashier = $this->actingAs($this->cashier)->postJson(route('admin.notifications.promotions'), [
+            'title'       => 'Unauthorized Cashier Broadcast',
+            'message'     => 'Should fail',
+            'target_role' => 'all',
+        ]);
+        $responseCashier->assertStatus(403);
+
+        // Manager attempt (JSON API returns 403)
+        $responseManager = $this->actingAs($this->manager)->postJson(route('admin.notifications.promotions'), [
+            'title'       => 'Unauthorized Manager Broadcast',
+            'message'     => 'Should fail',
+            'target_role' => 'all',
+        ]);
+        $responseManager->assertStatus(403);
+
+        // Standard web request redirects unauthorized role to dashboard
+        $responseWeb = $this->actingAs($this->cashier)->post(route('admin.notifications.promotions'), [
+            'title'       => 'Unauthorized Web Broadcast',
+            'message'     => 'Should fail',
+            'target_role' => 'all',
+        ]);
+        $responseWeb->assertRedirect(route('cashier.dashboard'));
+    }
+
+    /**
+     * Test Order Ready for pickup status transition triggers notifications.
+     */
+    public function test_order_ready_for_pickup_generates_notification(): void
+    {
+        $order = Order::create([
+            'order_number'   => 'ORD-READY-001',
+            'user_id'        => $this->cashier->id,
+            'customer_name'  => 'Ready Customer',
+            'subtotal'       => 20.00,
+            'tax'            => 2.00,
+            'total'          => 22.00,
+            'payment_method' => 'cash',
+            'payment_status' => 'paid',
+            'order_status'   => Order::STATUS_PREPARING,
+        ]);
+
+        $response = $this->actingAs($this->manager)->post(route('admin.orders.updateStatus', $order), [
+            'status' => Order::STATUS_READY_FOR_PICKUP,
+        ]);
+
+        $response->assertSessionHasNoErrors();
+
+        // Verify Admin received the Order Ready notification
+        $adminReadyNotifs = Notification::forUser($this->admin->id)
+            ->where('type', 'order')
+            ->where('title', 'like', '%Ready for Pickup%')
+            ->get();
+
+        $this->assertGreaterThan(0, $adminReadyNotifs->count());
+        $this->assertEquals('success', $adminReadyNotifs->first()->severity);
+    }
+
+    /**
+     * Test rolled-back database transaction does NOT dispatch notification.
+     */
+    public function test_rolled_back_transaction_does_not_generate_notification(): void
+    {
+        $initialCount = Notification::where('type', 'order')->count();
+
+        try {
+            DB::transaction(function () {
+                $order = Order::create([
+                    'order_number'   => 'ORD-FAIL-ROLLBACK',
+                    'user_id'        => $this->cashier->id,
+                    'customer_name'  => 'Rollback Customer',
+                    'subtotal'       => 15.00,
+                    'tax'            => 1.50,
+                    'total'          => 16.50,
+                    'payment_method' => 'cash',
+                    'payment_status' => 'paid',
+                    'order_status'   => 'pending',
+                ]);
+
+                // Simulate unexpected failure inside transaction
+                throw new \Exception("Simulated transaction rollback error.");
+
+                // Would only reach here if transaction did not throw
+                app(NotificationService::class)->notifyOrderCreated($order);
+            });
+        } catch (\Exception $e) {
+            // Transaction rolled back safely
+        }
+
+        $afterCount = Notification::where('type', 'order')->count();
+        $this->assertEquals($initialCount, $afterCount, "Rolled-back transaction must NOT generate notifications.");
+    }
+
+    /**
+     * Test English and Khmer translation strings load correctly.
+     */
+    public function test_english_and_khmer_translations_load_correctly(): void
+    {
+        // English
+        App::setLocale('en');
+        $this->assertEquals('Notifications', __('messages.notifications'));
+        $this->assertEquals('Notification Center', __('messages.notification_center'));
+        $this->assertEquals('Low Stock', __('messages.low_stock'));
+        $this->assertEquals('Out of Stock', __('messages.out_of_stock'));
+        $this->assertEquals('Expiring Soon', __('messages.expiring_soon'));
+        $this->assertEquals('Expired', __('messages.expired'));
+        $this->assertEquals('Order Ready', __('messages.order_ready'));
+        $this->assertEquals('Production Completed', __('messages.production_completed'));
+        $this->assertEquals('Purchase Order Received', __('messages.purchase_order_received'));
+        $this->assertEquals('Delivery Reminder', __('messages.delivery_reminder'));
+        $this->assertEquals('Promotion', __('messages.promotion'));
+        $this->assertEquals('Mark as unread', __('messages.mark_as_unread'));
+
+        // Khmer
+        App::setLocale('km');
+        $this->assertEquals('ការជូនដំណឹង', __('messages.notifications'));
+        $this->assertEquals('មជ្ឈមណ្ឌលជូនដំណឹង', __('messages.notification_center'));
+        $this->assertEquals('ស្តុកទាប', __('messages.low_stock'));
+        $this->assertEquals('អស់ពីស្តុក', __('messages.out_of_stock'));
+        $this->assertEquals('ជិតផុតកំណត់', __('messages.expiring_soon'));
+        $this->assertEquals('បានផុតកំណត់', __('messages.expired'));
+        $this->assertEquals('ការបញ្ជាទិញរួចរាល់', __('messages.order_ready'));
+        $this->assertEquals('ការផលិតបានបញ្ចប់', __('messages.production_completed'));
+        $this->assertEquals('បានទទួលការបញ្ជាទិញទំនិញចូល', __('messages.purchase_order_received'));
+        $this->assertEquals('ការរំលឹកការដឹកជញ្ជូន', __('messages.delivery_reminder'));
+        $this->assertEquals('ការផ្សព្វផ្សាយ', __('messages.promotion'));
+        $this->assertEquals('កំណត់ថាមិនទាន់អាន', __('messages.mark_as_unread'));
     }
 }

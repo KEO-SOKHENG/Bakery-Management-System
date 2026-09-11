@@ -2,13 +2,16 @@
 
 namespace App\Services;
 
+use App\Models\Delivery;
 use App\Models\Ingredient;
 use App\Models\Notification;
 use App\Models\Order;
 use App\Models\Production;
 use App\Models\PurchaseOrder;
 use App\Models\User;
+use App\Services\SettingsService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class NotificationService
@@ -38,6 +41,24 @@ class NotificationService
                 // Update timestamp so user sees it is still active without spamming rows
                 $existing->touch();
                 return $existing;
+            }
+
+            // For condition-based alerts, do not spam with repeated alerts on the same day if already read
+            $isConditionAlert = str_starts_with($dedupKey, 'low_stock:') 
+                             || str_starts_with($dedupKey, 'out_of_stock:')
+                             || str_starts_with($dedupKey, 'expiring_')
+                             || str_starts_with($dedupKey, 'expired:')
+                             || str_starts_with($dedupKey, 'delivery_reminder:');
+
+            if ($isConditionAlert) {
+                $readToday = Notification::where('user_id', $userId)
+                    ->where('dedup_key', $dedupKey)
+                    ->where('created_at', '>=', now()->startOfDay())
+                    ->first();
+
+                if ($readToday) {
+                    return $readToday;
+                }
             }
         }
 
@@ -69,6 +90,39 @@ class NotificationService
 
         foreach ($users as $user) {
             $this->createNotification($user, $type, $title, $message, $severity, $actionUrl, $dedupKey);
+            $count++;
+        }
+
+        return $count;
+    }
+
+    /**
+     * Broadcast a promotional announcement or manual notification from Admin.
+     */
+    public function broadcastPromotion(
+        string $title,
+        string $message,
+        ?string $targetRole = null,
+        string $severity = 'info'
+    ): int {
+        $query = User::query();
+        if ($targetRole && $targetRole !== 'all') {
+            $query->where('role', $targetRole);
+        }
+
+        $users = $query->get();
+        $count = 0;
+
+        foreach ($users as $user) {
+            $this->createNotification(
+                $user,
+                'promotion',
+                $title,
+                $message,
+                $severity,
+                route('admin.notifications'),
+                null
+            );
             $count++;
         }
 
@@ -174,6 +228,31 @@ class NotificationService
         }
     }
 
+    /**
+     * Trigger reminder notification for pending or scheduled deliveries.
+     */
+    public function notifyDeliveryReminder(Delivery $delivery): void
+    {
+        $orderNumber = $delivery->order ? $delivery->order->order_number : 'Order';
+        $trackingNumber = $delivery->tracking_number ?? 'DEL-' . $delivery->id;
+        $recipient = $delivery->recipient_name ?? 'Customer';
+        $dateStr = $delivery->scheduled_at ? Carbon::parse($delivery->scheduled_at)->format('M d, Y') : 'Today';
+        $statusStr = ucfirst(str_replace('_', ' ', $delivery->delivery_status ?? 'pending'));
+
+        $title = "Delivery Reminder: {$trackingNumber}";
+        $message = "Delivery for Order #{$orderNumber} to {$recipient} is scheduled for {$dateStr}. Status: {$statusStr}.";
+        $actionUrl = route('admin.deliveries.show', $delivery);
+        $dedupKey = "delivery_reminder:{$delivery->id}:" . Carbon::today()->toDateString();
+
+        // Notify management and staff
+        $this->notifyRoles(['admin', 'manager', 'cashier'], 'delivery', $title, $message, 'warning', $actionUrl, $dedupKey);
+
+        // If delivery staff assigned, notify staff member directly
+        if ($delivery->user_id) {
+            $this->createNotification($delivery->user_id, 'delivery', $title, $message, 'warning', $actionUrl, $dedupKey);
+        }
+    }
+
     // =========================================================================
     // CONDITION-BASED DEDUPLICATED ALERTS SCANNER
     // =========================================================================
@@ -190,8 +269,19 @@ class NotificationService
             'expiring'     => 0,
             'expired'      => 0,
             'pickup_soon'  => 0,
+            'deliveries'   => 0,
             'resolved'     => 0,
         ];
+
+        // Check global notifications toggle
+        if (!SettingsService::getBool('notifications_enabled', true)) {
+            return $counts;
+        }
+
+        $lowStockAlertsEnabled = SettingsService::getBool('low_stock_alerts_enabled', true);
+        $expiryAlertsEnabled   = SettingsService::getBool('expiry_alerts_enabled', true);
+        $defaultMinStock       = SettingsService::getFloat('low_stock_threshold', 5.0);
+        $expiryWarningDays     = SettingsService::getInt('expiry_warning_days', 3);
 
         // -------------------------------------------------------------
         // 1. INVENTORY: Low Stock and Out of Stock Alerts
@@ -202,34 +292,37 @@ class NotificationService
         foreach ($ingredients as $ing) {
             $outOfStockKey = "out_of_stock:ingredient:{$ing->id}";
             $lowStockKey   = "low_stock:ingredient:{$ing->id}";
+            $minThreshold  = $ing->minimum_quantity > 0 ? (float) $ing->minimum_quantity : $defaultMinStock;
 
-            if ($ing->quantity <= 0) {
-                // Critical Out of Stock
-                $title = "Critical: {$ing->name} Out of Stock";
-                $message = "{$ing->name} is depleted (0 {$ing->unit} remaining). Reorder required immediately.";
-                $this->notifyRoles($targetRoles, 'inventory', $title, $message, 'critical', route('admin.ingredients'), $outOfStockKey);
-                $counts['out_of_stock']++;
-            } elseif ($ing->quantity <= $ing->minimum_quantity) {
-                // Warning Low Stock
-                $title = "Low Stock Alert: {$ing->name}";
-                $message = "{$ing->name} is at {$ing->quantity} {$ing->unit} (Minimum: {$ing->minimum_quantity} {$ing->unit}).";
-                $this->notifyRoles($targetRoles, 'inventory', $title, $message, 'warning', route('admin.ingredients'), $lowStockKey);
-                $counts['low_stock']++;
+            if ($lowStockAlertsEnabled) {
+                if ($ing->quantity <= 0) {
+                    // Critical Out of Stock
+                    $title = "Critical: {$ing->name} Out of Stock";
+                    $message = "{$ing->name} is depleted (0 {$ing->unit} remaining). Reorder required immediately.";
+                    $this->notifyRoles($targetRoles, 'inventory', $title, $message, 'critical', route('admin.ingredients'), $outOfStockKey);
+                    $counts['out_of_stock']++;
+                } elseif ($ing->quantity <= $minThreshold) {
+                    // Warning Low Stock
+                    $title = "Low Stock Alert: {$ing->name}";
+                    $message = "{$ing->name} is at {$ing->quantity} {$ing->unit} (Minimum: {$minThreshold} {$ing->unit}).";
+                    $this->notifyRoles($targetRoles, 'inventory', $title, $message, 'warning', route('admin.ingredients'), $lowStockKey);
+                    $counts['low_stock']++;
 
-                // Resolve out of stock if quantity was restored above zero but still low
-                Notification::where('dedup_key', $outOfStockKey)->whereNull('read_at')->update(['read_at' => now()]);
-            } else {
-                // Self-Healing: Stock is above minimum threshold, auto-resolve any unread low-stock alerts
-                $resolved = Notification::whereIn('dedup_key', [$lowStockKey, $outOfStockKey])
-                    ->whereNull('read_at')
-                    ->update(['read_at' => now()]);
-                $counts['resolved'] += $resolved;
+                    // Resolve out of stock if quantity was restored above zero but still low
+                    Notification::where('dedup_key', $outOfStockKey)->whereNull('read_at')->update(['read_at' => now()]);
+                } else {
+                    // Self-Healing: Stock is above minimum threshold, auto-resolve any unread low-stock alerts
+                    $resolved = Notification::whereIn('dedup_key', [$lowStockKey, $outOfStockKey])
+                        ->whereNull('read_at')
+                        ->update(['read_at' => now()]);
+                    $counts['resolved'] += $resolved;
+                }
             }
 
             // ---------------------------------------------------------
             // 2. EXPIRING INGREDIENTS
             // ---------------------------------------------------------
-            if ($ing->expiry_date) {
+            if ($expiryAlertsEnabled && $ing->expiry_date) {
                 $expiry = Carbon::parse($ing->expiry_date)->startOfDay();
                 $today = Carbon::today()->startOfDay();
 
@@ -245,14 +338,14 @@ class NotificationService
                     $message = "{$ing->name} expires today ({$expiry->format('M d, Y')}). Use or plan batch.";
                     $this->notifyRoles($targetRoles, 'expiring', $title, $message, 'warning', route('admin.ingredients'), "expiring_today:ingredient:{$ing->id}");
                     $counts['expiring']++;
-                } elseif ($expiry->lte($today->copy()->addDays(3))) {
-                    // Expiring within 3 days
-                    $title = "Expiring in 3 Days: {$ing->name}";
-                    $message = "{$ing->name} will expire on {$expiry->format('M d, Y')} (within 3 days).";
-                    $this->notifyRoles($targetRoles, 'expiring', $title, $message, 'warning', route('admin.ingredients'), "expiring_3days:ingredient:{$ing->id}");
+                } elseif ($expiry->lte($today->copy()->addDays($expiryWarningDays))) {
+                    // Expiring within configured threshold
+                    $title = "Expiring in {$expiryWarningDays} Days: {$ing->name}";
+                    $message = "{$ing->name} will expire on {$expiry->format('M d, Y')} (within {$expiryWarningDays} days).";
+                    $this->notifyRoles($targetRoles, 'expiring', $title, $message, 'warning', route('admin.ingredients'), "expiring_{$expiryWarningDays}days:ingredient:{$ing->id}");
                     $counts['expiring']++;
-                } elseif ($expiry->lte($today->copy()->addDays(7))) {
-                    // Expiring within 7 days
+                } elseif ($expiryWarningDays < 7 && $expiry->lte($today->copy()->addDays(7))) {
+                    // Secondary 7-day warning if configured threshold is less than 7
                     $title = "Expiring in 7 Days: {$ing->name}";
                     $message = "{$ing->name} will expire on {$expiry->format('M d, Y')}.";
                     $this->notifyRoles($targetRoles, 'expiring', $title, $message, 'info', route('admin.ingredients'), "expiring_7days:ingredient:{$ing->id}");
@@ -280,14 +373,35 @@ class NotificationService
             $counts['pickup_soon']++;
         }
 
+        // -------------------------------------------------------------
+        // 4. SCHEDULED DELIVERY REMINDERS
+        // -------------------------------------------------------------
+        $urgentDeliveries = Delivery::with(['order', 'deliveryStaff'])
+            ->whereIn('delivery_status', [Delivery::STATUS_PENDING, Delivery::STATUS_ASSIGNED, Delivery::STATUS_OUT_FOR_DELIVERY])
+            ->where(function($q) {
+                $q->whereNull('scheduled_at')
+                  ->orWhereDate('scheduled_at', '<=', Carbon::today()->addDay());
+            })
+            ->get();
+
+        foreach ($urgentDeliveries as $deliv) {
+            $this->notifyDeliveryReminder($deliv);
+            $counts['deliveries'] = ($counts['deliveries'] ?? 0) + 1;
+        }
+
         return $counts;
     }
 
     /**
      * Throttled sync for web requests: runs at most once every 2 minutes per user.
      */
-    public function syncThrottled(User $user): void
+    public function syncThrottled(?User $user = null): void
     {
+        $user = $user ?? Auth::user();
+        if (!$user) {
+            return;
+        }
+
         $cacheKey = "notifications_synced_user_{$user->id}";
         if (!Cache::has($cacheKey)) {
             $this->syncConditionAlerts();

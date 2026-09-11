@@ -16,15 +16,11 @@ class Setting extends Model
 
     public static function get(string $key, $default = null)
     {
-        $setting = static::where('key', $key)->first();
-        return $setting ? $setting->value : $default;
+        return \App\Services\SettingsService::get($key, $default);
     }
 
     public static function set(string $key, $value)
     {
-        return static::updateOrCreate(
-            ['key' => $key],
-            ['value' => $value]
-        );
+        return \App\Services\SettingsService::set($key, $value);
     }
 }

@@ -42,7 +42,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: formData
             })
-            .then(res => res.json())
+            .then(async res => {
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    const errorMsg = data.message || (data.errors ? Object.values(data.errors)[0][0] : 'Validation failed.');
+                    throw new Error(errorMsg);
+                }
+                return data;
+            })
             .then(data => {
                 showToast(`${cardTitle} updated successfully!`);
                 if (formData.has('language') && window.applyLanguage) {
@@ -50,10 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(err => {
-                showToast(`${cardTitle} saved!`);
-                if (formData.has('language') && window.applyLanguage) {
-                    window.applyLanguage(formData.get('language'));
-                }
+                showToast(err.message || `Failed to save ${cardTitle}`);
             });
         });
     });

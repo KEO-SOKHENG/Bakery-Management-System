@@ -28,7 +28,7 @@ class PosController extends Controller
             ->get();
 
         $taxPercentage = (float) Setting::get('tax_percentage', Setting::get('tax_rate', 10.0));
-        $currency = Setting::get('currency', '$');
+        $currency = \App\Services\SettingsService::getCurrencySymbol();
         $bakeryName = Setting::get('bakery_name', Setting::get('shop_name', 'Sweet Delights Bakery'));
         $bakeryPhone = Setting::get('bakery_phone', Setting::get('shop_phone', '+855 23 123 456'));
         $bakeryAddress = Setting::get('bakery_address', Setting::get('shop_address', 'Monivong Blvd, Phnom Penh, Cambodia'));
@@ -297,7 +297,7 @@ class PosController extends Controller
                 'tax_percentage'      => $taxPercentage,
                 'tax'                 => number_format($result['tax'], 2),
                 'grand_total'         => number_format($result['grand_total'], 2),
-                'currency'            => Setting::get('currency', '$'),
+                'currency'            => \App\Services\SettingsService::getCurrencySymbol(),
                 'bakery_name'         => Setting::get('bakery_name', Setting::get('shop_name', 'Sweet Delights Bakery')),
                 'bakery_phone'        => Setting::get('bakery_phone', Setting::get('shop_phone', '+855 23 123 456')),
                 'bakery_address'      => Setting::get('bakery_address', Setting::get('shop_address', 'Monivong Blvd, Phnom Penh, Cambodia')),

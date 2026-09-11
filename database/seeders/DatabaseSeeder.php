@@ -75,6 +75,17 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        $deliveryDriver = User::updateOrCreate(
+            ['username' => 'delivery'],
+            [
+                'name' => 'Sokha Delivery (Driver)',
+                'email' => 'delivery@bakery.com',
+                'password' => Hash::make('pass123'),
+                'role' => 'delivery_staff',
+                'status' => 'active',
+            ]
+        );
+
         // 2. Seed Categories
         $cakes = Category::create(['name' => 'Cakes', 'description' => 'Freshly baked cakes and pastries', 'status' => 'active']);
         $bread = Category::create(['name' => 'Bread', 'description' => 'Artisanal breads and loaves', 'status' => 'active']);

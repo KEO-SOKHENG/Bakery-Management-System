@@ -275,6 +275,11 @@ class ProductionController extends Controller
                     }
                     // Increase product stock
                     $product->increment('stock', $prod->quantity);
+                    if ($product->shelf_life && $product->shelf_life > 0) {
+                        $product->update([
+                            'expiry_date' => now()->addDays($product->shelf_life)->toDateString(),
+                        ]);
+                    }
                     $prod->completed_at = now();
                 } elseif ($newStatus === 'cancelled') {
                     // If cancelled from In Progress, restore previously deducted ingredients

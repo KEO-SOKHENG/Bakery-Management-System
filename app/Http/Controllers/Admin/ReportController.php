@@ -59,8 +59,8 @@ class ReportController extends Controller
             'profit-loss' => $this->reportService->getProfitLossReport($startDate, $endDate),
         };
 
-        $currency = Setting::get('currency', '$');
-        $bakeryName = Setting::get('bakery_name', 'Sweet Delights Bakery');
+        $currency = \App\Services\SettingsService::getCurrencySymbol();
+        $bakeryName = Setting::get('bakery_name', Setting::get('shop_name', 'Sweet Delights Bakery'));
 
         return view('admin.reports', compact(
             'type',
@@ -102,10 +102,10 @@ class ReportController extends Controller
             'profit-loss' => $this->reportService->getProfitLossReport($startDate, $endDate),
         };
 
-        $currency = Setting::get('currency', '$');
-        $bakeryName = Setting::get('bakery_name', 'Sweet Delights Bakery');
-        $bakeryAddress = Setting::get('address', '');
-        $bakeryPhone = Setting::get('phone_number', '');
+        $currency = \App\Services\SettingsService::getCurrencySymbol();
+        $bakeryName = Setting::get('bakery_name', Setting::get('shop_name', 'Sweet Delights Bakery'));
+        $bakeryAddress = Setting::get('bakery_address', Setting::get('shop_address', ''));
+        $bakeryPhone = Setting::get('bakery_phone', Setting::get('shop_phone', ''));
 
         try {
             $pdf = Pdf::loadView('admin.reports.pdf', compact(

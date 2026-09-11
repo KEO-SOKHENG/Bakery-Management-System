@@ -47,6 +47,8 @@ class ProductController extends Controller
             'cost' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'minimum_stock' => 'nullable|integer|min:0',
+            'shelf_life' => 'nullable|integer|min:1',
+            'expiry_date' => 'nullable|date',
             'status' => 'nullable|string|in:active,inactive',
             'image_emoji' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
@@ -65,6 +67,11 @@ class ProductController extends Controller
             $validated['sku'] = 'PRD-' . str_pad($maxId + 1, 4, '0', STR_PAD_LEFT);
         }
 
+        $shelfLife = !empty($validated['shelf_life']) ? (int) $validated['shelf_life'] : null;
+        $expiryDate = !empty($validated['expiry_date']) 
+            ? $validated['expiry_date'] 
+            : ($shelfLife ? now()->addDays($shelfLife)->toDateString() : null);
+
         $product = Product::create([
             'category_id' => $validated['category_id'] ?? null,
             'name' => $validated['name'],
@@ -74,6 +81,8 @@ class ProductController extends Controller
             'cost' => $validated['cost'] ?? 0.00,
             'stock' => $validated['stock'],
             'minimum_stock' => $validated['minimum_stock'] ?? 5,
+            'shelf_life' => $shelfLife,
+            'expiry_date' => $expiryDate,
             'status' => $validated['status'] ?? 'active',
             'image_emoji' => $validated['image_emoji'] ?? '🥖',
             'image_path' => $imagePath,
@@ -93,6 +102,8 @@ class ProductController extends Controller
             'cost' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'minimum_stock' => 'nullable|integer|min:0',
+            'shelf_life' => 'nullable|integer|min:1',
+            'expiry_date' => 'nullable|date',
             'status' => 'required|string|in:active,inactive',
             'image_emoji' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',

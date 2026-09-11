@@ -25,10 +25,19 @@ test.describe('POS Terminal Full End-to-End Workflow', () => {
         await searchInput.fill('');
         await page.waitForTimeout(300);
 
-        // 5. Test Adding First In-Stock Product
-        const firstCard = page.locator('.pos-item-card:not(.is-out-of-stock)').first();
-        await expect(firstCard).toBeVisible();
-        await firstCard.click();
+        // 5. Test Adding Product with at least 2 in stock (to test '+' quantity increment)
+        let cardToClick = page.locator('.pos-item-card:not(.is-out-of-stock)').first();
+        const cardsCount = await page.locator('.pos-item-card:not(.is-out-of-stock)').count();
+        for (let i = 0; i < cardsCount; i++) {
+            const card = page.locator('.pos-item-card:not(.is-out-of-stock)').nth(i);
+            const stockVal = await card.getAttribute('data-stock');
+            if (parseInt(stockVal || '0', 10) >= 2) {
+                cardToClick = card;
+                break;
+            }
+        }
+        await expect(cardToClick).toBeVisible();
+        await cardToClick.click();
 
         // 6. Verify Item in Cart
         const cartItem = page.locator('.pos-cart-item').first();
