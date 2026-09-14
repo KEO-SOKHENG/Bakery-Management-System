@@ -99,6 +99,8 @@ body {
     border-radius: 9999px;
     padding: 4px;
     width: 100%;
+    height: 44px;
+    box-sizing: border-box;
     margin-bottom: 1.5rem;
     gap: 4px;
     isolation: isolate;
@@ -107,26 +109,28 @@ body {
 
 .role-tab-pointer-pill {
     position: absolute;
-    top: 0;
+    top: 4px;
     left: 0;
+    height: 34px;
     background-color: var(--primary-brown);
     border-radius: 9999px;
     box-shadow: 0 4px 14px rgba(74, 44, 32, 0.35);
     pointer-events: none;
     z-index: 1;
     opacity: 0;
-    will-change: transform, width, height, opacity;
-    transition: transform 0.45s cubic-bezier(.22, 1, .36, 1),
-                width 0.45s cubic-bezier(.22, 1, .36, 1),
-                height 0.45s cubic-bezier(.22, 1, .36, 1),
-                opacity 0.25s ease;
+    will-change: transform, width;
+    transition: transform 0.3s cubic-bezier(.22, 1, .36, 1),
+                width 0.3s cubic-bezier(.22, 1, .36, 1),
+                opacity 0.2s ease;
 }
 
 .role-tab-btn {
     position: relative;
     z-index: 2;
     flex: 1;
-    padding: 0.55rem 0.75rem;
+    height: 34px;
+    line-height: 34px;
+    padding: 0 0.75rem;
     border-radius: 9999px !important;
     border: none;
     background: transparent !important;
@@ -138,6 +142,10 @@ body {
     color: var(--text-muted);
     cursor: pointer;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
     transition: color 0.2s ease;
 }
 
@@ -153,12 +161,6 @@ body {
     box-shadow: none !important;
 }
 
-/* Static fallback before JS runs */
-.role-selector-tabs:not(:has(.role-tab-pointer-pill[style*="opacity: 1"])) .role-tab-btn.active {
-    background-color: var(--primary-brown) !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(74, 44, 32, 0.25) !important;
-}
 
 /* Form Styles */
 .login-form {

@@ -37,6 +37,7 @@
 
         <!-- Role Selector Tabs -->
         <div class="role-selector-tabs">
+            <div class="role-tab-pointer-pill"></div>
             <button type="button" class="role-tab-btn active" data-role="admin">Admin</button>
             <button type="button" class="role-tab-btn" data-role="manager">Manager</button>
             <button type="button" class="role-tab-btn" data-role="baker">Baker</button>
@@ -116,70 +117,32 @@
             // ---------------------------------------------------------
             const tabsContainer = document.querySelector('.role-selector-tabs');
             if (tabsContainer) {
-                let pill = tabsContainer.querySelector('.role-tab-pointer-pill');
-                if (!pill) {
-                    pill = document.createElement('div');
-                    pill.className = 'role-tab-pointer-pill';
-                    tabsContainer.prepend(pill);
-                }
-
+                const pill = tabsContainer.querySelector('.role-tab-pointer-pill');
                 const buttons = [...tabsContainer.querySelectorAll('.role-tab-btn')];
                 let activeBtn = tabsContainer.querySelector('.role-tab-btn.active') || buttons[0];
-                let stretchTimer = null;
-                let currentX = null;
 
                 function movePill(btn, instant = false) {
-                    if (!btn) return;
+                    if (!btn || !pill) return;
                     const containerRect = tabsContainer.getBoundingClientRect();
                     const btnRect = btn.getBoundingClientRect();
 
-                    if (!btnRect.width || !btnRect.height) return;
+                    if (!btnRect.width) return;
 
                     const x = btnRect.left - containerRect.left;
-                    const y = btnRect.top - containerRect.top;
                     const width = btnRect.width;
-                    const height = btnRect.height;
 
-                    const isMoving = currentX !== null && Math.abs(x - currentX) > 3;
-
-                    if (instant) {
-                        pill.style.transition = 'none';
-                    } else {
-                        pill.style.transition = '';
-                    }
-
+                    pill.style.transition = instant ? 'none' : '';
                     pill.style.width = `${width}px`;
-                    pill.style.height = `${height}px`;
-
-                    if (stretchTimer) clearTimeout(stretchTimer);
-
-                    if (!instant && isMoving) {
-                        // Liquid stretch blob effect while sliding
-                        pill.style.transform = `translate3d(${x}px, ${y}px, 0) scale3d(1.06, 0.94, 1)`;
-
-                        stretchTimer = setTimeout(() => {
-                            pill.style.transform = `translate3d(${x}px, ${y}px, 0) scale3d(1, 1, 1)`;
-                        }, 180);
-                    } else {
-                        pill.style.transform = `translate3d(${x}px, ${y}px, 0) scale3d(1, 1, 1)`;
-                    }
-
+                    pill.style.transform = `translate3d(${x}px, 0, 0)`;
                     pill.style.opacity = '1';
-                    currentX = x;
 
                     buttons.forEach(b => {
                         b.classList.toggle('pill-highlighted', b === btn);
                     });
-
-                    if (instant) {
-                        requestAnimationFrame(() => {
-                            pill.style.transition = '';
-                        });
-                    }
                 }
 
                 // Initial alignment & resize listener
-                setTimeout(() => movePill(activeBtn, true), 40);
+                movePill(activeBtn, true);
                 window.addEventListener('resize', () => movePill(activeBtn, true));
 
                 buttons.forEach(btn => {
@@ -189,7 +152,9 @@
                     });
 
                     btn.addEventListener('mouseenter', function () {
-                        movePill(this);
+                        if (activeBtn !== this) {
+                            movePill(this);
+                        }
                     });
                 });
 
