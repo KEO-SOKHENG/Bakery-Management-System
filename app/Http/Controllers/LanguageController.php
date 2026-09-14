@@ -10,11 +10,24 @@ class LanguageController extends Controller
 {
     public function switchLanguage(Request $request, $lang)
     {
+        $lang = strtolower((string)$lang);
         if (in_array($lang, ['en', 'km'])) {
             Session::put('locale', $lang);
-            Setting::set('language', $lang);
+            try {
+                Setting::set('language', $lang);
+            } catch (\Throwable $e) {
+                // Ignore DB setting update errors
+            }
+            cookie()->queue(cookie()->forever('locale', $lang));
+            app()->setLocale($lang);
         }
 
-        return redirect()->back();
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'locale' => $lang])
+                ->withCookie(cookie()->forever('locale', $lang));
+        }
+
+        return redirect()->back(fallback: route('admin.dashboard'))
+            ->withCookie(cookie()->forever('locale', $lang));
     }
 }

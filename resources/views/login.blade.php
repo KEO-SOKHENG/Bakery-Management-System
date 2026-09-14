@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="UTF-8">
@@ -224,6 +224,28 @@
                 togglePasswordBtn.addEventListener('click', function () {
                     const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                     passwordInput.setAttribute('type', type);
+                });
+            }
+
+            // Ensure synchronous submission so session cookies are committed before immediate navigations in WebKit
+            const loginForm = document.querySelector('.login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function (e) {
+                    try {
+                        e.preventDefault();
+                        const formData = new FormData(loginForm);
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('POST', loginForm.action, false);
+                        xhr.send(formData);
+
+                        if (xhr.responseURL && xhr.responseURL !== window.location.href) {
+                            window.location.href = xhr.responseURL;
+                        } else {
+                            window.location.reload();
+                        }
+                    } catch (err) {
+                        loginForm.submit();
+                    }
                 });
             }
         });

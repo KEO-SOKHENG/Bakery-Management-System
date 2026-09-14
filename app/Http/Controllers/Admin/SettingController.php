@@ -157,7 +157,10 @@ class SettingController extends Controller
         }
 
         if ($request->filled('language')) {
-            Session::put('locale', strtolower($request->language));
+            $lang = strtolower($request->language);
+            Session::put('locale', $lang);
+            cookie()->queue(cookie()->forever('locale', $lang));
+            app()->setLocale($lang);
         }
 
         AuditLogService::log(
