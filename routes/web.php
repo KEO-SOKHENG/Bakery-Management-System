@@ -65,6 +65,10 @@ Route::middleware(['auth'])->group(function () {
         // System Settings - Admin Exclusive Backup & Restore
         Route::post('/settings/backup', [SettingController::class, 'createBackup'])->name('settings.backup');
         Route::post('/settings/restore', [SettingController::class, 'restoreBackup'])->name('settings.restore');
+
+        // Orders Purge & Data Maintenance (Admin Exclusive)
+        Route::get('/orders/purge-preview', [OrderController::class, 'purgePreview'])->name('orders.purgePreview');
+        Route::post('/orders/purge-old', [OrderController::class, 'purgeOld'])->name('orders.purgeOld');
     });
 
     // -------------------------------------------------------------

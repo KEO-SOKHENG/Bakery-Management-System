@@ -3,7 +3,7 @@
 @section('title', 'Admin Analytics & Dashboard - Bakery Management System')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}?v={{ time() }}">
 @endpush
 
 @section('content')
@@ -114,7 +114,7 @@
             <span class="stat-label" data-lang-key="low_stock_items">{{ __('messages.low_stock_items') }}</span>
             <div class="stat-value">{{ number_format($lowStockCount) }}</div>
             <a href="{{ route('admin.ingredients') }}" class="stat-trend danger">
-                {{ $outOfStockIngredientsCount > 0 ? $outOfStockIngredientsCount . ' out of stock &rarr;' : 'View details &rarr;' }}
+                {!! $outOfStockIngredientsCount > 0 ? $outOfStockIngredientsCount . ' out of stock &rarr;' : 'View details &rarr;' !!}
             </a>
         </div>
     </div>

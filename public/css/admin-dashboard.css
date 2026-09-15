@@ -81,7 +81,8 @@
     color: #71717a;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    white-space: nowrap;
+    white-space: normal;
+    line-height: 1.25;
 }
 
 .stat-value {

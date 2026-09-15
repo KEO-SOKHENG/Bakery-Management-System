@@ -94,7 +94,16 @@
     <!-- ======================================================================
          RIGHT: CART & CHECKOUT PANEL
          ====================================================================== -->
-    <div class="pos-cart-panel">
+    <div class="pos-cart-panel" id="pos_cart_panel">
+        <!-- Mobile Drawer Close & Drag Bar -->
+        <div class="pos-cart-mobile-drawer-top" id="pos_cart_mobile_drawer_top">
+            <div class="pos-cart-drag-handle"></div>
+            <div class="pos-cart-mobile-bar-title">
+                <span data-lang-key="current_sale">Current Sale</span>
+                <button type="button" class="btn-close-cart-drawer" id="btn_close_cart_drawer" aria-label="Close Cart">&times;</button>
+            </div>
+        </div>
+
         <div class="pos-cart-header">
             <div class="pos-cart-title">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
@@ -244,9 +253,32 @@
                 <polyline points="20 6 9 17 4 12"/>
             </svg>
             <span id="btn_complete_sale_text" data-lang-key="complete_sale">Complete Sale</span>
-        </button>
     </div>
 </div>
+
+<!-- ======================================================================
+     MOBILE STICKY BOTTOM CART TRIGGER BAR (<= 767px)
+     ====================================================================== -->
+<div class="pos-mobile-cart-bar" id="pos_mobile_cart_bar">
+    <div class="pos-mobile-cart-summary">
+        <div class="pos-mobile-cart-count-badge">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="9" cy="21" r="1"/>
+                <circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            <span><strong id="pos_mobile_cart_count">0</strong> items</span>
+        </div>
+        <div class="pos-mobile-cart-total-val" id="pos_mobile_cart_total">{{ $currency }}0.00</div>
+    </div>
+    <button type="button" class="btn-pos-mobile-view-cart" id="btn_pos_mobile_view_cart">
+        <span data-lang-key="view_cart">View Cart</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+</div>
+
+<!-- Mobile Cart Bottom Sheet Backdrop -->
+<div class="pos-cart-backdrop" id="pos_cart_backdrop"></div>
 
 <!-- ==========================================================================
      RECEIPT CONFIRMATION MODAL & THERMAL SLIP
@@ -552,6 +584,51 @@
     // -------------------------------------------------------------------------
     // 3. Cart Render & Calculations
     // -------------------------------------------------------------------------
+    const mobileCartCount = document.getElementById('pos_mobile_cart_count');
+    const mobileCartTotal = document.getElementById('pos_mobile_cart_total');
+    const posCartPanel = document.querySelector('.pos-cart-panel');
+    const btnViewCartMobile = document.getElementById('btn_pos_mobile_view_cart');
+    const btnCloseCartDrawer = document.getElementById('btn_close_cart_drawer');
+    const posCartBackdrop = document.getElementById('pos_cart_backdrop');
+
+    function openMobileCartDrawer() {
+        if (posCartPanel) posCartPanel.classList.add('mobile-drawer-open', 'mobile-open');
+        if (posCartBackdrop) posCartBackdrop.classList.add('is-active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileCartDrawer() {
+        if (posCartPanel) posCartPanel.classList.remove('mobile-drawer-open', 'mobile-open');
+        if (posCartBackdrop) posCartBackdrop.classList.remove('is-active');
+        document.body.style.overflow = '';
+    }
+
+    const mobileCartBar = document.getElementById('pos_mobile_cart_bar');
+    if (mobileCartBar) {
+        mobileCartBar.addEventListener('click', openMobileCartDrawer);
+    }
+    if (btnViewCartMobile) {
+        btnViewCartMobile.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openMobileCartDrawer();
+        });
+    }
+    if (btnCloseCartDrawer) {
+        btnCloseCartDrawer.addEventListener('click', function(e) {
+            e.stopPropagation();
+            closeMobileCartDrawer();
+        });
+    }
+    if (posCartBackdrop) {
+        posCartBackdrop.addEventListener('click', closeMobileCartDrawer);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && posCartPanel && posCartPanel.classList.contains('mobile-drawer-open')) {
+            closeMobileCartDrawer();
+        }
+    });
+
     function renderCart() {
         // Clear items container (except empty state placeholder if needed)
         cartContainer.innerHTML = '';
@@ -560,6 +637,8 @@
             cartContainer.appendChild(cartEmptyState);
             cartEmptyState.style.display = 'flex';
             cartCountPill.textContent = '0';
+            if (mobileCartCount) mobileCartCount.textContent = '0';
+            if (mobileCartTotal) mobileCartTotal.textContent = `${CURRENCY}0.00`;
             subtotalDisplay.textContent = `${CURRENCY}0.00`;
             taxDisplay.textContent = `${CURRENCY}0.00`;
             grandTotalDisplay.textContent = `${CURRENCY}0.00`;
@@ -613,6 +692,9 @@
         subtotalDisplay.textContent = `${CURRENCY}${subtotal.toFixed(2)}`;
         taxDisplay.textContent = `${CURRENCY}${tax.toFixed(2)}`;
         grandTotalDisplay.textContent = `${CURRENCY}${grandTotal.toFixed(2)}`;
+
+        if (mobileCartCount) mobileCartCount.textContent = totalItemsCount.toString();
+        if (mobileCartTotal) mobileCartTotal.textContent = `${CURRENCY}${grandTotal.toFixed(2)}`;
 
         completeSaleBtn.disabled = false;
         completeSaleText.textContent = `Charge ${CURRENCY}${grandTotal.toFixed(2)}`;
@@ -900,6 +982,7 @@
             }
 
             // 2. Populate and Open Receipt Modal
+            closeMobileCartDrawer();
             populateReceiptModal(data.receipt);
             receiptModal.classList.add('is-active');
 

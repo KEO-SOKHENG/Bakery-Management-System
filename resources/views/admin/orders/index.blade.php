@@ -102,11 +102,21 @@
             </a>
         </div>
 
-        <!-- Create Order Button -->
-        <a href="{{ route('admin.orders.create') }}" class="btn btn-primary" id="btn_create_order" style="display: inline-flex; align-items: center; gap: 0.55rem; background: linear-gradient(135deg, #563020 0%, #3b2118 100%); border-radius: 50px; padding: 0.65rem 1.45rem; color: #ffffff; border: none; font-weight: 800; box-shadow: 0 4px 16px rgba(86, 48, 32, 0.25); text-decoration: none; cursor: pointer; transition: all 0.25s ease;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-            <span>Create New Order</span>
-        </a>
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            @if(Auth::user() && Auth::user()->isAdmin())
+                <button type="button" id="btn_open_purge_modal" onclick="openPurgeModal()" class="btn btn-outline-danger" style="display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 50px; padding: 0.65rem 1.25rem; font-weight: 700; border: 1.5px solid #ef4444; color: #dc2626; background: #ffffff; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    <span>Clear Old Orders</span>
+                </button>
+            @endif
+
+            <!-- Create Order Button -->
+            <a href="{{ route('admin.orders.create') }}" class="btn btn-primary" id="btn_create_order" style="display: inline-flex; align-items: center; gap: 0.55rem; background: linear-gradient(135deg, #563020 0%, #3b2118 100%); border-radius: 50px; padding: 0.65rem 1.45rem; color: #ffffff; border: none; font-weight: 800; box-shadow: 0 4px 16px rgba(86, 48, 32, 0.25); text-decoration: none; cursor: pointer; transition: all 0.25s ease;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                <span>Create New Order</span>
+            </a>
+        </div>
     </div>
 
     <!-- Live Search & Detailed Filters Form -->
@@ -326,5 +336,181 @@
         @endif
     </div>
 
+    <!-- Purge Old Orders Modal (Admin Only) -->
+    @if(Auth::user() && Auth::user()->isAdmin())
+    <div id="purgeModal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem;">
+        <div style="background: #ffffff; border-radius: 20px; max-width: 540px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden;">
+            <!-- Modal Header -->
+            <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); padding: 1.25rem 1.5rem; border-bottom: 1px solid #fecaca; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="width: 40px; height: 40px; border-radius: 12px; background: #fee2e2; border: 1px solid #f87171; display: flex; align-items: center; justify-content: center; color: #dc2626;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #991b1b;">Clear Old Order Data</h3>
+                        <p style="margin: 0; font-size: 0.8rem; color: #b91c1c;">Safely purge historical orders and linked financial records</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closePurgeModal()" style="background: none; border: none; font-size: 1.5rem; color: #991b1b; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+
+            <!-- Modal Form -->
+            <form action="{{ route('admin.orders.purgeOld') }}" method="POST" id="purgeForm" style="padding: 1.5rem;">
+                @csrf
+
+                <!-- Warning Alert -->
+                <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #92400e; display: flex; gap: 0.65rem;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" style="flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span><strong>Permanent Action:</strong> Deleting orders will cascade delete corresponding order line items, sales records, payment transactions, and deliveries.</span>
+                </div>
+
+                <!-- Scope Selection -->
+                <div style="margin-bottom: 1.25rem;">
+                    <label style="display: block; font-weight: 700; font-size: 0.875rem; color: #334155; margin-bottom: 0.5rem;">Purge Scope</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 10px; cursor: pointer; font-size: 0.875rem; font-weight: 600;" id="scope_days_label">
+                            <input type="radio" name="scope" value="days" checked onchange="toggleScope(this.value)">
+                            <span>By Order Age</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 10px; cursor: pointer; font-size: 0.875rem; font-weight: 600;" id="scope_all_label">
+                            <input type="radio" name="scope" value="all" onchange="toggleScope(this.value)">
+                            <span style="color: #dc2626;">Reset All Orders</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Days Input (shown when scope is days) -->
+                <div id="days_container" style="margin-bottom: 1.25rem;">
+                    <label for="purge_days_input" style="display: block; font-weight: 700; font-size: 0.875rem; color: #334155; margin-bottom: 0.35rem;">Orders Older Than (Days)</label>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="number" name="days" id="purge_days_input" value="30" min="0" max="3650" class="form-control-input" style="width: 120px; padding: 0.55rem 0.85rem; border: 1.5px solid #cbd5e1; border-radius: 8px;" oninput="fetchPurgePreview()">
+                        <span style="font-size: 0.85rem; color: #64748b;">days (e.g. 7, 30, 60, 90)</span>
+                    </div>
+                </div>
+
+                <!-- Status Filter -->
+                <div style="margin-bottom: 1.25rem;">
+                    <label for="purge_status_select" style="display: block; font-weight: 700; font-size: 0.875rem; color: #334155; margin-bottom: 0.35rem;">Filter by Order Status</label>
+                    <select name="status" id="purge_status_select" class="form-control-select" style="width: 100%; padding: 0.55rem 0.85rem; border: 1.5px solid #cbd5e1; border-radius: 8px;" onchange="fetchPurgePreview()">
+                        <option value="all">All Statuses (Completed, Pending, etc.)</option>
+                        <option value="completed">Completed Orders Only</option>
+                        <option value="cancelled">Cancelled Orders Only</option>
+                        <option value="pending">Pending Orders Only</option>
+                    </select>
+                </div>
+
+                <!-- Stock & Backup Options -->
+                <div style="margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #334155; cursor: pointer;">
+                        <input type="checkbox" name="restore_stock" value="1" checked>
+                        <span>Restore inventory stock for any deleted pending/preparing orders</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #334155; cursor: pointer;">
+                        <input type="checkbox" name="backup" value="1" checked>
+                        <span>Export a JSON backup to server before clearing</span>
+                    </label>
+                </div>
+
+                <!-- Live Impact Preview Badge -->
+                <div id="purge_preview_box" style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: #475569;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                        <span>Matching Orders to Delete:</span>
+                        <strong id="preview_orders_count" style="color: #dc2626;">Loading...</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #64748b;">
+                        <span>Related Items / Sales / Payments:</span>
+                        <span id="preview_sub_counts">...</span>
+                    </div>
+                </div>
+
+                <!-- Confirmation Input -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="confirm_phrase_input" style="display: block; font-weight: 700; font-size: 0.875rem; color: #991b1b; margin-bottom: 0.35rem;">
+                        Type <span style="background: #fee2e2; padding: 0.15rem 0.4rem; border-radius: 4px; font-family: monospace;">CONFIRM</span> to proceed:
+                    </label>
+                    <input type="text" name="confirm_phrase" id="confirm_phrase_input" placeholder="CONFIRM" required autocomplete="off"
+                           style="width: 100%; padding: 0.65rem 0.85rem; border: 2px solid #f87171; border-radius: 8px; font-size: 0.95rem; font-weight: 700;"
+                           oninput="checkConfirmPhrase(this.value)">
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                    <button type="button" onclick="closePurgeModal()" class="btn btn-secondary" style="padding: 0.65rem 1.25rem; border-radius: 50px; background: #e2e8f0; color: #334155; border: none; font-weight: 700; cursor: pointer;">
+                        Cancel
+                    </button>
+                    <button type="submit" id="btn_submit_purge" disabled class="btn btn-danger" style="padding: 0.65rem 1.5rem; border-radius: 50px; background: #dc2626; color: #ffffff; border: none; font-weight: 800; cursor: not-allowed; opacity: 0.6; transition: all 0.2s ease;">
+                        Permanently Clear Orders
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openPurgeModal() {
+            const modal = document.getElementById('purgeModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                fetchPurgePreview();
+            }
+        }
+
+        function closePurgeModal() {
+            const modal = document.getElementById('purgeModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.getElementById('confirm_phrase_input').value = '';
+                checkConfirmPhrase('');
+            }
+        }
+
+        function toggleScope(val) {
+            const container = document.getElementById('days_container');
+            if (container) {
+                container.style.display = val === 'all' ? 'none' : 'block';
+            }
+            fetchPurgePreview();
+        }
+
+        function checkConfirmPhrase(val) {
+            const btn = document.getElementById('btn_submit_purge');
+            if (val.trim().toUpperCase() === 'CONFIRM') {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.6';
+                btn.style.cursor = 'not-allowed';
+            }
+        }
+
+        let previewDebounceTimer = null;
+        function fetchPurgePreview() {
+            clearTimeout(previewDebounceTimer);
+            previewDebounceTimer = setTimeout(() => {
+                const scope = document.querySelector('input[name="scope"]:checked')?.value || 'days';
+                const days = document.getElementById('purge_days_input')?.value || '30';
+                const status = document.getElementById('purge_status_select')?.value || 'all';
+
+                const url = `{{ route('admin.orders.purgePreview') }}?scope=${encodeURIComponent(scope)}&days=${encodeURIComponent(days)}&status=${encodeURIComponent(status)}`;
+
+                fetch(url, {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('preview_orders_count').innerText = `${data.orders_count} orders`;
+                        document.getElementById('preview_sub_counts').innerText = `${data.items_count} items, ${data.sales_count} sales, ${data.payments_count} payments`;
+                    }
+                })
+                .catch(err => {
+                    console.error('Failed to preview purge count', err);
+                });
+            }, 250);
+        }
+    </script>
+    @endif
 </div>
 @endsection

@@ -23,8 +23,8 @@
     <link rel="stylesheet" href="{{ asset('css/common.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/animations.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}?v={{ time() }}">
     @stack('styles')
+    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}?v={{ time() }}">
 </head>
 <body>
     <!-- Dark Mode Ambient Fireflies Layer -->
@@ -32,7 +32,7 @@
 
     <div class="bakery-app-layout">
         <!-- Sidebar Navigation -->
-        <aside class="bakery-sidebar">
+        <aside class="bakery-sidebar" id="sidebar_nav">
             <!-- Brand / Logo Area -->
             <div class="bakery-logo-area">
                 <div class="bakery-brand-icon">
@@ -47,10 +47,20 @@
                     <div class="bakery-logo-title">Bakery</div>
                     <div class="bakery-logo-subtitle">Management System</div>
                 </div>
+                <button type="button" class="sidebar-header-toggle-btn" id="sidebar_close_btn" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle Sidebar">
+                    <svg class="icon-chevron-toggle" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    <svg class="icon-close-mobile" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
 
             <!-- Navigation Links -->
             <nav class="sidebar-nav">
+                <!-- Liquid Moving Pointer Pill -->
                 <div class="nav-pointer-pill" id="nav_pointer_pill"></div>
 
                 @php
@@ -257,7 +267,7 @@
             <!-- Header Bar -->
             <header class="top-header-bar">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <button type="button" class="header-sidebar-toggle-btn" id="header_sidebar_toggle_btn" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle Sidebar">
+                    <button type="button" class="header-sidebar-toggle-btn" id="sidebar_toggle_btn" title="Toggle Sidebar (Ctrl+B)" aria-label="Toggle Sidebar">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="3" y1="12" x2="21" y2="12"></line>
                             <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -417,89 +427,124 @@
     <script src="{{ asset('js/lang.js') }}?v={{ time() }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // =========================================================
-            // Silky 60fps/120fps ProMotion Liquid Pill Sync Loop
-            // =========================================================
-            let pillSyncAnimationId = null;
-            function smoothPillSync(duration = 420) {
-                if (pillSyncAnimationId) cancelAnimationFrame(pillSyncAnimationId);
-                const start = performance.now();
-                function step(now) {
+            // Sidebar synchronization helper
+            function smoothPillSync() {
+                // Lightweight trigger without continuous frame resize loops
+                requestAnimationFrame(() => {
                     window.dispatchEvent(new Event('resize'));
-                    if (now - start < duration) {
-                        pillSyncAnimationId = requestAnimationFrame(step);
-                    } else {
-                        window.dispatchEvent(new Event('resize'));
-                        pillSyncAnimationId = null;
-                    }
-                }
-                pillSyncAnimationId = requestAnimationFrame(step);
+                });
             }
             window.smoothPillSync = smoothPillSync;
 
             // =========================================================
-            // Sidebar Open & Close Controllers (Desktop, iPad, Mobile)
+            // Sidebar Open, Close & Toggle Controllers (Desktop, Tablet, Mobile)
             // =========================================================
-            const headerToggleBtn = document.getElementById('header_sidebar_toggle_btn');
+            const headerToggleBtn = document.getElementById('sidebar_toggle_btn') || document.getElementById('header_sidebar_toggle_btn');
             const sidebar = document.querySelector('.bakery-sidebar');
             const mobileBackdrop = document.getElementById('sidebar_mobile_backdrop');
 
-            function updateSidebarStateUI(isClosed) {
-                if (!sidebar) return;
-                if (isClosed) {
-                    sidebar.classList.add('sidebar-closed');
-                    sidebar.classList.remove('sidebar-expanded');
-                    document.body.classList.add('sidebar-is-closed');
-                    if (headerToggleBtn) {
-                        headerToggleBtn.classList.add('is-closed-state');
-                        headerToggleBtn.setAttribute('title', 'Open Sidebar (Ctrl+B)');
-                        headerToggleBtn.setAttribute('aria-label', 'Open Sidebar');
-                    }
-                    if (mobileBackdrop) mobileBackdrop.classList.remove('is-active');
-                    localStorage.setItem('bakery_sidebar_state', 'closed');
+            function isDesktop() {
+                return window.innerWidth >= 1200;
+            }
+
+            function isTablet() {
+                return window.innerWidth >= 768 && window.innerWidth < 1200;
+            }
+
+            function isMobile() {
+                return window.innerWidth < 768;
+            }
+
+            function openMobileDrawer() {
+                if (sidebar) sidebar.classList.add('sidebar-expanded');
+                if (mobileBackdrop) mobileBackdrop.classList.add('is-active');
+                if (headerToggleBtn) headerToggleBtn.classList.add('is-closed-state');
+            }
+
+            function closeMobileDrawer() {
+                if (sidebar) sidebar.classList.remove('sidebar-expanded');
+                if (mobileBackdrop) mobileBackdrop.classList.remove('is-active');
+                if (headerToggleBtn) headerToggleBtn.classList.remove('is-closed-state');
+            }
+
+            const sidebarHeaderToggleBtn = document.querySelector('.sidebar-header-toggle-btn') || document.getElementById('sidebar_close_btn');
+
+            function updateSidebarHeaderToggleBtn() {
+                const btn = document.querySelector('.sidebar-header-toggle-btn') || document.getElementById('sidebar_close_btn');
+                if (!btn) return;
+                const isCollapsed = isDesktop() 
+                    ? (sidebar && (sidebar.classList.contains('sidebar-collapsed') || document.body.classList.contains('sidebar-is-closed')))
+                    : (sidebar && !sidebar.classList.contains('sidebar-expanded'));
+
+                if (isCollapsed) {
+                    btn.setAttribute('title', 'Expand Sidebar (Ctrl+B)');
+                    btn.setAttribute('aria-label', 'Expand Sidebar');
+                    btn.classList.add('is-collapsed-state');
                 } else {
-                    sidebar.classList.remove('sidebar-closed');
-                    document.body.classList.remove('sidebar-is-closed');
-                    if (headerToggleBtn) {
-                        headerToggleBtn.classList.remove('is-closed-state');
-                        headerToggleBtn.setAttribute('title', 'Close Sidebar (Ctrl+B)');
-                        headerToggleBtn.setAttribute('aria-label', 'Close Sidebar');
-                    }
-                    localStorage.setItem('bakery_sidebar_state', 'open');
+                    btn.setAttribute('title', 'Collapse Sidebar (Ctrl+B)');
+                    btn.setAttribute('aria-label', 'Collapse Sidebar');
+                    btn.classList.remove('is-collapsed-state');
                 }
-                smoothPillSync();
             }
 
             function openSidebar() {
-                if (window.innerWidth <= 1180) {
-                    if (sidebar) sidebar.classList.add('sidebar-expanded');
-                    if (mobileBackdrop) mobileBackdrop.classList.add('is-active');
+                if (isDesktop()) {
+                    if (sidebar) sidebar.classList.remove('sidebar-collapsed');
+                    document.body.classList.remove('sidebar-is-closed');
+                    localStorage.setItem('bakery_sidebar_state', 'expanded');
+                    if (headerToggleBtn) {
+                        headerToggleBtn.classList.remove('is-closed-state');
+                        headerToggleBtn.setAttribute('title', 'Collapse Sidebar (Ctrl+B)');
+                    }
+                } else {
+                    openMobileDrawer();
                 }
-                updateSidebarStateUI(false);
+                updateSidebarHeaderToggleBtn();
+                smoothPillSync();
             }
 
             function closeSidebar() {
-                if (window.innerWidth <= 1180) {
-                    if (sidebar) sidebar.classList.remove('sidebar-expanded');
-                    if (mobileBackdrop) mobileBackdrop.classList.remove('is-active');
+                if (isDesktop()) {
+                    if (sidebar) sidebar.classList.add('sidebar-collapsed');
+                    document.body.classList.add('sidebar-is-closed');
+                    localStorage.setItem('bakery_sidebar_state', 'collapsed');
+                    if (headerToggleBtn) {
+                        headerToggleBtn.classList.add('is-closed-state');
+                        headerToggleBtn.setAttribute('title', 'Expand Sidebar (Ctrl+B)');
+                    }
+                } else {
+                    closeMobileDrawer();
                 }
-                updateSidebarStateUI(true);
+                updateSidebarHeaderToggleBtn();
+                smoothPillSync();
             }
 
             function toggleSidebar() {
-                const isCurrentlyClosed = document.body.classList.contains('sidebar-is-closed') || 
-                                          (sidebar && sidebar.classList.contains('sidebar-closed'));
-                if (isCurrentlyClosed) {
-                    openSidebar();
+                if (!sidebar) return;
+                if (isDesktop()) {
+                    const isCurrentlyCollapsed = sidebar.classList.contains('sidebar-collapsed') || document.body.classList.contains('sidebar-is-closed');
+                    if (isCurrentlyCollapsed) {
+                        openSidebar();
+                    } else {
+                        closeSidebar();
+                    }
                 } else {
-                    closeSidebar();
+                    const isCurrentlyOpen = sidebar.classList.contains('sidebar-expanded');
+                    if (isCurrentlyOpen) {
+                        closeMobileDrawer();
+                    } else {
+                        openMobileDrawer();
+                    }
                 }
+                updateSidebarHeaderToggleBtn();
+                smoothPillSync();
             }
 
             // Expose globally
             window.openSidebar = openSidebar;
             window.closeSidebar = closeSidebar;
             window.toggleSidebar = toggleSidebar;
+            window.updateSidebarHeaderToggleBtn = updateSidebarHeaderToggleBtn;
 
             if (headerToggleBtn) {
                 headerToggleBtn.addEventListener('click', function(e) {
@@ -509,11 +554,32 @@
                 });
             }
 
+            if (sidebarHeaderToggleBtn) {
+                sidebarHeaderToggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleSidebar();
+                });
+            }
+
             if (mobileBackdrop) {
-                mobileBackdrop.addEventListener('click', function() {
+                mobileBackdrop.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    closeSidebar();
+                });
+                mobileBackdrop.addEventListener('touchend', function(e) {
+                    e.preventDefault();
                     closeSidebar();
                 });
             }
+
+            document.addEventListener('click', function(e) {
+                if (!isDesktop() && sidebar && sidebar.classList.contains('sidebar-expanded')) {
+                    if (!sidebar.contains(e.target) && (!headerToggleBtn || !headerToggleBtn.contains(e.target))) {
+                        closeMobileDrawer();
+                    }
+                }
+            });
 
             // Keyboard shortcut support: Ctrl+B or Cmd+B to toggle sidebar, Escape to close drawer
             document.addEventListener('keydown', function(e) {
@@ -521,18 +587,55 @@
                     e.preventDefault();
                     toggleSidebar();
                 } else if (e.key === 'Escape') {
-                    if (window.innerWidth <= 1180 && sidebar && sidebar.classList.contains('sidebar-expanded')) {
-                        closeSidebar();
+                    if (!isDesktop() && sidebar && sidebar.classList.contains('sidebar-expanded')) {
+                        closeMobileDrawer();
                     }
                 }
             });
 
-            // Clean up legacy sidebar state from localStorage on desktop so sidebar stays permanently open
-            if (window.innerWidth > 1180) {
-                localStorage.removeItem('bakery_sidebar_state');
-                document.body.classList.remove('sidebar-is-closed');
-                if (sidebar) sidebar.classList.remove('sidebar-closed');
+            // Initialize sidebar state on page load
+            if (isDesktop()) {
+                const savedState = localStorage.getItem('bakery_sidebar_state');
+                if (savedState === 'collapsed') {
+                    if (sidebar) sidebar.classList.add('sidebar-collapsed');
+                    document.body.classList.add('sidebar-is-closed');
+                    if (headerToggleBtn) {
+                        headerToggleBtn.classList.add('is-closed-state');
+                        headerToggleBtn.setAttribute('title', 'Expand Sidebar (Ctrl+B)');
+                    }
+                } else {
+                    if (sidebar) sidebar.classList.remove('sidebar-collapsed');
+                    document.body.classList.remove('sidebar-is-closed');
+                    if (headerToggleBtn) {
+                        headerToggleBtn.classList.remove('is-closed-state');
+                        headerToggleBtn.setAttribute('title', 'Collapse Sidebar (Ctrl+B)');
+                    }
+                }
+                if (mobileBackdrop) mobileBackdrop.classList.remove('is-active');
+            } else {
+                closeMobileDrawer();
             }
+            updateSidebarHeaderToggleBtn();
+
+            // Adjust on resize between desktop, tablet, and mobile
+            window.addEventListener('resize', function() {
+                if (isDesktop()) {
+                    closeMobileDrawer();
+                    const savedState = localStorage.getItem('bakery_sidebar_state');
+                    if (savedState === 'collapsed') {
+                        if (sidebar) sidebar.classList.add('sidebar-collapsed');
+                        document.body.classList.add('sidebar-is-closed');
+                    } else {
+                        if (sidebar) sidebar.classList.remove('sidebar-collapsed');
+                        document.body.classList.remove('sidebar-is-closed');
+                    }
+                } else {
+                    if (sidebar) {
+                        sidebar.classList.remove('sidebar-collapsed');
+                        document.body.classList.remove('sidebar-is-closed');
+                    }
+                }
+            });
 
             // User Profile Pill & Notification Elements
             const userPill = document.getElementById('user_profile_pill');

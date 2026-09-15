@@ -1,209 +1,189 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Clean, instant native CSS hover & active state architecture
     const nav = document.querySelector(".sidebar-nav");
-
     if (!nav) return;
 
-    let pill = document.getElementById("nav_pointer_pill");
+    // ---------------------------------------------------------
+    // LIQUID MOVING POINTER PILL (MACOS / APPLE ELASTIC HOVER)
+    // ---------------------------------------------------------
+    function initSidebarPill() {
+        const nav = document.querySelector(".sidebar-nav");
+        if (!nav) return;
 
-    if (!pill) {
-        pill = document.createElement("div");
-        pill.id = "nav_pointer_pill";
-        pill.className = "nav-pointer-pill";
-        nav.prepend(pill);
-    }
-
-    const items = [...nav.querySelectorAll(".sidebar-nav-item")];
-
-    if (!items.length) return;
-
-    let activeItem =
-        nav.querySelector(".sidebar-nav-item.active") || items[0];
-
-    let currentItem = activeItem;
-    let currentY = null;
-    let currentX = null;
-    let stretchTimer = null;
-
-    function movePill(item, instant = false) {
-        if (!item) return;
-
-        const navRect = nav.getBoundingClientRect();
-        const itemRect = item.getBoundingClientRect();
-
-        if (!itemRect.width || !itemRect.height) return;
-
-        const x = itemRect.left - navRect.left;
-        const y = itemRect.top - navRect.top + nav.scrollTop;
-
-        const isMoving = currentY !== null && (Math.abs(y - currentY) > 4 || Math.abs(x - currentX) > 4);
-
-        if (instant) {
-            pill.style.transition = "none";
-        } else {
-            pill.style.transition = "";
+        let pill = document.getElementById("nav_pointer_pill");
+        if (!pill) {
+            pill = document.createElement("div");
+            pill.id = "nav_pointer_pill";
+            pill.className = "nav-pointer-pill";
+            nav.prepend(pill);
         }
 
-        pill.style.width = `${itemRect.width}px`;
-        pill.style.height = `${itemRect.height}px`;
+        const items = [...nav.querySelectorAll(".sidebar-nav-item")];
+        if (!items.length) return;
 
-        if (stretchTimer) clearTimeout(stretchTimer);
+        let activeItem = nav.querySelector(".sidebar-nav-item.active") || items[0];
+        let currentItem = activeItem;
+        let currentY = null;
+        let currentX = null;
+        let stretchTimer = null;
 
-        if (!instant && isMoving) {
-            // macOS/iOS Liquid stretch blob effect while in motion
-            pill.style.transform = `translate3d(${x}px, ${y}px, 0) scale3d(0.96, 1.15, 1)`;
+        function movePill(item, instant = false) {
+            if (!item) return;
 
-            // Elastic recoil back to normal size as it lands on target item
-            stretchTimer = setTimeout(() => {
-                pill.style.transform = `translate3d(${x}px, ${y}px, 0) scale3d(1, 1, 1)`;
-            }, 180);
-        } else {
-            pill.style.transform = `translate3d(${x}px, ${y}px, 0) scale3d(1, 1, 1)`;
-        }
+            const navRect = nav.getBoundingClientRect();
+            const itemRect = item.getBoundingClientRect();
 
-        pill.style.opacity = "1";
+            if (!itemRect.width || !itemRect.height) return;
 
-        currentY = y;
-        currentX = x;
-        currentItem = item;
+            const x = itemRect.left - navRect.left;
+            const y = itemRect.top - navRect.top + nav.scrollTop;
 
-        items.forEach(i => {
-            const isTarget = i === item;
-            i.classList.toggle("pill-highlighted", isTarget);
-            i.classList.toggle("highlighted", isTarget);
-        });
+            const isMoving = currentY !== null && (Math.abs(y - currentY) > 3 || Math.abs(x - currentX) > 3);
 
-        if (instant) {
-            requestAnimationFrame(() => {
+            if (instant) {
+                pill.style.transition = "none";
+            } else {
                 pill.style.transition = "";
-            });
-        }
-    }
-
-    function setHighlight(item) {
-        movePill(item);
-    }
-
-    function setActive(item) {
-        items.forEach(i => i.classList.remove("active"));
-
-        item.classList.add("active");
-
-        activeItem = item;
-        currentItem = item;
-
-        setHighlight(item);
-    }
-
-    // -------------------------
-    // DESKTOP & MOBILE HOVER / TOUCH
-    // -------------------------
-
-    items.forEach(item => {
-
-        item.addEventListener("mouseenter", () => {
-            if (window.matchMedia("(hover: hover)").matches) {
-                setHighlight(item);
             }
+
+            pill.style.width = `${itemRect.width}px`;
+            pill.style.height = `${itemRect.height}px`;
+
+            if (stretchTimer) clearTimeout(stretchTimer);
+
+            if (!instant && isMoving) {
+                // macOS / iOS Liquid stretch blob effect while in motion
+                pill.style.transform = `translate3d(${x}px, ${y}px, 0) scale3d(0.97, 1.12, 1)`;
+
+                // Elastic recoil back to normal size as it lands on target item
+                stretchTimer = setTimeout(() => {
+                    pill.style.transform = `translate3d(${x}px, ${y}px, 0) scale3d(1, 1, 1)`;
+                }, 180);
+            } else {
+                pill.style.transform = `translate3d(${x}px, ${y}px, 0) scale3d(1, 1, 1)`;
+            }
+
+            pill.style.opacity = "1";
+
+            currentY = y;
+            currentX = x;
+            currentItem = item;
+
+            items.forEach(i => {
+                const isTarget = (i === item);
+                i.classList.toggle("pill-highlighted", isTarget);
+                i.classList.toggle("highlighted", isTarget);
+            });
+
+            if (instant) {
+                requestAnimationFrame(() => {
+                    pill.style.transition = "";
+                });
+            }
+        }
+
+        function setHighlight(item) {
+            movePill(item);
+        }
+
+        function setActive(item) {
+            items.forEach(i => i.classList.remove("active"));
+            item.classList.add("active");
+            activeItem = item;
+            currentItem = item;
+            setHighlight(item);
+        }
+
+        // Hover & Touch Events on nav items
+        items.forEach(item => {
+            item.addEventListener("mouseenter", () => {
+                if (window.matchMedia("(hover: hover)").matches) {
+                    setHighlight(item);
+                }
+            });
+
+            item.addEventListener("pointerdown", (event) => {
+                if (event.pointerType === "touch" || event.pointerType === "pen") {
+                    setHighlight(item);
+                }
+            }, { passive: true });
+
+            item.addEventListener("click", () => {
+                setActive(item);
+            });
         });
 
-        item.addEventListener("mouseleave", () => {
+        // Hovering inside submenus keeps pill resting gracefully on the parent nav item
+        const submenuItems = [...nav.querySelectorAll(".sidebar-submenu-item")];
+        submenuItems.forEach(subItem => {
+            subItem.addEventListener("mouseenter", () => {
+                if (window.matchMedia("(hover: hover)").matches) {
+                    const group = subItem.closest(".sidebar-group");
+                    if (group) {
+                        const parentNavItem = group.querySelector(".sidebar-nav-item");
+                        if (parentNavItem) {
+                            setHighlight(parentNavItem);
+                        }
+                    }
+                }
+            });
+        });
+
+        // Container mouseleave: cleanly glide back to activeItem without gap stutter
+        nav.addEventListener("mouseleave", () => {
             if (window.matchMedia("(hover: hover)").matches) {
                 setHighlight(activeItem);
             }
         });
 
-        // -------------------------
-        // IPAD / PHONE TOUCH
-        // -------------------------
-
-        item.addEventListener(
-            "pointerdown",
-            (event) => {
-
-                if (
-                    event.pointerType === "touch" ||
-                    event.pointerType === "pen"
-                ) {
-                    setHighlight(item);
-                }
-
-            },
-            { passive: true }
-        );
-
-        // Normal click
-        item.addEventListener("click", () => {
-            setActive(item);
-        });
-    });
-
-    // -------------------------
-    // DESKTOP LEAVE CONTAINER
-    // -------------------------
-
-    nav.addEventListener("mouseleave", () => {
-
-        if (window.matchMedia("(hover: hover)").matches) {
-            setHighlight(activeItem);
+        function refreshPosition(instant = true) {
+            if (!currentItem) return;
+            requestAnimationFrame(() => {
+                movePill(currentItem, instant);
+            });
         }
 
-    });
+        window.addEventListener("resize", () => refreshPosition(true));
+        window.addEventListener("orientationchange", () => setTimeout(() => refreshPosition(true), 250));
 
-    // -------------------------
-    // RESIZE & ORIENTATION
-    // -------------------------
+        if (window.ResizeObserver) {
+            const ro = new ResizeObserver(() => {
+                refreshPosition(true);
+            });
+            ro.observe(nav);
+            const sidebarEl = document.querySelector(".bakery-sidebar");
+            if (sidebarEl) ro.observe(sidebarEl);
+        }
 
-    function refreshPosition() {
-
-        if (!currentItem) return;
-
-        requestAnimationFrame(() => {
-            movePill(currentItem, true);
+        // Sidebar toggle button listeners (Ctrl+B, mobile hamburger, header toggle, in-sidebar toggle)
+        const toggleBtns = document.querySelectorAll("#sidebar_toggle_btn, .header-sidebar-toggle-btn, .sidebar-header-toggle-btn, #sidebar_close_btn");
+        toggleBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                let ticks = 0;
+                const interval = setInterval(() => {
+                    refreshPosition(true);
+                    ticks++;
+                    if (ticks > 8) clearInterval(interval);
+                }, 40);
+            });
         });
 
-    }
-
-    window.addEventListener("resize", refreshPosition);
-
-    window.addEventListener("orientationchange", () => {
-        setTimeout(refreshPosition, 250);
-    });
-
-    // -------------------------
-    // RESIZE OBSERVER
-    // -------------------------
-
-    if (window.ResizeObserver) {
-
-        const observer = new ResizeObserver(() => {
-            refreshPosition();
+        // Accordion chevrons
+        document.querySelectorAll(".sidebar-dropdown-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                setTimeout(() => refreshPosition(false), 80);
+                setTimeout(() => refreshPosition(true), 280);
+            });
         });
 
-        observer.observe(nav);
-    }
+        // Expose globally
+        window.sidebarPillRefresh = () => refreshPosition(true);
 
-    // Hamburger toggle button listener for iPad/Mobile sidebar expansion
-    const sidebarToggleBtn = document.getElementById('sidebar_toggle_btn');
-    if (sidebarToggleBtn) {
-        sidebarToggleBtn.addEventListener('click', function() {
-            let count = 0;
-            const interval = setInterval(() => {
-                refreshPosition();
-                count++;
-                if (count > 6) clearInterval(interval);
-            }, 50);
-        });
-    }
-
-    // -------------------------
-    // INITIAL POSITION
-    // -------------------------
-
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
+        // Initial alignment on page load
+        setTimeout(() => {
             movePill(activeItem, true);
-        });
-    });
+        }, 40);
+    }
 
     // ---------------------------------------------------------
     // iOS SEGMENTED CONTROL (MACOS APPLE LIQUID SMOOTH PILL)
@@ -321,11 +301,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 btn.classList.toggle('active', isMatch);
             });
         });
+
+        if (typeof window.sidebarPillRefresh === 'function') {
+            window.sidebarPillRefresh();
+        }
     }
 
     // Auto-apply saved theme on DOM load
     const currentSavedTheme = localStorage.getItem('bakery_theme') || 'light';
     applyTheme(currentSavedTheme);
 
+    initSidebarPill();
     initSegmentedControls();
 });

@@ -5,14 +5,17 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\Delivery;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\Setting;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class OrderController extends Controller
 {
@@ -684,4 +687,177 @@ class OrderController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
+
+    /**
+     * Preview count of orders and associated records that match purge criteria.
+     */
+    public function purgePreview(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user || !$user->isAdmin()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $scope = $request->get('scope', 'days');
+        $days = (int) $request->get('days', 30);
+        $status = $request->get('status', 'all');
+
+        $query = Order::query();
+
+        if ($scope === 'days') {
+            $query->where('created_at', '<', now()->subDays($days));
+        }
+
+        if (!empty($status) && $status !== 'all') {
+            $query->where('order_status', $status);
+        }
+
+        $orderIds = $query->pluck('id')->toArray();
+        $orderCount = count($orderIds);
+
+        $itemsCount = $orderCount > 0 ? OrderItem::whereIn('order_id', $orderIds)->count() : 0;
+        $salesCount = $orderCount > 0 ? Sale::whereIn('order_id', $orderIds)->count() : 0;
+        $paymentsCount = $orderCount > 0 ? Payment::whereIn('order_id', $orderIds)->count() : 0;
+        $deliveriesCount = $orderCount > 0 ? Delivery::whereIn('order_id', $orderIds)->count() : 0;
+        $pendingCount = $orderCount > 0 ? Order::whereIn('id', $orderIds)->whereIn('order_status', ['pending', 'preparing', 'baking'])->count() : 0;
+
+        return response()->json([
+            'success' => true,
+            'orders_count' => $orderCount,
+            'items_count' => $itemsCount,
+            'sales_count' => $salesCount,
+            'payments_count' => $paymentsCount,
+            'deliveries_count' => $deliveriesCount,
+            'pending_count' => $pendingCount,
+        ]);
+    }
+
+    /**
+     * Bulk purge historical order data with data integrity, optional backup, and stock restoration.
+     */
+    public function purgeOld(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user || !$user->isAdmin()) {
+            abort(403, 'Unauthorized. Only administrators can purge order records.');
+        }
+
+        $validated = $request->validate([
+            'scope'          => 'required|in:all,days',
+            'days'           => 'nullable|integer|min:0|max:3650',
+            'status'         => 'nullable|string',
+            'restore_stock'  => 'nullable|boolean',
+            'backup'         => 'nullable|boolean',
+            'confirm_phrase' => 'required|string',
+        ]);
+
+        if (strtoupper(trim($validated['confirm_phrase'])) !== 'CONFIRM') {
+            return redirect()->back()->with('error', 'Confirmation failed. You must type "CONFIRM" to authorize order deletion.');
+        }
+
+        $all = $validated['scope'] === 'all';
+        $days = $all ? null : (int) ($validated['days'] ?? 30);
+        $status = $validated['status'] ?? 'all';
+        $restoreStock = $request->boolean('restore_stock', true);
+        $createBackup = $request->boolean('backup', true);
+
+        $query = Order::query();
+
+        if (!$all && $days !== null) {
+            $query->where('created_at', '<', now()->subDays($days));
+        }
+
+        if (!empty($status) && $status !== 'all') {
+            $query->where('order_status', $status);
+        }
+
+        $orderIds = $query->pluck('id')->toArray();
+        $orderCount = count($orderIds);
+
+        if ($orderCount === 0) {
+            return redirect()->back()->with('error', 'No matching orders found to purge.');
+        }
+
+        // Backup to JSON if requested
+        if ($createBackup) {
+            try {
+                $backupDir = storage_path('app/backups');
+                File::ensureDirectoryExists($backupDir);
+                $backupFile = $backupDir . DIRECTORY_SEPARATOR . 'orders_purge_backup_' . date('Y_m_d_His') . '.json';
+                $backupData = Order::with(['items', 'sale', 'payments', 'delivery'])
+                    ->whereIn('id', $orderIds)
+                    ->get();
+                File::put($backupFile, $backupData->toJson(JSON_PRETTY_PRINT));
+            } catch (\Throwable $e) {
+                // Log and continue
+            }
+        }
+
+        $restoredItemsCount = 0;
+
+        try {
+            DB::transaction(function () use ($orderIds, $restoreStock, &$restoredItemsCount, $orderCount, $user, $all, $days, $status) {
+                // Restore inventory if requested for active/uncompleted orders
+                if ($restoreStock) {
+                    $activeOrders = Order::with('items')
+                        ->whereIn('id', $orderIds)
+                        ->whereIn('order_status', ['pending', 'preparing', 'baking'])
+                        ->lockForUpdate()
+                        ->get();
+
+                    foreach ($activeOrders as $activeOrder) {
+                        foreach ($activeOrder->items as $item) {
+                            if ($item->product_id && $item->quantity > 0) {
+                                $product = Product::lockForUpdate()->find($item->product_id);
+                                if ($product) {
+                                    $product->increment('stock', $item->quantity);
+                                    $restoredItemsCount++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Explicit cascade deletion
+                Delivery::whereIn('order_id', $orderIds)->delete();
+                Payment::whereIn('order_id', $orderIds)->delete();
+                Sale::whereIn('order_id', $orderIds)->delete();
+                OrderItem::whereIn('order_id', $orderIds)->delete();
+                Order::whereIn('id', $orderIds)->delete();
+
+                // Audit log
+                AuditLogService::log(
+                    'orders_purged',
+                    "Administrator {$user->name} purged {$orderCount} order records (Scope: " . ($all ? 'all' : ">{$days}d") . ", Status: {$status}).",
+                    null,
+                    [
+                        'purged_by' => $user->id,
+                        'orders_count' => $orderCount,
+                        'restored_stock' => $restoreStock,
+                        'restored_items_count' => $restoredItemsCount,
+                        'scope' => $all ? 'all' : 'days',
+                        'days' => $days,
+                        'status_filter' => $status,
+                    ]
+                );
+            });
+
+            $msg = "Successfully purged {$orderCount} order(s) and associated sales/payment records.";
+            if ($restoreStock && $restoredItemsCount > 0) {
+                $msg .= " Restored inventory stock for {$restoredItemsCount} line item(s).";
+            }
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => true, 'message' => $msg, 'purged_count' => $orderCount]);
+            }
+
+            return redirect()->route('admin.orders')->with('success', $msg);
+        } catch (\Throwable $e) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            }
+            return redirect()->back()->with('error', 'Failed to purge orders: ' . $e->getMessage());
+        }
+    }
 }
+
