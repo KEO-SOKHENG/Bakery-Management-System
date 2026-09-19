@@ -5,7 +5,6 @@ test.describe('Customer Management & POS Integration Suite', () => {
     test('1. Admin can access Customer Management, view stats, search, and CRUD customer', async ({ page }) => {
         // Login as Admin
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="admin"]');
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -64,15 +63,18 @@ test.describe('Customer Management & POS Integration Suite', () => {
         const deleteBtn = page.locator(`tr:has-text("${updatedName}") button.delete`);
         await deleteBtn.click();
 
+        const globalConfirmBtn = page.locator('#btn_proceed_global_confirm');
+        if (await globalConfirmBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+            await globalConfirmBtn.click();
+        }
+
         // Customer removed
-        await page.waitForTimeout(500);
         await expect(page.locator('#customers_table')).not.toContainText(updatedName);
     });
 
     test('2. Customer Detail & Purchase History View', async ({ page }) => {
         // Login as Admin
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="admin"]');
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -96,7 +98,6 @@ test.describe('Customer Management & POS Integration Suite', () => {
     test('3. Role Permissions: Cashier is blocked from admin customers, Manager can access', async ({ page }) => {
         // Login as Cashier
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="cashier"]');
         await page.fill('#username_input', 'cashier@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -111,7 +112,6 @@ test.describe('Customer Management & POS Integration Suite', () => {
 
         // Login as Manager
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="manager"]');
         await page.fill('#username_input', 'manager@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -126,7 +126,6 @@ test.describe('Customer Management & POS Integration Suite', () => {
     test('4. POS Customer Integration: Search, Select, Remove, and Checkout with Customer', async ({ page }) => {
         // Login as Cashier
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="cashier"]');
         await page.fill('#username_input', 'cashier@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -193,7 +192,6 @@ test.describe('Customer Management & POS Integration Suite', () => {
     test('5. Language Switcher (EN <-> KM) on Customer Pages', async ({ page }) => {
         // Login as Admin
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="admin"]');
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');

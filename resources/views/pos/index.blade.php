@@ -33,11 +33,12 @@
 
             <div class="pos-category-tabs" id="pos_category_tabs">
                 <button type="button" class="pos-cat-pill active" data-category-id="all">
-                    🥐 <span data-lang-key="all_categories">All Items</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+                    <span data-lang-key="all_categories">All Items</span>
                 </button>
                 @foreach($categories as $category)
                     <button type="button" class="pos-cat-pill" data-category-id="{{ $category->id }}">
-                        {{ $category->icon ?? '🍰' }} <span>{{ $category->name }}</span>
+                        {!! $category->getIconSvg(18) !!} <span>{{ $category->name }}</span>
                     </button>
                 @endforeach
             </div>
@@ -61,12 +62,10 @@
                     data-code="{{ strtolower($product->code ?? $product->sku ?? '') }}"
                 >
                     <div class="pos-item-visual">
-                        @if($product->image_emoji)
-                            <span>{{ $product->image_emoji }}</span>
-                        @elseif($product->image && file_exists(public_path('storage/' . $product->image)))
+                        @if($product->image && file_exists(public_path('storage/' . $product->image)))
                             <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 18px;">
                         @else
-                            <span>🍞</span>
+                            {!! $product->getIconSvg(40) !!}
                         @endif
                     </div>
 
@@ -365,17 +364,17 @@
 
         <!-- Modal Actions -->
         <div class="pos-modal-actions">
-            <button type="button" class="btn-receipt-print" id="btn_receipt_print">
+            <x-button variant="secondary" id="btn_receipt_print" class="btn-receipt-print">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="6 9 6 2 18 2 18 9"/>
                     <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
                     <rect x="6" y="14" width="12" height="8"/>
                 </svg>
                 <span data-lang-key="print_receipt">Print Receipt</span>
-            </button>
-            <button type="button" class="btn-receipt-close" id="btn_receipt_close" data-lang-key="new_sale">
+            </x-button>
+            <x-button variant="primary" id="btn_receipt_close" class="btn-receipt-close" data-lang-key="new_sale">
                 New Sale
-            </button>
+            </x-button>
         </div>
     </div>
 </div>
@@ -408,10 +407,10 @@
                 </div>
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
-                <button type="button" class="btn-clear-cart" id="btn_cancel_quick_cust" style="padding: 0.5rem 1rem;" data-lang-key="cancel">Cancel</button>
-                <button type="submit" class="btn-complete-sale" style="width: auto; padding: 0.55rem 1.35rem; font-size: 0.875rem;" id="btn_save_quick_cust">
+                <x-button variant="secondary" id="btn_cancel_quick_cust" class="btn-clear-cart" style="padding: 0.5rem 1rem;" data-lang-key="cancel">Cancel</x-button>
+                <x-button variant="primary" type="submit" class="btn-complete-sale" style="width: auto; padding: 0.55rem 1.35rem; font-size: 0.875rem;" id="btn_save_quick_cust">
                     <span data-lang-key="save">Register & Select</span>
-                </button>
+                </x-button>
             </div>
         </form>
     </div>
@@ -746,11 +745,17 @@
     // Clear Cart button
     clearCartBtn.addEventListener('click', function() {
         if (cart.length === 0) return;
-        if (confirm('Are you sure you want to clear the current cart?')) {
-            cart = [];
-            discountInput.value = '0.00';
-            renderCart();
-        }
+        window.showConfirmDialog({
+            title: 'Clear Shopping Cart',
+            message: 'Are you sure you want to clear all items from the current cart?',
+            confirmText: 'Clear Cart',
+            isDanger: true,
+            onConfirm: function() {
+                cart = [];
+                discountInput.value = '0.00';
+                renderCart();
+            }
+        });
     });
 
     // -------------------------------------------------------------------------

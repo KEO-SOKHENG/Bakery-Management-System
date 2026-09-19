@@ -75,23 +75,12 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $deliveryDriver = User::updateOrCreate(
-            ['username' => 'delivery'],
-            [
-                'name' => 'Sokha Delivery (Driver)',
-                'email' => 'delivery@bakery.com',
-                'password' => Hash::make('pass123'),
-                'role' => 'delivery_staff',
-                'status' => 'active',
-            ]
-        );
-
-        // 2. Seed Categories
-        $cakes = Category::create(['name' => 'Cakes', 'description' => 'Freshly baked cakes and pastries', 'status' => 'active']);
-        $bread = Category::create(['name' => 'Bread', 'description' => 'Artisanal breads and loaves', 'status' => 'active']);
-        $pastries = Category::create(['name' => 'Pastries', 'description' => 'Flaky French pastries', 'status' => 'active']);
-        $cookies = Category::create(['name' => 'Cookies', 'description' => 'Sweet baked cookies', 'status' => 'active']);
-        $drinks = Category::create(['name' => 'Drinks', 'description' => 'Coffee, tea and beverage options', 'status' => 'active']);
+        // 2. Seed Categories (using firstOrCreate to prevent duplicates)
+        $cakes = Category::firstOrCreate(['name' => 'Cakes'], ['description' => 'Freshly baked cakes and pastries', 'status' => 'active']);
+        $bread = Category::firstOrCreate(['name' => 'Bread'], ['description' => 'Artisanal breads and loaves', 'status' => 'active']);
+        $pastries = Category::firstOrCreate(['name' => 'Pastries'], ['description' => 'Flaky French pastries', 'status' => 'active']);
+        $cookies = Category::firstOrCreate(['name' => 'Cookies'], ['description' => 'Sweet baked cookies', 'status' => 'active']);
+        $drinks = Category::firstOrCreate(['name' => 'Drinks'], ['description' => 'Coffee, tea and beverage options', 'status' => 'active']);
 
         // 3. Seed Suppliers
         $sup1 = Supplier::create([

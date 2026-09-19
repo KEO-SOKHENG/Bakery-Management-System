@@ -80,7 +80,6 @@ class LoginController extends Controller
                 'manager' => redirect()->route('manager.dashboard')->with('success', 'Welcome back, Manager!'),
                 'cashier' => redirect()->route('cashier.dashboard')->with('success', 'Welcome back, Cashier!'),
                 'baker' => redirect()->route('admin.production')->with('success', 'Welcome back, Baker!'),
-                'delivery_staff' => redirect()->route('admin.deliveries.index')->with('success', 'Welcome back, Delivery Staff!'),
                 default => redirect()->route('login'),
             };
         }

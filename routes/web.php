@@ -19,7 +19,6 @@ use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\DeliveryController;
 use App\Http\Controllers\Admin\HrController;
 use App\Http\Controllers\PasswordChangeController;
 use App\Http\Controllers\PosController;
@@ -172,19 +171,6 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
         Route::post('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
         Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
-    });
-
-    // -------------------------------------------------------------
-    // DELIVERY MANAGEMENT ROUTES (Admin, Manager, Cashier, Delivery Staff)
-    // -------------------------------------------------------------
-    Route::middleware(['role:admin,manager,cashier,delivery_staff'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/deliveries', [DeliveryController::class, 'index'])->name('deliveries.index');
-        Route::get('/deliveries/create', [DeliveryController::class, 'create'])->name('deliveries.create');
-        Route::post('/deliveries', [DeliveryController::class, 'store'])->name('deliveries.store');
-        Route::get('/deliveries/{delivery}', [DeliveryController::class, 'show'])->name('deliveries.show');
-        Route::put('/deliveries/{delivery}', [DeliveryController::class, 'update'])->name('deliveries.update');
-        Route::post('/deliveries/{delivery}/status', [DeliveryController::class, 'updateStatus'])->name('deliveries.updateStatus');
-        Route::post('/deliveries/{delivery}/assign', [DeliveryController::class, 'assign'])->name('deliveries.assign');
     });
 
     // MANAGER DASHBOARD

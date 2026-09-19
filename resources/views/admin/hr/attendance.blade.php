@@ -47,20 +47,17 @@
 
 <!-- Flash Notifications -->
 @if(session('success'))
-    <div style="background: rgba(22, 163, 74, 0.12); color: #16a34a; border: 1px solid rgba(22, 163, 74, 0.3); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        <span>{{ session('success') }}</span>
-    </div>
+    <x-alert type="success" :dismissible="true">{{ session('success') }}</x-alert>
 @endif
 
 @if($errors->any())
-    <div style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; font-weight: 700;">
+    <x-alert type="danger" :dismissible="true">
         <ul style="margin: 0; padding-left: 1.2rem;">
             @foreach($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
-    </div>
+    </x-alert>
 @endif
 
 <!-- KPI Cards -->
@@ -146,7 +143,7 @@
 </div>
 
 <!-- Table Container -->
-<div class="users-card">
+<x-card class="users-card">
     <div class="users-table-container">
         <table class="users-table">
             <thead>
@@ -181,13 +178,13 @@
                         <td>{{ $att->work_duration ?? '-' }}</td>
                         <td>
                             @if($att->status === 'present')
-                                <span class="user-badge active">Present</span>
+                                <x-badge variant="success">Present</x-badge>
                             @elseif($att->status === 'late')
-                                <span class="user-badge suspended">Late</span>
+                                <x-badge variant="warning">Late</x-badge>
                             @elseif($att->status === 'on_leave')
-                                <span class="user-badge" style="background: rgba(14, 165, 233, 0.15); color: #0284c7;">On Leave</span>
+                                <x-badge variant="info">On Leave</x-badge>
                             @else
-                                <span class="user-badge inactive">Absent</span>
+                                <x-badge variant="danger">Absent</x-badge>
                             @endif
                         </td>
                         <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -220,7 +217,7 @@
             {{ $attendances->links() }}
         </div>
     @endif
-</div>
+</x-card>
 
 <!-- Modal: Record Attendance -->
 <div class="user-modal-overlay" id="modal_record_attendance">

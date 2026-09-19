@@ -3,7 +3,6 @@ import { test, expect } from '@playwright/test';
 test.describe('Role Based Access & Permissions', () => {
     test('Cashier role cannot access protected URLs directly', async ({ page }) => {
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="cashier"]');
         await page.fill('#username_input', 'cashier@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -24,7 +23,6 @@ test.describe('Role Based Access & Permissions', () => {
 
     test('Manager role cannot access user management or critical system settings', async ({ page }) => {
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="manager"]');
         await page.fill('#username_input', 'manager@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -45,7 +43,6 @@ test.describe('Role Based Access & Permissions', () => {
 
     test('Admin role has full access to all pages', async ({ page }) => {
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="admin"]');
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');

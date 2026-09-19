@@ -89,76 +89,46 @@ body {
     margin-bottom: 1.5rem;
 }
 
-/* Role Selector Segmented Tabs (Liquid Animated) */
-.role-selector-tabs {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: 9999px;
-    padding: 4px;
+/* Status & Error Alerts */
+.login-alert {
     width: 100%;
-    height: 44px;
-    box-sizing: border-box;
-    margin-bottom: 1.5rem;
-    gap: 4px;
-    isolation: isolate;
-    overflow: hidden;
-}
-
-.role-tab-pointer-pill {
-    position: absolute;
-    top: 4px;
-    left: 0;
-    height: 34px;
-    background-color: var(--primary-brown);
-    border-radius: 9999px;
-    box-shadow: 0 4px 14px rgba(74, 44, 32, 0.35);
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0;
-    will-change: transform, width;
-    transition: transform 0.3s cubic-bezier(.22, 1, .36, 1),
-                width 0.3s cubic-bezier(.22, 1, .36, 1),
-                opacity 0.2s ease;
-}
-
-.role-tab-btn {
-    position: relative;
-    z-index: 2;
-    flex: 1;
-    height: 34px;
-    line-height: 34px;
-    padding: 0 0.75rem;
-    border-radius: 9999px !important;
-    border: none;
-    background: transparent !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    cursor: pointer;
-    white-space: nowrap;
     display: flex;
     align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    transition: color 0.2s ease;
+    gap: 0.65rem;
+    padding: 0.75rem 1rem;
+    border-radius: 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 1.25rem;
+    text-align: left;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.role-tab-btn:hover {
-    color: var(--text-dark);
+.login-alert-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 
-.role-tab-btn.active,
-.role-tab-btn.pill-highlighted {
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    background: transparent !important;
-    box-shadow: none !important;
+.login-alert-error {
+    background-color: rgba(254, 242, 242, 0.85);
+    border: 1px solid rgba(248, 113, 113, 0.4);
+    color: #991b1b;
+}
+
+.login-alert-info {
+    background-color: rgba(239, 246, 255, 0.85);
+    border: 1px solid rgba(147, 197, 253, 0.4);
+    color: #1e40af;
+}
+
+.login-alert-warning {
+    background-color: rgba(254, 252, 232, 0.85);
+    border: 1px solid rgba(250, 204, 21, 0.4);
+    color: #854d0e;
 }
 
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Order;
-use App\Models\Delivery;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
@@ -306,7 +305,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        $order->load(['items.product.category', 'customer', 'user', 'sale', 'payments', 'delivery']);
+        $order->load(['items.product.category', 'customer', 'user', 'sale', 'payments']);
 
         $taxPercentage = (float) Setting::get('tax_percentage', Setting::get('tax_rate', 10.0));
         $currency = Setting::get('currency', '$');
@@ -556,24 +555,6 @@ class OrderController extends Controller
                 }
 
                 $lockedOrder->save();
-
-                // Synchronize related delivery record if attached
-                if ($lockedOrder->delivery) {
-                    if ($targetStatus === Order::STATUS_OUT_FOR_DELIVERY) {
-                        $lockedOrder->delivery->update([
-                            'delivery_status' => 'out_for_delivery',
-                        ]);
-                    } elseif ($targetStatus === Order::STATUS_COMPLETED && $lockedOrder->delivery->delivery_status !== 'delivered') {
-                        $lockedOrder->delivery->update([
-                            'delivery_status' => 'delivered',
-                            'delivered_at' => now(),
-                        ]);
-                    } elseif ($targetStatus === Order::STATUS_CANCELLED) {
-                        $lockedOrder->delivery->update([
-                            'delivery_status' => 'cancelled',
-                        ]);
-                    }
-                }
             });
 
             // Dispatch notification for order status change
@@ -718,7 +699,6 @@ class OrderController extends Controller
         $itemsCount = $orderCount > 0 ? OrderItem::whereIn('order_id', $orderIds)->count() : 0;
         $salesCount = $orderCount > 0 ? Sale::whereIn('order_id', $orderIds)->count() : 0;
         $paymentsCount = $orderCount > 0 ? Payment::whereIn('order_id', $orderIds)->count() : 0;
-        $deliveriesCount = $orderCount > 0 ? Delivery::whereIn('order_id', $orderIds)->count() : 0;
         $pendingCount = $orderCount > 0 ? Order::whereIn('id', $orderIds)->whereIn('order_status', ['pending', 'preparing', 'baking'])->count() : 0;
 
         return response()->json([
@@ -727,7 +707,6 @@ class OrderController extends Controller
             'items_count' => $itemsCount,
             'sales_count' => $salesCount,
             'payments_count' => $paymentsCount,
-            'deliveries_count' => $deliveriesCount,
             'pending_count' => $pendingCount,
         ]);
     }
@@ -784,7 +763,7 @@ class OrderController extends Controller
                 $backupDir = storage_path('app/backups');
                 File::ensureDirectoryExists($backupDir);
                 $backupFile = $backupDir . DIRECTORY_SEPARATOR . 'orders_purge_backup_' . date('Y_m_d_His') . '.json';
-                $backupData = Order::with(['items', 'sale', 'payments', 'delivery'])
+                $backupData = Order::with(['items', 'sale', 'payments'])
                     ->whereIn('id', $orderIds)
                     ->get();
                 File::put($backupFile, $backupData->toJson(JSON_PRETTY_PRINT));
@@ -819,7 +798,6 @@ class OrderController extends Controller
                 }
 
                 // Explicit cascade deletion
-                Delivery::whereIn('order_id', $orderIds)->delete();
                 Payment::whereIn('order_id', $orderIds)->delete();
                 Sale::whereIn('order_id', $orderIds)->delete();
                 OrderItem::whereIn('order_id', $orderIds)->delete();

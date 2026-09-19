@@ -72,16 +72,6 @@ class Order extends Model
         return $this->hasMany(Payment::class);
     }
 
-    public function delivery()
-    {
-        return $this->hasOne(Delivery::class);
-    }
-
-    public function deliveries()
-    {
-        return $this->hasMany(Delivery::class);
-    }
-
     // =========================================================================
     // STATUS WORKFLOW & TRANSITIONS
     // =========================================================================

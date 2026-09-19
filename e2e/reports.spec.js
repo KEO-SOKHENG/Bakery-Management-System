@@ -205,7 +205,6 @@ test.describe('Report Management Module', () => {
     test.describe('Role Based Access Control (RBAC)', () => {
         test('Manager role can access reports dashboard', async ({ page }) => {
             await page.goto('/login');
-            await page.click('.role-tab-btn[data-role="manager"]');
             await page.fill('#username_input', 'manager@bakery.com');
             await page.fill('#password_input', 'pass123');
             await page.click('#submit_btn');
@@ -218,7 +217,6 @@ test.describe('Report Management Module', () => {
 
         test('Cashier role CANNOT access reports dashboard and is redirected', async ({ page }) => {
             await page.goto('/login');
-            await page.click('.role-tab-btn[data-role="cashier"]');
             await page.fill('#username_input', 'cashier@bakery.com');
             await page.fill('#password_input', 'pass123');
             await page.click('#submit_btn');

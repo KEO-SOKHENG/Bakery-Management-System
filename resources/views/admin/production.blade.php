@@ -9,41 +9,37 @@
 @section('content')
 <div class="production-dashboard-wrapper">
     <!-- 1. Hero Header Bar -->
-    <div class="production-hero-bar">
-        <div class="production-hero-title">
-            <h1>
+    <div class="production-hero-bar page-header">
+        <div class="production-hero-title page-header-info">
+            <h1 class="page-header-title">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-brown, #5D4037);"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                 <span data-lang-key="production_management">{{ __('messages.production_management') }}</span>
             </h1>
-            <p>{{ __('messages.deduct_stock_notice') }}</p>
+            <p class="page-header-subtitle">{{ __('messages.deduct_stock_notice') }}</p>
         </div>
 
         @if(in_array(auth()->user()->role, ['admin', 'manager']))
-            <button type="button" class="btn-schedule-batch" id="btn_open_prod_modal">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span data-lang-key="schedule_production_batch">{{ __('messages.schedule_production_batch') }}</span>
-            </button>
+            <div class="page-header-actions">
+                <x-button variant="primary" id="btn_open_prod_modal" class="btn-schedule-batch">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span data-lang-key="schedule_production_batch">{{ __('messages.schedule_production_batch') }}</span>
+                </x-button>
+            </div>
         @endif
     </div>
 
     <!-- Alert Notifications -->
     @if(session('success'))
-        <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; padding: 0.85rem 1.15rem; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 0.6rem;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <span>{{ session('success') }}</span>
-        </div>
+        <x-alert type="success" :message="session('success')" />
     @endif
 
     @if(session('error'))
-        <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.85rem 1.15rem; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 0.6rem;">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <span>{{ session('error') }}</span>
-        </div>
+        <x-alert type="danger" :message="session('error')" />
     @endif
 
     <!-- 2. KPI Summary Cards -->
     <div class="prod-stats-grid">
-        <div class="prod-stat-card">
+        <x-card class="prod-stat-card">
             <div class="prod-stat-icon total">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
             </div>
@@ -51,37 +47,37 @@
                 <span class="prod-stat-val">{{ number_format($stats['total']) }}</span>
                 <span class="prod-stat-lbl" data-lang-key="all_batches">{{ __('messages.all_batches') }}</span>
             </div>
-        </div>
+        </x-card>
 
-        <div class="prod-stat-card">
+        <x-card class="prod-stat-card">
             <div class="prod-stat-icon scheduled">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
             <div class="prod-stat-info">
                 <span class="prod-stat-val">{{ number_format($stats['scheduled']) }}</span>
                 <span class="prod-stat-lbl" data-lang-key="scheduled">{{ __('messages.scheduled') }}</span>
             </div>
-        </div>
+        </x-card>
 
-        <div class="prod-stat-card">
+        <x-card class="prod-stat-card">
             <div class="prod-stat-icon in-progress">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
             </div>
             <div class="prod-stat-info">
                 <span class="prod-stat-val">{{ number_format($stats['in_progress']) }}</span>
                 <span class="prod-stat-lbl" data-lang-key="in_progress">{{ __('messages.in_progress') }}</span>
             </div>
-        </div>
+        </x-card>
 
-        <div class="prod-stat-card">
+        <x-card class="prod-stat-card">
             <div class="prod-stat-icon completed">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
             <div class="prod-stat-info">
-                <span class="prod-stat-val">{{ number_format($stats['completed_units']) }}</span>
-                <span class="prod-stat-lbl">{{ __('messages.completed') }} (Units)</span>
+                <span class="prod-stat-val">{{ number_format($stats['completed']) }}</span>
+                <span class="prod-stat-lbl" data-lang-key="completed">{{ __('messages.completed') }}</span>
             </div>
-        </div>
+        </x-card>
     </div>
 
     <!-- 3. Toolbar & Filter Tabs -->
@@ -162,7 +158,7 @@
     </div>
 
     <!-- 4. Production Batches Table -->
-    <div class="prod-table-card">
+    <x-card class="prod-table-card">
         <div style="overflow-x: auto;">
             <table class="prod-table" id="production_batches_table">
                 <thead>
@@ -249,9 +245,7 @@
 
                             <!-- Status Badge -->
                             <td>
-                                <span class="badge-status {{ $statusClass }}">
-                                    {{ ucfirst(str_replace('_', ' ', $batch->status)) }}
-                                </span>
+                                <x-badge :status="$batch->status" class="badge-status {{ $statusClass }}" />
                             </td>
 
                             <!-- Actions -->
@@ -299,11 +293,16 @@
 
                                     <!-- Delete Button (Only Scheduled or Cancelled, Admin/Manager Only) -->
                                     @if(in_array(auth()->user()->role, ['admin', 'manager']) && ($batch->isScheduled() || $batch->isCancelled()))
-                                        <form action="{{ route('admin.production.destroy', $batch->id) }}" method="POST" onsubmit="return confirm('Delete this production log?');" style="display: inline;">
+                                        <form action="{{ route('admin.production.destroy', $batch->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete production batch #{{ $batch->batch_number }}?');" style="display: inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" title="Delete Batch">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                            <button type="submit" class="btn-icon-action delete" title="Delete Batch">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                </svg>
                                             </button>
                                         </form>
                                     @endif
@@ -328,7 +327,7 @@
                 {{ $productions->links() }}
             </div>
         @endif
-    </div>
+    </x-card>
 </div>
 
 <!-- ========================================================================
@@ -444,10 +443,10 @@
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; border-top: 1px solid var(--border-color, #e4e4e7); padding-top: 1rem;">
-                <button type="button" class="btn-filter-reset" id="btn_cancel_schedule">Cancel</button>
-                <button type="submit" class="btn-schedule-batch" id="btn_submit_production">
+                <x-button variant="secondary" id="btn_cancel_schedule">Cancel</x-button>
+                <x-button variant="primary" type="submit" class="btn-schedule-batch" id="btn_submit_production">
                     Save Production Batch
-                </button>
+                </x-button>
             </div>
         </form>
     </div>

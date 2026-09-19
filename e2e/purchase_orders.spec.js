@@ -65,10 +65,17 @@ test.describe('Supplier Management, Purchase Orders & Stock Replenishment E2E', 
         // 7. Transition Draft -> Ordered
         page.on('dialog', dialog => dialog.accept());
         await page.click('button:has-text("Place Order")');
+        const globalConfirmBtn = page.locator('#btn_proceed_global_confirm');
+        if (await globalConfirmBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+            await globalConfirmBtn.click();
+        }
         await expect(page.locator('body')).toContainText(/Ordered/i);
 
         // 8. Transition Ordered -> Receive Order & Replenish Stock
         await page.click('#btn_receive_po');
+        if (await globalConfirmBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+            await globalConfirmBtn.click();
+        }
 
         // Verify status is Received & Stocked In
         await expect(page.locator('body')).toContainText(/Received/i);

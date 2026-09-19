@@ -100,7 +100,7 @@ import { chromium } from 'playwright';
 
     console.log('\n--- Test 4: Mouse leaves nav -> pill returns to Dashboard ---');
     // Move mouse over to main content
-    await page.locator('.header-greeting').hover();
+    await page.locator('.header-actions, .top-header-bar').first().hover();
     await page.waitForTimeout(400);
 
     const returnPill = await page.evaluate(() => {

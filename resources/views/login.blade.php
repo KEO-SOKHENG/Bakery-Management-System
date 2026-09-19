@@ -33,25 +33,39 @@
 
         <!-- System Branding -->
         <h1 class="login-title">Moon Cake</h1>
-        <!-- <p class="login-subtitle">Bakery Management System</p> -->
+        <p class="login-subtitle">Bakery Management System</p>
 
-        <!-- Role Selector Tabs -->
-        <div class="role-selector-tabs">
-            <div class="role-tab-pointer-pill"></div>
-            <button type="button" class="role-tab-btn active" data-role="admin">Admin</button>
-            <button type="button" class="role-tab-btn" data-role="manager">Manager</button>
-            <button type="button" class="role-tab-btn" data-role="baker">Baker</button>
-            <button type="button" class="role-tab-btn" data-role="cashier">Cashier</button>
-        </div>
+        <!-- Status & Error Notifications -->
+        @if ($errors->any())
+            <div class="login-alert login-alert-error" role="alert">
+                <svg class="login-alert-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>{{ $errors->first() }}</span>
+            </div>
+        @elseif (session('info'))
+            <div class="login-alert login-alert-info" role="alert">
+                <svg class="login-alert-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+                <span>{{ session('info') }}</span>
+            </div>
+        @elseif (session('warning'))
+            <div class="login-alert login-alert-warning" role="alert">
+                <svg class="login-alert-icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span>{{ session('warning') }}</span>
+            </div>
+        @endif
 
         <!-- Login Form -->
         <form action="{{ route('login.post') }}" method="POST" class="login-form">
             @csrf
-            <input type="hidden" name="role" id="selected_role" value="admin">
 
             <!-- Username / Email Field -->
             <div class="form-group-item">
-                <label class="form-field-label">Username / Email</label>
+                <label class="form-field-label" for="username_input">Username / Email</label>
                 <div class="input-pill-wrapper">
                     <span class="input-icon-left">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -60,13 +74,14 @@
                         </svg>
                     </span>
                     <input type="text" name="username" id="username_input" class="pill-input" required
-                        placeholder="Admin / Manager / Cashier">
+                        value="{{ old('username') }}" autocomplete="username" autofocus
+                        placeholder="Enter your username or email">
                 </div>
             </div>
 
             <!-- Password Field -->
             <div class="form-group-item">
-                <label class="form-field-label">Password</label>
+                <label class="form-field-label" for="password_input">Password</label>
                 <div class="input-pill-wrapper">
                     <span class="input-icon-left">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -75,7 +90,7 @@
                         </svg>
                     </span>
                     <input type="password" name="password" id="password_input" class="pill-input has-right-icon"
-                        required placeholder="••••••••••••">
+                        required autocomplete="current-password" placeholder="••••••••••••">
                     <button type="button" class="input-icon-right" id="toggle_password_btn"
                         title="Toggle password visibility">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -97,120 +112,22 @@
 
             <!-- Submit Button -->
             <button type="submit" class="submit-pill-btn" id="submit_btn">
-                Sign In as Admin
+                Sign In
             </button>
         </form>
     </div>
 
-    <!-- Role Switcher & Interactivity Script -->
+    <!-- Login Interactivity Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const roleButtons = document.querySelectorAll('.role-tab-btn');
-            const hiddenRoleInput = document.getElementById('selected_role');
-            const usernameInput = document.getElementById('username_input');
             const passwordInput = document.getElementById('password_input');
-            const submitBtn = document.getElementById('submit_btn');
             const togglePasswordBtn = document.getElementById('toggle_password_btn');
 
-            // ---------------------------------------------------------
-            // LIQUID SLIDING PILL ANIMATION FOR ROLE SELECTOR
-            // ---------------------------------------------------------
-            const tabsContainer = document.querySelector('.role-selector-tabs');
-            if (tabsContainer) {
-                const pill = tabsContainer.querySelector('.role-tab-pointer-pill');
-                const buttons = [...tabsContainer.querySelectorAll('.role-tab-btn')];
-                let activeBtn = tabsContainer.querySelector('.role-tab-btn.active') || buttons[0];
-
-                function movePill(btn, instant = false) {
-                    if (!btn || !pill) return;
-                    const containerRect = tabsContainer.getBoundingClientRect();
-                    const btnRect = btn.getBoundingClientRect();
-
-                    if (!btnRect.width) return;
-
-                    const x = btnRect.left - containerRect.left;
-                    const width = btnRect.width;
-
-                    pill.style.transition = instant ? 'none' : '';
-                    pill.style.width = `${width}px`;
-                    pill.style.transform = `translate3d(${x}px, 0, 0)`;
-                    pill.style.opacity = '1';
-
-                    buttons.forEach(b => {
-                        b.classList.toggle('pill-highlighted', b === btn);
-                    });
-                }
-
-                // Initial alignment & resize listener
-                movePill(activeBtn, true);
-                window.addEventListener('resize', () => movePill(activeBtn, true));
-
-                buttons.forEach(btn => {
-                    btn.addEventListener('click', function () {
-                        activeBtn = this;
-                        movePill(this);
-                    });
-
-                    btn.addEventListener('mouseenter', function () {
-                        if (activeBtn !== this) {
-                            movePill(this);
-                        }
-                    });
-                });
-
-                tabsContainer.addEventListener('mouseleave', function () {
-                    movePill(activeBtn);
-                });
-            }
-
-            // Role tab switching form logic
-            roleButtons.forEach(btn => {
-                btn.addEventListener('click', function () {
-                    roleButtons.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-
-                    const role = this.getAttribute('data-role');
-                    hiddenRoleInput.value = role;
-
-                    if (role === 'admin') {
-                        submitBtn.textContent = 'Sign In as Admin';
-                    } else if (role === 'manager') {
-                        submitBtn.textContent = 'Sign In as Manager';
-                    } else if (role === 'baker') {
-                        submitBtn.textContent = 'Sign In as Baker';
-                    } else if (role === 'cashier') {
-                        submitBtn.textContent = 'Sign In as Cashier';
-                    }
-                });
-            });
-
             // Toggle password visibility
-            if (togglePasswordBtn) {
+            if (togglePasswordBtn && passwordInput) {
                 togglePasswordBtn.addEventListener('click', function () {
                     const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                     passwordInput.setAttribute('type', type);
-                });
-            }
-
-            // Ensure synchronous submission so session cookies are committed before immediate navigations in WebKit
-            const loginForm = document.querySelector('.login-form');
-            if (loginForm) {
-                loginForm.addEventListener('submit', function (e) {
-                    try {
-                        e.preventDefault();
-                        const formData = new FormData(loginForm);
-                        const xhr = new XMLHttpRequest();
-                        xhr.open('POST', loginForm.action, false);
-                        xhr.send(formData);
-
-                        if (xhr.responseURL && xhr.responseURL !== window.location.href) {
-                            window.location.href = xhr.responseURL;
-                        } else {
-                            window.location.reload();
-                        }
-                    } catch (err) {
-                        loginForm.submit();
-                    }
                 });
             }
         });

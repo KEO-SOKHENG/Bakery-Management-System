@@ -180,4 +180,48 @@ test.describe('Order Management & POS Integration End-to-End Suite', () => {
         const firstRowStatus = page.locator('.orders-table tbody tr').first().locator('.status-badge');
         await expect(firstRowStatus).toContainText(/Completed/i);
     });
+
+    test('6. Clear All Orders button opens responsive easy delete modal with quick presets', async ({ page }) => {
+        await page.goto('/admin/orders');
+        await expect(page).toHaveURL(/\/admin\/orders/);
+
+        const purgeBtn = page.locator('#btn_open_purge_modal');
+        await expect(purgeBtn).toBeVisible();
+        await expect(purgeBtn).toContainText('Clear All Orders');
+
+        // Click to open purge modal
+        await purgeBtn.click();
+        const modal = page.locator('#purgeModal');
+        await expect(modal).toBeVisible();
+
+        // Check 1-click preset buttons are present
+        const btnAll = page.locator('#btn_scope_all');
+        const btn30 = page.locator('#btn_scope_30');
+        const btn90 = page.locator('#btn_scope_90');
+        const btnCancelled = page.locator('#btn_scope_cancelled');
+
+        await expect(btnAll).toBeVisible();
+        await expect(btn30).toBeVisible();
+        await expect(btn90).toBeVisible();
+        await expect(btnCancelled).toBeVisible();
+
+        // Select 'Older than 30d' preset
+        await btn30.click();
+        await expect(page.locator('#form_purge_scope')).toHaveValue('days');
+        await expect(page.locator('#form_purge_days')).toHaveValue('30');
+
+        // Select 'All Orders' preset
+        await btnAll.click();
+        await expect(page.locator('#form_purge_scope')).toHaveValue('all');
+
+        // Submit button is immediately ready to click (no typing required for easy user experience)
+        const submitBtn = page.locator('#btn_submit_purge');
+        await expect(submitBtn).toBeVisible();
+        await expect(submitBtn).toBeEnabled();
+
+        // Close modal
+        await page.click('button[onclick="closePurgeModal()"]');
+        await expect(modal).toBeHidden();
+    });
 });
+

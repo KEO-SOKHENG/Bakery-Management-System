@@ -7,77 +7,61 @@
 @endpush
 
 @section('content')
-<div class="users-header-bar">
-    <div class="users-title-group">
-        <h2>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span data-lang-key="users_management">{{ __('messages.users_management') }}</span>
-            <span style="font-size: 0.9rem; font-weight: 700; color: var(--user-muted);">({{ $totalUsers }})</span>
-        </h2>
-        <p data-lang-key="users_management_subtitle">{{ __('messages.users_management_subtitle') }}</p>
-    </div>
-
-    <button type="button" class="btn-user-primary" id="btn_open_create_user_modal">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span data-lang-key="create_user">{{ __('messages.create_user') }}</span>
-    </button>
-</div>
+<x-page-header title="User & Staff Management" subtitle="{{ __('messages.users_management_subtitle') }}">
+    <x-slot:actions>
+        <x-button variant="primary" id="btn_open_create_user_modal" class="btn-user-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span data-lang-key="create_user">{{ __('messages.create_user') }}</span>
+        </x-button>
+    </x-slot:actions>
+</x-page-header>
 
 <!-- Flash Notifications -->
 @if(session('success'))
-    <div style="background: rgba(22, 163, 74, 0.12); color: #16a34a; border: 1px solid rgba(22, 163, 74, 0.3); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        <span>{{ session('success') }}</span>
-    </div>
+    <x-alert type="success" :message="session('success')" />
 @endif
 
 @if(session('error'))
-    <div style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span>{{ session('error') }}</span>
-    </div>
+    <x-alert type="danger" :message="session('error')" />
 @endif
 
 @if(session('info'))
-    <div style="background: rgba(14, 165, 233, 0.12); color: #0284c7; border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <span>{{ session('info') }}</span>
-    </div>
+    <x-alert type="info" :message="session('info')" />
 @endif
 
 @if($errors->any())
-    <div style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; font-weight: 700;">
+    <x-alert type="danger">
         <ul style="margin: 0; padding-left: 1.2rem;">
             @foreach($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
-    </div>
+    </x-alert>
 @endif
 
 <!-- Navigation Tabs -->
 <div class="hr-nav-tabs">
     <a href="{{ route('admin.users.index') }}" class="hr-nav-tab active">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <span>Staff Directory</span>
-    </a>
-    <a href="{{ route('admin.hr.attendance') }}" class="hr-nav-tab">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>Attendance</span>
-    </a>
-    <a href="{{ route('admin.hr.schedules') }}" class="hr-nav-tab">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span>Work Schedules</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span data-lang-key="users_management">{{ __('messages.users_management') }}</span>
     </a>
     <a href="{{ route('admin.hr.salaries') }}" class="hr-nav-tab">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        <span>Salaries & Payroll</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span data-lang-key="salary_management">{{ __('messages.salary_management') }}</span>
+    </a>
+    <a href="{{ route('admin.hr.attendance') }}" class="hr-nav-tab">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span data-lang-key="attendance_management">{{ __('messages.attendance_management') }}</span>
+    </a>
+    <a href="{{ route('admin.hr.schedules') }}" class="hr-nav-tab">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span data-lang-key="work_schedules">{{ __('messages.work_schedules') }}</span>
     </a>
 </div>
 
-<!-- KPI Summary Metric Cards -->
+<!-- Summary Metric Cards -->
 <div class="user-stats-grid">
-    <div class="user-stat-card">
+    <x-card class="user-stat-card">
         <div class="stat-icon-wrapper total">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
@@ -85,9 +69,9 @@
             <div class="stat-label" data-lang-key="total_staff">{{ __('messages.total_staff') }}</div>
             <div class="stat-number">{{ number_format($totalUsers) }}</div>
         </div>
-    </div>
+    </x-card>
 
-    <div class="user-stat-card">
+    <x-card class="user-stat-card">
         <div class="stat-icon-wrapper active">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
@@ -95,9 +79,9 @@
             <div class="stat-label" data-lang-key="active_accounts">{{ __('messages.active_accounts') }}</div>
             <div class="stat-number">{{ number_format($activeUsers) }}</div>
         </div>
-    </div>
+    </x-card>
 
-    <div class="user-stat-card">
+    <x-card class="user-stat-card">
         <div class="stat-icon-wrapper inactive">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
         </div>
@@ -105,9 +89,9 @@
             <div class="stat-label" data-lang-key="inactive_accounts">{{ __('messages.inactive_accounts') }}</div>
             <div class="stat-number">{{ number_format($inactiveUsers) }}</div>
         </div>
-    </div>
+    </x-card>
 
-    <div class="user-stat-card">
+    <x-card class="user-stat-card">
         <div class="stat-icon-wrapper suspended">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
@@ -115,7 +99,7 @@
             <div class="stat-label" data-lang-key="suspended_accounts">{{ __('messages.suspended_accounts') }}</div>
             <div class="stat-number">{{ number_format($suspendedUsers) }}</div>
         </div>
-    </div>
+    </x-card>
 </div>
 
 <!-- Search & Filtering Toolbar -->
@@ -155,7 +139,7 @@
 </div>
 
 <!-- Users Table Card -->
-<div class="users-card">
+<x-card class="users-card">
     <div style="overflow-x: auto;">
         <table class="users-table" id="users_table">
             <thead>
@@ -203,10 +187,9 @@
                             </span>
                         </td>
                         <td>
-                            <span class="status-badge {{ $statusClass }}">
-                                <span class="status-dot"></span>
+                            <x-badge :variant="$user->status === 'active' ? 'success' : ($user->status === 'suspended' ? 'danger' : 'warning')">
                                 {{ ucfirst($user->status) }}
-                            </span>
+                            </x-badge>
                         </td>
                         <td>
                             <div style="font-size: 0.85rem; font-weight: 600;">
@@ -283,7 +266,7 @@
                                     </button>
 
                                     <!-- Delete Button (checks historical record protection) -->
-                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete user \'{{ $user->username }}\'? If they have transaction history, please deactivate instead.');" style="display: inline;">
+                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete user \'{{ $user->username }}\'? If they have sales or order records, consider deactivating them instead.');" style="display: inline;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn-icon-action delete" title="Delete User">
@@ -311,7 +294,7 @@
     <div style="margin-top: 1.5rem;">
         {{ $users->links() }}
     </div>
-</div>
+</x-card>
 
 <!-- ==========================================================================
      CREATE USER MODAL
@@ -383,8 +366,8 @@
                 </div>
             </div>
             <div class="user-modal-footer">
-                <button type="button" class="btn-modal-cancel" id="btn_cancel_create_user" data-lang-key="cancel">{{ __('messages.cancel') }}</button>
-                <button type="submit" class="btn-user-primary" data-lang-key="save">{{ __('messages.save') }}</button>
+                <x-button variant="secondary" id="btn_cancel_create_user" class="btn-modal-cancel" data-lang-key="cancel">{{ __('messages.cancel') }}</x-button>
+                <x-button variant="primary" type="submit" class="btn-user-primary" data-lang-key="save">{{ __('messages.save') }}</x-button>
             </div>
         </form>
     </div>
@@ -458,8 +441,8 @@
                 </div>
             </div>
             <div class="user-modal-footer">
-                <button type="button" class="btn-modal-cancel" id="btn_cancel_edit_user" data-lang-key="cancel">{{ __('messages.cancel') }}</button>
-                <button type="submit" class="btn-user-primary" data-lang-key="save">{{ __('messages.save') }}</button>
+                <x-button variant="secondary" id="btn_cancel_edit_user" class="btn-modal-cancel" data-lang-key="cancel">{{ __('messages.cancel') }}</x-button>
+                <x-button variant="primary" type="submit" class="btn-user-primary" data-lang-key="save">{{ __('messages.save') }}</x-button>
             </div>
         </form>
     </div>
@@ -497,8 +480,8 @@
                 </div>
             </div>
             <div class="user-modal-footer">
-                <button type="button" class="btn-modal-cancel" id="btn_cancel_reset_pwd" data-lang-key="cancel">{{ __('messages.cancel') }}</button>
-                <button type="submit" class="btn-user-primary" style="background: #d97706;">Save New Password</button>
+                <x-button variant="secondary" id="btn_cancel_reset_pwd" class="btn-modal-cancel" data-lang-key="cancel">{{ __('messages.cancel') }}</x-button>
+                <x-button variant="warning" type="submit" class="btn-user-primary">Save New Password</x-button>
             </div>
         </form>
     </div>
@@ -520,10 +503,10 @@
                     Target User: <strong id="status_user_name"></strong>
                 </div>
 
-                <div class="form-field-group">
-                    <label for="modal_status_select">Select New Status</label>
+                <div class="form-field-group" style="margin-top: 1rem;">
+                    <label for="modal_status_select">Set Account Status *</label>
                     <select id="modal_status_select" name="status" required>
-                        <option value="active">Active (Can log in and perform authorized duties)</option>
+                        <option value="active">Active (Full operational access)</option>
                         <option value="inactive">Inactive (Deactivated, blocked from logging in)</option>
                         <option value="suspended">Suspended (Temporarily locked due to policy)</option>
                     </select>
@@ -534,8 +517,8 @@
                 </div>
             </div>
             <div class="user-modal-footer">
-                <button type="button" class="btn-modal-cancel" id="btn_cancel_status_modal" data-lang-key="cancel">{{ __('messages.cancel') }}</button>
-                <button type="submit" class="btn-user-primary" data-lang-key="save">{{ __('messages.save') }}</button>
+                <x-button variant="secondary" id="btn_cancel_status_modal" class="btn-modal-cancel" data-lang-key="cancel">{{ __('messages.cancel') }}</x-button>
+                <x-button variant="primary" type="submit" class="btn-user-primary" data-lang-key="save">{{ __('messages.save') }}</x-button>
             </div>
         </form>
     </div>

@@ -145,16 +145,14 @@
     gap: 0.5rem;
     overflow-x: auto;
     padding-bottom: 4px;
-    scrollbar-width: thin;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 .pos-category-tabs::-webkit-scrollbar {
-    height: 4px;
-}
-
-.pos-category-tabs::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.12);
-    border-radius: 4px;
+    display: none;
+    height: 0;
+    width: 0;
 }
 
 .pos-cat-pill {

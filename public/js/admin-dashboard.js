@@ -49,6 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("view_order_status").textContent = (order.status || "COMPLETED").toUpperCase();
 
                 if (viewModal) {
+                    if (viewModal.parentElement !== document.body) {
+                        document.body.appendChild(viewModal);
+                    }
                     viewModal.classList.add("active");
                     document.body.style.overflow = "hidden";
                 }

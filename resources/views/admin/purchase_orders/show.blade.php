@@ -52,17 +52,17 @@
                 </button>
             </form>
         @elseif($purchaseOrder->isOrdered())
-            <form action="{{ route('admin.purchase-orders.receive', $purchaseOrder->id) }}" method="POST" onsubmit="return confirm('Confirm receipt of PO #{{ $purchaseOrder->po_number }}?\n\nThis will execute a safe database transaction to:\n1. Update raw material stock in inventory\n2. Update ingredient purchase costs\n3. Record Stock IN audit movements\n4. Mark this PO as Received.');" style="display: inline;">
+            <form action="{{ route('admin.purchase-orders.receive', $purchaseOrder->id) }}" method="POST" onsubmit="return confirm('Receive Purchase Order #{{ $purchaseOrder->po_number }}?\n\nThis will:\n- Add items to inventory stock\n- Update ingredient costs\n- Mark this order as Received.');" style="display: inline;">
                 @csrf
-                <button type="submit" class="btn btn-primary" id="btn_receive_po" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.35rem; background: #059669; color: #fff; border-radius: 9999px; border: none; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);">
+                <button type="submit" class="btn btn-success" id="btn_receive_po" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.35rem; font-weight: 700; cursor: pointer;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                     <span>Receive Order & Replenish Stock</span>
                 </button>
             </form>
 
-            <form action="{{ route('admin.purchase-orders.cancel', $purchaseOrder->id) }}" method="POST" onsubmit="return confirm('Cancel this ordered PO?');" style="display: inline;">
+            <form action="{{ route('admin.purchase-orders.cancel', $purchaseOrder->id) }}" method="POST" onsubmit="return confirm('Cancel this purchase order?');" style="display: inline;">
                 @csrf
-                <button type="submit" class="btn btn-secondary" style="padding: 0.6rem 1rem; border-radius: 9999px; border: 1px solid #ef4444; color: #ef4444; font-weight: 600; background: #fff; cursor: pointer;">
+                <button type="submit" class="btn btn-outline-danger" style="padding: 0.6rem 1rem; font-weight: 600; cursor: pointer;">
                     Cancel Order
                 </button>
             </form>
@@ -75,7 +75,7 @@
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         <div>
             <div style="font-weight: 800; color: #065f46; font-size: 0.95rem;">Order Successfully Received & Stock Replenished</div>
-            <div style="font-size: 0.8rem; color: #047857;">Received on {{ $purchaseOrder->received_date ? $purchaseOrder->received_date->format('M d, Y H:i:s') : '—' }}. Ingredient quantities and cost prices were committed to inventory.</div>
+            <div style="font-size: 0.8rem; color: #047857;">Received on {{ $purchaseOrder->received_date ? $purchaseOrder->received_date->format('M d, Y H:i') : '—' }}. Stock quantities and cost prices have been added to inventory.</div>
         </div>
     </div>
 @elseif($purchaseOrder->isCancelled())

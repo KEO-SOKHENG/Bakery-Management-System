@@ -778,7 +778,7 @@
         </table>
         
         <div style="margin-top: 15px; font-size: 7.5pt; color: #71717a; border-left: 3px solid #b45309; padding-left: 8px;">
-            <strong>Accounting Limitation Note:</strong> Operational overheads such as building rent, utilities, electricity, and staff labor wages are not tracked in the current database schema. This analysis transparently provides Gross Profit based on recorded direct product costs and procurement orders.
+            <strong>Note:</strong> General operating expenses such as rent and utilities are not tracked here. This report reflects Gross Profit based on recorded direct product costs and procurement orders.
         </div>
     @endif
 

@@ -149,13 +149,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     bindDeleteButtons();
                     updateProductCount();
                     closeModal();
-                    showToast(`Product "${product.name}" saved to database!`);
+                    showToast(`Product "${product.name}" saved successfully.`);
                 } else {
                     alert(data.message || "Failed to save product.");
                 }
             } catch (err) {
                 console.error("Product Save Error:", err);
-                alert("Error saving product to database.");
+                alert("Failed to save product. Please try again.");
             }
         });
     }
@@ -166,34 +166,40 @@ document.addEventListener("DOMContentLoaded", () => {
     function bindDeleteButtons() {
         const deleteBtns = document.querySelectorAll(".btn-delete-product");
         deleteBtns.forEach((btn) => {
-            btn.onclick = async function () {
+            btn.onclick = function () {
                 const id = this.getAttribute("data-id");
-                if (!confirm("Are you sure you want to delete this product from the database?")) return;
+                window.showConfirmDialog({
+                    title: 'Confirm Deletion',
+                    message: 'Are you sure you want to delete this product?',
+                    confirmText: 'Yes, Delete',
+                    isDanger: true,
+                    onConfirm: async function() {
+                        try {
+                            const response = await fetch(`/admin/products/${id}`, {
+                                method: "DELETE",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Accept": "application/json",
+                                    "X-CSRF-TOKEN": csrfToken || "",
+                                },
+                            });
 
-                try {
-                    const response = await fetch(`/admin/products/${id}`, {
-                        method: "DELETE",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json",
-                            "X-CSRF-TOKEN": csrfToken || "",
-                        },
-                    });
+                            const data = await response.json();
 
-                    const data = await response.json();
-
-                    if (response.ok && data.success) {
-                        const card = document.getElementById(`product_card_${id}`);
-                        if (card) card.remove();
-                        updateProductCount();
-                        showToast("Product deleted from database!");
-                    } else {
-                        alert(data.message || "Failed to delete product.");
+                            if (response.ok && data.success) {
+                                const card = document.getElementById(`product_card_${id}`);
+                                if (card) card.remove();
+                                updateProductCount();
+                                showToast("Product deleted successfully.");
+                            } else {
+                                alert(data.message || "Failed to delete product.");
+                            }
+                        } catch (err) {
+                            console.error("Delete Error:", err);
+                            alert("Failed to delete product. Please try again.");
+                        }
                     }
-                } catch (err) {
-                    console.error("Delete Error:", err);
-                    alert("Error deleting product from database.");
-                }
+                });
             };
         });
     }

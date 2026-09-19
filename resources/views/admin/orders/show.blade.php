@@ -13,21 +13,21 @@
 
     <!-- Top Action Bar / Back Navigation -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-        <a href="{{ route('admin.orders') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 50px; padding: 0.55rem 1.25rem; font-weight: 700; text-decoration: none; color: #563020; background: #faf6f0; border: 1px solid rgba(238, 233, 224, 0.9);">
+        <a href="{{ route('admin.orders') }}" class="btn btn-secondary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
             <span>Back to Orders</span>
         </a>
 
         <div style="display: flex; align-items: center; gap: 0.75rem;">
             <!-- Print Thermal Receipt Button -->
-            <button type="button" class="btn btn-secondary" id="btn_open_receipt_modal" style="display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 50px; padding: 0.6rem 1.35rem; font-weight: 700; background: #faf6f0; border: 1.5px solid #563020; color: #563020; cursor: pointer; transition: all 0.2s ease;">
+            <button type="button" class="btn btn-secondary" id="btn_open_receipt_modal">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
                 <span>Print Receipt</span>
             </button>
 
             <!-- Edit Button if Pending -->
             @if($order->canBeEdited())
-                <a href="{{ route('admin.orders.edit', $order) }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 50px; padding: 0.6rem 1.35rem; font-weight: 700; background: #ffffff; border: 1px solid #cbd5e1; color: #334155; text-decoration: none;">
+                <a href="{{ route('admin.orders.edit', $order) }}" class="btn btn-secondary">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                     <span>Edit Order</span>
                 </a>
@@ -37,23 +37,17 @@
 
     <!-- Flash Alerts -->
     @if(session('success'))
-        <div class="alert alert-success" style="display: flex; align-items: center; gap: 0.75rem; background: #ecfdf5; border: 1px solid #10b981; color: #065f46; padding: 0.85rem 1.25rem; border-radius: 14px; margin-bottom: 1.5rem; font-weight: 600;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <span>{{ session('success') }}</span>
-        </div>
+        <x-alert type="success" :message="session('success')" />
     @endif
     @if(session('error'))
-        <div class="alert alert-danger" style="display: flex; align-items: center; gap: 0.75rem; background: #fef2f2; border: 1px solid #ef4444; color: #991b1b; padding: 0.85rem 1.25rem; border-radius: 14px; margin-bottom: 1.5rem; font-weight: 600;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <span>{{ session('error') }}</span>
-        </div>
+        <x-alert type="danger" :message="session('error')" />
     @endif
 
     <!-- STATUS TIMELINE / STEPPER TRACKING -->
     @php
         $normStatus = $order->normalized_status;
         $isCancelled = $normStatus === 'cancelled';
-        $isDeliveryFlow = ($normStatus === 'out_for_delivery') || ($order->delivery !== null);
+        $isDeliveryFlow = ($normStatus === 'out_for_delivery');
 
         // Steps definition
         if ($isDeliveryFlow) {
@@ -87,7 +81,7 @@
         }
     @endphp
 
-    <div class="detail-card" style="margin-bottom: 2rem;">
+    <x-card class="detail-card" style="margin-bottom: 2rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <div>
                 <h3 style="font-size: 1.1rem; font-weight: 800; color: #29150d; margin: 0;">Order Status Timeline</h3>
@@ -137,7 +131,7 @@
                 @endforeach
             </div>
         @endif
-    </div>
+    </x-card>
 
     <!-- MAIN TWO-COLUMN DETAILS -->
     <div class="order-detail-grid">
@@ -145,7 +139,7 @@
         <!-- LEFT COLUMN: Items & Custom Cake Instructions -->
         <div>
             <!-- Order Items Card -->
-            <div class="detail-card">
+            <x-card class="detail-card">
                 <div class="detail-card-header">
                     <span class="detail-card-title">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -178,22 +172,22 @@
                                     {{ $currency }}{{ number_format($item->price, 2) }}
                                 </td>
                                 <td>
-                                    <span style="font-weight: 800; background: #faf6f0; padding: 0.25rem 0.65rem; border-radius: 8px; border: 1px solid rgba(238, 233, 224, 0.9);">
+                                    <span style="font-weight: 800; background: var(--bg-main); color: var(--text-title); padding: 0.25rem 0.65rem; border-radius: 8px; border: 1px solid var(--border-color);">
                                         {{ $item->quantity }}
                                     </span>
                                 </td>
-                                <td style="text-align: right; font-weight: 800; color: #563020;">
+                                <td style="text-align: right; font-weight: 800; color: var(--text-title);">
                                     {{ $currency }}{{ number_format($item->subtotal, 2) }}
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+            </x-card>
 
             <!-- Custom Cake / Special Instructions Card -->
             @if($order->is_custom || !empty($order->special_instructions) || !empty($order->pickup_date))
-                <div class="detail-card" style="border-left: 4px solid #f472b6;">
+                <x-card class="detail-card" style="border-left: 4px solid #f472b6;">
                     <div class="detail-card-header">
                         <span class="detail-card-title">
                             <span style="font-size: 1.25rem;">🎂</span>
@@ -226,7 +220,7 @@
                             </div>
                         @endif
                     </div>
-                </div>
+                </x-card>
             @endif
 
         </div>
@@ -234,7 +228,7 @@
         <!-- RIGHT COLUMN: Customer, Payment Summary & Contextual Actions -->
         <div>
             <!-- Customer Information Card -->
-            <div class="detail-card">
+            <x-card class="detail-card">
                 <div class="detail-card-header">
                     <span class="detail-card-title">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -293,10 +287,10 @@
                         </div>
                     @endif
                 </div>
-            </div>
+            </x-card>
 
             <!-- Financial Summary & Payment Card -->
-            <div class="detail-card">
+            <x-card class="detail-card">
                 <div class="detail-card-header">
                     <span class="detail-card-title">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
@@ -324,7 +318,7 @@
 
                 <div class="summary-row grand-total">
                     <span>Grand Total:</span>
-                    <span style="color: #563020;">{{ $currency }}{{ number_format($order->total, 2) }}</span>
+                    <span style="color: var(--text-title);">{{ $currency }}{{ number_format($order->total, 2) }}</span>
                 </div>
 
                 <div style="border-top: 1px solid rgba(238, 233, 224, 0.8); margin-top: 1rem; padding-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
@@ -350,61 +344,10 @@
                         @endif
                     @endif
                 </div>
-            </div>
-
-            <!-- DELIVERY STATUS & DISPATCH CARD -->
-            <div class="detail-card">
-                <div class="detail-card-header">
-                    <span class="detail-card-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                        <span>Delivery & Dispatch</span>
-                    </span>
-                    @if($order->delivery)
-                        <span class="status-badge" style="background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 0.75rem;">
-                            {{ ucwords(str_replace('_', ' ', $order->delivery->delivery_status)) }}
-                        </span>
-                    @endif
-                </div>
-
-                @if($order->delivery)
-                    <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.875rem;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: #64748b;">Tracking Code:</span>
-                            <span style="font-weight: 800; color: #563020;">{{ $order->delivery->tracking_number }}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: #64748b;">Recipient:</span>
-                            <span style="font-weight: 700;">{{ $order->delivery->recipient_name }}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: #64748b;">Assigned Driver:</span>
-                            <span>{{ $order->delivery->deliveryStaff ? $order->delivery->deliveryStaff->name : 'Unassigned' }}</span>
-                        </div>
-                        <div>
-                            <span style="color: #64748b; font-size: 0.75rem; font-weight: 700;">Destination Address:</span>
-                            <div style="margin-top: 2px; font-size: 0.85rem; color: #29150d; background: #faf6f0; padding: 0.5rem; border-radius: 8px;">
-                                {{ $order->delivery->delivery_address }}
-                            </div>
-                        </div>
-                        <a href="{{ route('admin.deliveries.show', $order->delivery) }}" class="btn btn-secondary" style="margin-top: 0.5rem; text-align: center; justify-content: center; text-decoration: none; font-weight: 700; border: 1px solid #cbd5e1; border-radius: 50px; padding: 0.5rem; display: flex; align-items: center; gap: 0.35rem;">
-                            <span>Manage Delivery Details →</span>
-                        </a>
-                    </div>
-                @else
-                    <div style="text-align: center; padding: 0.5rem 0;">
-                        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem;">No delivery scheduled for this order yet.</p>
-                        @if(!$isCancelled && $normStatus !== 'completed')
-                            <a href="{{ route('admin.deliveries.create', ['order_id' => $order->id]) }}" class="btn btn-primary" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; border-radius: 50px; padding: 0.55rem 1.25rem; font-size: 0.85rem; font-weight: 700; background: #563020; color: #fff; text-decoration: none;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                <span>Schedule Delivery</span>
-                            </a>
-                        @endif
-                    </div>
-                @endif
-            </div>
+            </x-card>
 
             <!-- CONTEXTUAL STATUS WORKFLOW ACTIONS -->
-            <div class="detail-card" style="background: linear-gradient(145deg, #faf6f0 0%, #f4ede4 100%);">
+            <x-card class="detail-card" style="background: linear-gradient(145deg, #faf6f0 0%, #f4ede4 100%);">
                 <div class="detail-card-header" style="border-bottom: 1px solid rgba(86, 48, 32, 0.15);">
                     <span class="detail-card-title">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 22v-4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M22 12h-4"/><path d="m19.07 4.93-2.83 2.83"/></svg>
@@ -418,16 +361,16 @@
                         <form action="{{ route('admin.orders.updateStatus', $order) }}" method="POST">
                             @csrf
                             <input type="hidden" name="status" value="preparing">
-                            <button type="submit" class="btn btn-primary" id="btn_status_preparing" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 50px; padding: 0.75rem; background: #2563eb; color: #fff; border: none; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);">
+                            <button type="submit" class="btn btn-primary btn-block" id="btn_status_preparing">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                <span>Start Preparing / Baking</span>
+                                <span>Start Preparing</span>
                             </button>
                         </form>
 
                         <!-- Cancel Order -->
                         <form action="{{ route('admin.orders.cancel', $order) }}" method="POST" onsubmit="return confirm('Cancel Order #{{ $order->order_number }} and restore stock?');">
                             @csrf
-                            <button type="submit" class="btn btn-secondary" id="btn_cancel_order" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 50px; padding: 0.65rem; background: #ffffff; color: #dc2626; border: 1.5px solid #dc2626; font-weight: 700; cursor: pointer;">
+                            <button type="submit" class="btn btn-outline-danger btn-block" id="btn_cancel_order">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                                 <span>Cancel Order</span>
                             </button>
@@ -438,7 +381,7 @@
                         <form action="{{ route('admin.orders.updateStatus', $order) }}" method="POST">
                             @csrf
                             <input type="hidden" name="status" value="ready_for_pickup">
-                            <button type="submit" class="btn btn-primary" id="btn_status_ready" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 50px; padding: 0.75rem; background: #0d9488; color: #fff; border: none; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25);">
+                            <button type="submit" class="btn btn-success btn-block" id="btn_status_ready">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
                                 <span>Mark Ready for Pickup</span>
                             </button>
@@ -447,7 +390,7 @@
                         <!-- Cancel Order -->
                         <form action="{{ route('admin.orders.cancel', $order) }}" method="POST" onsubmit="return confirm('Cancel Order #{{ $order->order_number }} and restore stock?');">
                             @csrf
-                            <button type="submit" class="btn btn-secondary" id="btn_cancel_order" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 50px; padding: 0.65rem; background: #ffffff; color: #dc2626; border: 1.5px solid #dc2626; font-weight: 700; cursor: pointer;">
+                            <button type="submit" class="btn btn-outline-danger btn-block" id="btn_cancel_order">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                                 <span>Cancel Order</span>
                             </button>
@@ -458,9 +401,9 @@
                         <form action="{{ route('admin.orders.updateStatus', $order) }}" method="POST">
                             @csrf
                             <input type="hidden" name="status" value="completed">
-                            <button type="submit" class="btn btn-primary" id="btn_status_complete" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 50px; padding: 0.75rem; background: #16a34a; color: #fff; border: none; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px rgba(22, 163, 74, 0.25);">
+                            <button type="submit" class="btn btn-success btn-block" id="btn_status_complete">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span>Complete Order (Picked Up)</span>
+                                <span>Complete Order</span>
                             </button>
                         </form>
 
@@ -468,7 +411,7 @@
                         <form action="{{ route('admin.orders.updateStatus', $order) }}" method="POST">
                             @csrf
                             <input type="hidden" name="status" value="out_for_delivery">
-                            <button type="submit" class="btn btn-secondary" id="btn_status_delivery" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 50px; padding: 0.65rem; background: #7c3aed; color: #fff; border: none; font-weight: 700; cursor: pointer;">
+                            <button type="submit" class="btn btn-secondary btn-block" id="btn_status_delivery">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                                 <span>Send Out for Delivery</span>
                             </button>
@@ -479,7 +422,7 @@
                         <form action="{{ route('admin.orders.updateStatus', $order) }}" method="POST">
                             @csrf
                             <input type="hidden" name="status" value="completed">
-                            <button type="submit" class="btn btn-primary" id="btn_status_complete" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 50px; padding: 0.75rem; background: #16a34a; color: #fff; border: none; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px rgba(22, 163, 74, 0.25);">
+                            <button type="submit" class="btn btn-success btn-block" id="btn_status_complete">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                                 <span>Mark Delivered & Completed</span>
                             </button>
@@ -496,7 +439,7 @@
                         </div>
                     @endif
                 </div>
-            </div>
+            </x-card>
 
         </div>
 

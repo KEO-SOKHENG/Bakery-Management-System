@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Delivery;
 use App\Models\Ingredient;
 use App\Models\Notification;
 use App\Models\Order;
@@ -47,8 +46,7 @@ class NotificationService
             $isConditionAlert = str_starts_with($dedupKey, 'low_stock:') 
                              || str_starts_with($dedupKey, 'out_of_stock:')
                              || str_starts_with($dedupKey, 'expiring_')
-                             || str_starts_with($dedupKey, 'expired:')
-                             || str_starts_with($dedupKey, 'delivery_reminder:');
+                             || str_starts_with($dedupKey, 'expired:');
 
             if ($isConditionAlert) {
                 $readToday = Notification::where('user_id', $userId)
@@ -228,31 +226,6 @@ class NotificationService
         }
     }
 
-    /**
-     * Trigger reminder notification for pending or scheduled deliveries.
-     */
-    public function notifyDeliveryReminder(Delivery $delivery): void
-    {
-        $orderNumber = $delivery->order ? $delivery->order->order_number : 'Order';
-        $trackingNumber = $delivery->tracking_number ?? 'DEL-' . $delivery->id;
-        $recipient = $delivery->recipient_name ?? 'Customer';
-        $dateStr = $delivery->scheduled_at ? Carbon::parse($delivery->scheduled_at)->format('M d, Y') : 'Today';
-        $statusStr = ucfirst(str_replace('_', ' ', $delivery->delivery_status ?? 'pending'));
-
-        $title = "Delivery Reminder: {$trackingNumber}";
-        $message = "Delivery for Order #{$orderNumber} to {$recipient} is scheduled for {$dateStr}. Status: {$statusStr}.";
-        $actionUrl = route('admin.deliveries.show', $delivery);
-        $dedupKey = "delivery_reminder:{$delivery->id}:" . Carbon::today()->toDateString();
-
-        // Notify management and staff
-        $this->notifyRoles(['admin', 'manager', 'cashier'], 'delivery', $title, $message, 'warning', $actionUrl, $dedupKey);
-
-        // If delivery staff assigned, notify staff member directly
-        if ($delivery->user_id) {
-            $this->createNotification($delivery->user_id, 'delivery', $title, $message, 'warning', $actionUrl, $dedupKey);
-        }
-    }
-
     // =========================================================================
     // CONDITION-BASED DEDUPLICATED ALERTS SCANNER
     // =========================================================================
@@ -269,7 +242,6 @@ class NotificationService
             'expiring'     => 0,
             'expired'      => 0,
             'pickup_soon'  => 0,
-            'deliveries'   => 0,
             'resolved'     => 0,
         ];
 
@@ -371,22 +343,6 @@ class NotificationService
 
             $this->notifyRoles(['admin', 'manager', 'cashier', 'baker'], 'custom_order', $title, $message, 'warning', route('admin.orders.show', $cOrder), $dedupKey);
             $counts['pickup_soon']++;
-        }
-
-        // -------------------------------------------------------------
-        // 4. SCHEDULED DELIVERY REMINDERS
-        // -------------------------------------------------------------
-        $urgentDeliveries = Delivery::with(['order', 'deliveryStaff'])
-            ->whereIn('delivery_status', [Delivery::STATUS_PENDING, Delivery::STATUS_ASSIGNED, Delivery::STATUS_OUT_FOR_DELIVERY])
-            ->where(function($q) {
-                $q->whereNull('scheduled_at')
-                  ->orWhereDate('scheduled_at', '<=', Carbon::today()->addDay());
-            })
-            ->get();
-
-        foreach ($urgentDeliveries as $deliv) {
-            $this->notifyDeliveryReminder($deliv);
-            $counts['deliveries'] = ($counts['deliveries'] ?? 0) + 1;
         }
 
         return $counts;

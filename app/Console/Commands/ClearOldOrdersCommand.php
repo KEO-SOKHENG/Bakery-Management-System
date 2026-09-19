@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
@@ -92,7 +91,6 @@ class ClearOldOrdersCommand extends Command
         $itemsCount = OrderItem::whereIn('order_id', $orderIds)->count();
         $salesCount = Sale::whereIn('order_id', $orderIds)->count();
         $paymentsCount = Payment::whereIn('order_id', $orderIds)->count();
-        $deliveriesCount = Delivery::whereIn('order_id', $orderIds)->count();
         $pendingOrPreparingCount = Order::whereIn('id', $orderIds)
             ->whereIn('order_status', ['pending', 'preparing', 'baking'])
             ->count();
@@ -108,7 +106,6 @@ class ClearOldOrdersCommand extends Command
                 ['Order Items (Line Items)', number_format($itemsCount)],
                 ['Sales Records', number_format($salesCount)],
                 ['Payment Transactions', number_format($paymentsCount)],
-                ['Deliveries', number_format($deliveriesCount)],
                 ['Pending / Preparing Orders', number_format($pendingOrPreparingCount)],
                 ['Restore Reserved Stock?', $restoreStock ? 'Yes (Inventory will be restored)' : 'No (Stock stays as-is)'],
             ]
@@ -168,7 +165,6 @@ class ClearOldOrdersCommand extends Command
             }
 
             // Explicitly clean up related tables and orders
-            Delivery::whereIn('order_id', $orderIds)->delete();
             Payment::whereIn('order_id', $orderIds)->delete();
             Sale::whereIn('order_id', $orderIds)->delete();
             OrderItem::whereIn('order_id', $orderIds)->delete();
@@ -209,7 +205,7 @@ class ClearOldOrdersCommand extends Command
 
         $backupFile = $backupDir . DIRECTORY_SEPARATOR . 'orders_purge_backup_' . date('Y_m_d_His') . '.json';
 
-        $ordersData = Order::with(['items', 'sale', 'payments', 'delivery'])
+        $ordersData = Order::with(['items', 'sale', 'payments'])
             ->whereIn('id', $orderIds)
             ->get();
 

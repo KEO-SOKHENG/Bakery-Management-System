@@ -15,13 +15,11 @@ test('Verify Laptop height 1366x620 with Inventory expanded and collapse toggle'
     await invBtn.click();
     await page.waitForTimeout(400);
 
-    // Check Settings & Notifications are visible
+    // Check Settings (which encapsulates Notifications) & Logout are visible
     const settingsItem = page.locator('.bakery-sidebar a[href*="/admin/settings"]').first();
-    const notificationsItem = page.locator('.bakery-sidebar a[href*="/admin/notifications"]').first();
     const logoutBtn = page.locator('.logout-btn');
 
     expect(await settingsItem.isVisible()).toBe(true);
-    expect(await notificationsItem.isVisible()).toBe(true);
     expect(await logoutBtn.isVisible()).toBe(true);
 
     // Screenshot expanded sidebar
@@ -38,10 +36,13 @@ test('Verify Laptop height 1366x620 with Inventory expanded and collapse toggle'
     await expect(sidebar).toHaveClass(/sidebar-collapsed/);
     await sidebar.screenshot({ path: 'C:/Users/M-S-I/.gemini/antigravity-ide/brain/bae14c9d-dcdd-414b-a697-6a4d55afe96d/scratch/laptop_620_collapsed_rail.png' });
 
-    // Test Toggle from Topbar Hamburger
+    // Verify topbar toggle is hidden on desktop/laptop
     const topbarToggle = page.locator('#sidebar_toggle_btn');
-    await expect(topbarToggle).toBeVisible();
-    await topbarToggle.click();
+    await expect(topbarToggle).toBeHidden();
+
+    // Re-expand sidebar using the dual-function sidebar-header-toggle-btn on the rail
+    await expect(collapseBtn).toBeVisible();
+    await collapseBtn.click();
     await page.waitForTimeout(400);
 
     // Check sidebar is expanded again

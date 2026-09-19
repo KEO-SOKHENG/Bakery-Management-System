@@ -57,7 +57,13 @@ test.describe('Notification Management System End-to-End Suite', () => {
     test('3. Sidebar has Notifications link and navigates correctly', async ({ page }) => {
         await page.goto('/admin/dashboard');
 
-        // Locate Notifications in sidebar
+        // Locate Notifications under Settings dropdown in sidebar
+        const settingsBtn = page.locator('#group_settings_btn');
+        if (await settingsBtn.isVisible()) {
+            await settingsBtn.click();
+            await page.waitForTimeout(300);
+        }
+
         const sidebarNotif = page.locator('aside.bakery-sidebar a[href*="/admin/notifications"]');
         await expect(sidebarNotif).toBeVisible();
         await sidebarNotif.click();

@@ -7,28 +7,25 @@
 @endpush
 
 @section('content')
-<div class="settings-header-intro">
-    <h1 data-lang-key="settings_header">System Settings</h1>
-    <p data-lang-key="settings_subtitle">Configure store profile, taxation, receipts, security access, and app appearance.</p>
+<div class="settings-header-intro page-header">
+    <div class="page-header-info">
+        <h1 class="page-header-title" data-lang-key="settings_header">System Settings</h1>
+        <p class="page-header-subtitle" data-lang-key="settings_subtitle">Configure store profile, taxation, receipts, security access, and app appearance.</p>
+    </div>
 </div>
 
 @if(!$canManage)
-    <div style="background-color: #fefce8; border: 1px solid #fef08a; color: #854d0e; padding: 0.85rem 1.15rem; border-radius: 14px; margin-bottom: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <x-alert type="warning">
         <span data-lang-key="settings_readonly_notice">View-only mode: You have permission to inspect system configuration. Elevated privileges are required to save changes.</span>
-    </div>
+    </x-alert>
 @endif
 
 @if(session('success'))
-    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; padding: 0.85rem 1.15rem; border-radius: 12px; margin-bottom: 1.25rem; font-weight: 600;">
-        {{ session('success') }}
-    </div>
+    <x-alert type="success" :message="session('success')" />
 @endif
 
 @if($errors->any())
-    <div style="background-color: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.85rem 1.15rem; border-radius: 12px; margin-bottom: 1.25rem; font-weight: 600;">
-        {{ $errors->first() }}
-    </div>
+    <x-alert type="danger" :message="$errors->first()" />
 @endif
 
 <!-- Glass Card Settings Grid -->
@@ -420,7 +417,7 @@
                     </div>
                     <div class="card-title-text">
                         <h3 data-lang-key="backup_restore">System Backup & Restore</h3>
-                        <p data-lang-key="backup_restore_sub">Export database configuration snapshots or restore settings</p>
+                        <p data-lang-key="backup_restore_sub">Export store configuration backups or restore settings</p>
                     </div>
                 </div>
 

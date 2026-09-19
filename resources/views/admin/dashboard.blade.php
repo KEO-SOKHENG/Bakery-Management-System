@@ -216,7 +216,7 @@
             </div>
             <div style="text-align: right;">
                 <span style="font-size: 0.725rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">{{ __('messages.orders') }}</span>
-                <div style="font-size: 1.25rem; font-weight: 800; color: #563020;">{{ number_format($periodTotalOrders) }}</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-title);">{{ number_format($periodTotalOrders) }}</div>
             </div>
             <div style="text-align: right;">
                 <span style="font-size: 0.725rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">{{ __('messages.average_order_value') }}</span>
@@ -247,8 +247,8 @@
         <svg viewBox="0 0 800 220" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible;">
             <defs>
                 <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#563020" stop-opacity="0.32" />
-                    <stop offset="100%" stop-color="#563020" stop-opacity="0.01" />
+                    <stop offset="0%" stop-color="#d97706" stop-opacity="0.35" />
+                    <stop offset="100%" stop-color="#d97706" stop-opacity="0.01" />
                 </linearGradient>
             </defs>
 
@@ -266,7 +266,7 @@
             <!-- Chart Filled Area & Polyline -->
             @if($pointCount > 1)
                 <polygon points="{{ $areaPointsStr }}" fill="url(#chartGradient)" />
-                <polyline points="{{ $pointsStr }}" fill="none" stroke="#563020" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+                <polyline points="{{ $pointsStr }}" fill="none" stroke="#d97706" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
             @endif
 
             <!-- Data Point Nodes with Tooltips -->
@@ -277,7 +277,7 @@
                     $lbl = $chartLabels[$idx] ?? '';
                     $cnt = $chartOrderCounts[$idx] ?? 0;
                 @endphp
-                <circle cx="{{ $cx }}" cy="{{ $cy }}" r="5" fill="#563020" stroke="#ffffff" stroke-width="2.5" style="cursor: pointer;">
+                <circle cx="{{ $cx }}" cy="{{ $cy }}" r="5" fill="#d97706" stroke="var(--card-bg, #ffffff)" stroke-width="2.5" style="cursor: pointer;">
                     <title>{{ $lbl }}: ${{ number_format($r, 2) }} ({{ $cnt }} orders)</title>
                 </circle>
                 <!-- Date Axis Labels (Thinned if many dates) -->
@@ -303,7 +303,7 @@
 
         <!-- Proportional Multi-Segment Status Bar -->
         @if($totalAllOrders > 0)
-            <div style="height: 12px; display: flex; width: 100%; border-radius: 8px; overflow: hidden; margin: 1rem 0 1.25rem 0; background: #e5e7eb;">
+            <div class="dash-status-progress-track" style="height: 12px; display: flex; width: 100%; border-radius: 8px; overflow: hidden; margin: 1rem 0 1.25rem 0; background: #e5e7eb;">
                 @if($statusPending > 0)
                     <div style="width: {{ ($statusPending / $totalAllOrders) * 100 }}%; background: #ca8a04;" title="Pending: {{ $statusPending }}"></div>
                 @endif
@@ -383,7 +383,7 @@
                             </span>
                         </div>
                         <div style="text-align: right; flex-shrink: 0;">
-                            <span style="font-weight: 800; color: #563020;">{{ number_format($prod->total_sold) }} {{ __('messages.units_sold') }}</span>
+                            <span style="font-weight: 800; color: var(--text-title);">{{ number_format($prod->total_sold) }} {{ __('messages.units_sold') }}</span>
                             <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">{{ $currency }}{{ number_format($prod->total_revenue, 2) }}</span>
                         </div>
                     </div>
@@ -483,7 +483,7 @@
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.25rem;">
             <div class="status-dist-box">
                 <span class="status-dist-label">Active Suppliers</span>
-                <span class="status-dist-val" style="color: #563020;">{{ number_format($suppliersCount) }}</span>
+                <span class="status-dist-val" style="color: var(--text-title);">{{ number_format($suppliersCount) }}</span>
                 <span style="font-size: 0.75rem; color: var(--text-muted);">Partners in supply chain</span>
             </div>
             <div class="status-dist-box">
@@ -504,7 +504,7 @@
         </div>
 
         <!-- VIP Customers & Loyalty -->
-        <div style="padding: 1rem; background: #faf6f0; border-radius: 12px; border: 1px solid rgba(238, 233, 224, 0.8); display: flex; justify-content: space-between; align-items: center;">
+        <div class="dash-loyalty-box" style="padding: 1rem; background: #faf6f0; border-radius: 12px; border: 1px solid rgba(238, 233, 224, 0.8); display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <div style="font-weight: 700; color: var(--text-title); font-size: 0.9rem;">Customer Loyalty Program</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">{{ number_format($vipCustomersCount) }} VIP Members &bull; {{ number_format($totalLoyaltyPoints) }} Reward Points Issued</div>
@@ -607,7 +607,7 @@
             </div>
             <div style="margin-bottom: 1.25rem;">
                 <label style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Items Summary</label>
-                <div id="view_order_items" style="padding: 0.75rem; background: #faf6f0; border-radius: 8px; font-size: 0.875rem;">-</div>
+                <div id="view_order_items" class="modal-item-summary-box" style="padding: 0.75rem; background: #faf6f0; border-radius: 8px; font-size: 0.875rem;">-</div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1rem;">
                 <span style="font-weight: 700; font-size: 1rem;">Total Amount:</span>

@@ -251,86 +251,92 @@ html.sidebar-initially-closed .bakery-main-content {
 }
 
 /* =========================================================
-   Sidebar Toggle Button: Universal Across Desktop, Tablet & Mobile
+   Mobile Sidebar Toggle Button (Hidden on Desktop & Tablet, only rendered on Mobile < 768px)
    ========================================================= */
-.header-sidebar-toggle-btn {
-    display: inline-flex !important;
-    position: relative !important;
-    left: auto !important;
-    top: auto !important;
-    width: 38px !important;
-    height: 38px !important;
-    border-radius: 10px !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    background: rgba(255, 255, 255, 0.92) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    color: var(--text-title, #29150d) !important;
-    cursor: pointer !important;
-    pointer-events: auto !important;
-    flex-shrink: 0 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-                background 0.2s ease,
-                border-color 0.2s ease,
-                box-shadow 0.2s ease,
-                color 0.2s ease !important;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-    z-index: 100 !important;
+.mobile-sidebar-toggle-btn {
+    display: none !important;
 }
 
-.header-sidebar-toggle-btn svg {
-    width: 20px;
-    height: 20px;
-    stroke-width: 2.2;
-    transition: transform 0.25s ease;
-    flex-shrink: 0;
-    pointer-events: none !important;
-}
+@media (max-width: 767px) {
+    .mobile-sidebar-toggle-btn {
+        display: inline-flex !important;
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 10px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: rgba(255, 255, 255, 0.92) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        color: var(--text-title, #29150d) !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        flex-shrink: 0 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    background 0.2s ease,
+                    border-color 0.2s ease,
+                    box-shadow 0.2s ease,
+                    color 0.2s ease !important;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        z-index: 100 !important;
+    }
 
-.header-sidebar-toggle-btn:hover {
-    background: #ffffff !important;
-    border-color: rgba(245, 158, 11, 0.4) !important;
-    color: #d97706 !important;
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.18) !important;
-    transform: scale(1.05);
-}
+    .mobile-sidebar-toggle-btn svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2.2;
+        transition: transform 0.25s ease;
+        flex-shrink: 0;
+        pointer-events: none !important;
+    }
 
-.header-sidebar-toggle-btn:active {
-    transform: scale(0.94) !important;
-}
+    .mobile-sidebar-toggle-btn:hover {
+        background: #ffffff !important;
+        border-color: rgba(245, 158, 11, 0.4) !important;
+        color: #d97706 !important;
+        box-shadow: 0 4px 14px rgba(245, 158, 11, 0.18) !important;
+        transform: scale(1.05);
+    }
 
-[data-theme="dark"] .header-sidebar-toggle-btn {
-    background: rgba(24, 24, 28, 0.92) !important;
-    border-color: rgba(255, 255, 255, 0.12) !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-}
+    .mobile-sidebar-toggle-btn:active {
+        transform: scale(0.94) !important;
+    }
 
-[data-theme="dark"] .header-sidebar-toggle-btn:hover {
-    background: #1e1e24 !important;
-    border-color: rgba(245, 158, 11, 0.5);
-    color: #fbbf24 !important;
-    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25) !important;
-}
+    [data-theme="dark"] .mobile-sidebar-toggle-btn {
+        background: rgba(24, 24, 28, 0.92) !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        color: #ffffff !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    }
 
-[data-theme="glass"] .header-sidebar-toggle-btn {
-    background: rgba(28, 28, 33, 0.75) !important;
-    border-color: rgba(255, 255, 255, 0.18) !important;
-    color: #ffffff !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-}
+    [data-theme="dark"] .mobile-sidebar-toggle-btn:hover {
+        background: #1e1e24 !important;
+        border-color: rgba(245, 158, 11, 0.5);
+        color: #fbbf24 !important;
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25) !important;
+    }
 
-[data-theme="glass"] .header-sidebar-toggle-btn:hover {
-    background: rgba(28, 28, 33, 0.9) !important;
-    border-color: rgba(251, 191, 36, 0.8) !important;
-    color: #fbbf24 !important;
+    [data-theme="glass"] .mobile-sidebar-toggle-btn {
+        background: rgba(28, 28, 33, 0.75) !important;
+        border-color: rgba(255, 255, 255, 0.18) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    [data-theme="glass"] .mobile-sidebar-toggle-btn:hover {
+        background: rgba(28, 28, 33, 0.9) !important;
+        border-color: rgba(251, 191, 36, 0.8) !important;
+        color: #fbbf24 !important;
+    }
 }
 
 /* Desktop Persistent & Collapsible Sidebar (>= 1200px) */
@@ -422,24 +428,38 @@ html.sidebar-initially-closed .bakery-main-content {
     }
 }
 
-/* Top Header Bar Sticky & Clean */
+/* Top Header Bar - Fixed/Sticky at Top Right (Transparent Background, Locked in View) */
 .top-header-bar {
     position: sticky !important;
-    top: 0 !important;
-    background: rgba(255, 255, 255, 0.8) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    z-index: 900 !important;
-    padding: 0.75rem 0 !important;
-    margin-bottom: 1.25rem !important;
+    top: 0.75rem !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    z-index: 1000 !important;
+    padding: 0 !important;
+    margin-bottom: 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    pointer-events: none !important;
 }
 
-[data-theme="dark"] .top-header-bar {
-    background: rgba(14, 14, 17, 0.8) !important;
+.top-header-bar .header-actions,
+.top-header-bar .mobile-sidebar-toggle-btn {
+    pointer-events: auto !important;
 }
 
+.top-header-bar .header-actions {
+    margin-left: auto !important;
+}
+
+[data-theme="dark"] .top-header-bar,
 [data-theme="glass"] .top-header-bar {
-    background: rgba(20, 20, 24, 0.6) !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* Mobile / Tablet Backdrop Blur */
@@ -521,7 +541,7 @@ html.sidebar-initially-closed .bakery-main-content {
     flex: 1;
     min-width: 0;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
     padding: 1.5rem 1.75rem;
     position: relative;
     z-index: 1;
@@ -1234,6 +1254,36 @@ body.sidebar-is-closed .bakery-main-content {
     background: #ff0000;
     color: white;
     box-shadow: 0 5px 15px rgba(230, 57, 70, 0.10);
+}
+
+[data-theme="dark"] .logout-btn,
+[data-theme="dark"] .logout {
+    background: rgba(239, 68, 68, 0.12) !important;
+    color: #f87171 !important;
+    border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+[data-theme="dark"] .logout-btn:hover,
+[data-theme="dark"] .logout:hover {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+    border-color: #dc2626 !important;
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4) !important;
+}
+
+[data-theme="glass"] .logout-btn,
+[data-theme="glass"] .logout {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #fca5a5 !important;
+    border-color: rgba(239, 68, 68, 0.4) !important;
+    backdrop-filter: blur(12px) !important;
+}
+
+[data-theme="glass"] .logout-btn:hover,
+[data-theme="glass"] .logout:hover {
+    background: rgba(220, 38, 38, 0.85) !important;
+    color: #ffffff !important;
+    border-color: #dc2626 !important;
 }
 
 /* =========================================================

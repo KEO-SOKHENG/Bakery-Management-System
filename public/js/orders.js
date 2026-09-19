@@ -156,13 +156,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     if (tableBody) tableBody.prepend(tr);
                     closeModal();
-                    showToast(`Order ${order.order_number} saved to PostgreSQL database!`);
+                    showToast(`Order ${order.order_number} saved successfully.`);
                 } else {
-                    alert(data.message || "Failed to save order to database.");
+                    alert(data.message || "Failed to save order.");
                 }
             } catch (err) {
-                console.error("Database Save Error:", err);
-                alert("Error connecting to database. Please check PostgreSQL server.");
+                console.error("Save Error:", err);
+                alert("Unable to connect to the server. Please try again.");
             }
         });
     }
@@ -200,29 +200,35 @@ document.addEventListener("DOMContentLoaded", () => {
         if (deleteBtn) {
             e.preventDefault();
             const id = deleteBtn.getAttribute("data-id");
-            if (!confirm("Are you sure you want to delete this order from the database?")) return;
-
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
-            try {
-                const response = await fetch(`/admin/orders/${id}`, {
-                    method: "DELETE",
-                    headers: {
-                        "X-CSRF-TOKEN": csrfToken || "",
-                        "Accept": "application/json",
-                    },
-                });
-                const data = await response.json();
-                if (response.ok && data.success) {
-                    const row = document.getElementById(`order_row_${id}`);
-                    if (row) row.remove();
-                    showToast("Order deleted from PostgreSQL database!");
-                } else {
-                    alert(data.message || "Failed to delete order.");
+            window.showConfirmDialog({
+                title: 'Confirm Deletion',
+                message: 'Are you sure you want to delete this order?',
+                confirmText: 'Yes, Delete',
+                isDanger: true,
+                onConfirm: async function() {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+                    try {
+                        const response = await fetch(`/admin/orders/${id}`, {
+                            method: "DELETE",
+                            headers: {
+                                "X-CSRF-TOKEN": csrfToken || "",
+                                "Accept": "application/json",
+                            },
+                        });
+                        const data = await response.json();
+                        if (response.ok && data.success) {
+                            const row = document.getElementById(`order_row_${id}`);
+                            if (row) row.remove();
+                            showToast("Order deleted successfully.");
+                        } else {
+                            alert(data.message || "Failed to delete order.");
+                        }
+                    } catch (err) {
+                        console.error("Delete Error:", err);
+                        alert("Failed to delete order. Please try again.");
+                    }
                 }
-            } catch (err) {
-                console.error("Delete Error:", err);
-                alert("Error deleting order from PostgreSQL database.");
-            }
+            });
         }
     });
 

@@ -4,7 +4,6 @@ test.describe('Production Management & Baking Workflow Suite', () => {
 
     test('1. Admin can access Production Management, view stats, and inspect batches', async ({ page }) => {
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="admin"]');
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -27,7 +26,6 @@ test.describe('Production Management & Baking Workflow Suite', () => {
 
     test('2. Admin can schedule a new production batch with assigned Baker & live ingredient preview', async ({ page }) => {
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="admin"]');
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -77,7 +75,6 @@ test.describe('Production Management & Baking Workflow Suite', () => {
 
     test('3. Workflow transitions: Scheduled -> In Progress -> Completed and Detail Timeline view', async ({ page }) => {
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="admin"]');
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -145,7 +142,6 @@ test.describe('Production Management & Baking Workflow Suite', () => {
 
     test('4. Insufficient Stock Prevention: huge quantity rolls back and prevents negative stock', async ({ page }) => {
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="admin"]');
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -166,7 +162,6 @@ test.describe('Production Management & Baking Workflow Suite', () => {
     test('5. RBAC: Baker can log in & access production, Cashier is blocked', async ({ page }) => {
         // --- BAKER TEST ---
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="baker"]');
         await page.fill('#username_input', 'baker@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -187,7 +182,6 @@ test.describe('Production Management & Baking Workflow Suite', () => {
 
         // --- CASHIER TEST ---
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="cashier"]');
         await page.fill('#username_input', 'cashier@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
@@ -200,7 +194,6 @@ test.describe('Production Management & Baking Workflow Suite', () => {
 
     test('6. Language Switcher (EN <-> KM) on Production Page', async ({ page }) => {
         await page.goto('/login');
-        await page.click('.role-tab-btn[data-role="admin"]');
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');

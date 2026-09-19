@@ -42,12 +42,12 @@
     gap: 0.4rem;
 }
 
-.filter-btn:hover {
+.orders-filter-bar:not(.has-liquid-pill) .filter-btn:hover {
     color: #29150d !important;
     background: rgba(93, 64, 55, 0.08) !important;
 }
 
-.filter-btn.active {
+.orders-filter-bar:not(.has-liquid-pill) .filter-btn.active {
     background-color: #563020 !important;
     color: #ffffff !important;
     border-color: #563020 !important;
@@ -121,18 +121,21 @@
     border-radius: 24px;
     padding: 1.5rem;
     box-shadow: 0 8px 24px rgba(86, 48, 32, 0.04);
-    overflow-x: auto;
+    overflow: hidden; /* Guaranteed no horizontal scroll */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .orders-table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: separate;
     border-spacing: 0;
 }
 
 .orders-table th {
     background: #faf6f0;
-    padding: 0.85rem 1.15rem;
+    padding: 0.85rem 0.95rem;
     font-size: 0.75rem;
     font-weight: 800;
     color: #5d4037;
@@ -141,18 +144,25 @@
     border-top: 1px solid rgba(238, 233, 224, 0.8);
     border-bottom: 1px solid rgba(238, 233, 224, 0.8);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .orders-table th:first-child { border-top-left-radius: 50px; border-bottom-left-radius: 50px; border-left: 1px solid rgba(238, 233, 224, 0.8); }
 .orders-table th:last-child { border-top-right-radius: 50px; border-bottom-right-radius: 50px; border-right: 1px solid rgba(238, 233, 224, 0.8); }
 
 .orders-table td {
-    padding: 1rem 1.15rem;
+    padding: 0.85rem 0.95rem;
     font-size: 0.875rem;
     color: var(--text-title, #29150d);
     border-bottom: 1px solid rgba(243, 239, 233, 0.8);
     vertical-align: middle;
     transition: background-color 0.2s ease;
+    overflow: hidden;
+}
+
+.orders-table tr {
+    cursor: pointer;
 }
 
 .orders-table tr:hover td {
@@ -161,6 +171,21 @@
 
 .orders-table tr:last-child td {
     border-bottom: none;
+}
+
+/* Orders Pagination Wrapper */
+.orders-pagination-wrapper {
+    padding-top: 1.25rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid rgba(238, 233, 224, 0.85);
+}
+
+[data-theme="dark"] .orders-pagination-wrapper {
+    border-top-color: #242424;
+}
+
+[data-theme="glass"] .orders-pagination-wrapper {
+    border-top-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Status Badges */
@@ -283,7 +308,6 @@
     background-color: #563020;
     border-color: #563020;
     color: #ffffff;
-    transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(86, 48, 32, 0.2);
 }
 
@@ -362,8 +386,7 @@
     background: #563020;
     border-color: #563020;
     color: #ffffff;
-    box-shadow: 0 0 0 5px rgba(86, 48, 32, 0.15);
-    transform: scale(1.1);
+    box-shadow: 0 0 0 4px rgba(86, 48, 32, 0.15);
 }
 
 .stepper-label {
@@ -633,20 +656,20 @@
 [data-theme="dark"] .orders-card,
 [data-theme="dark"] .detail-card,
 [data-theme="dark"] .form-card {
-    background: rgba(23, 23, 23, 0.95);
-    border-color: #2e2e2e;
-    color: #f5f5f5;
+    background: #121212 !important;
+    border-color: #242424 !important;
+    color: #f5f5f5 !important;
 }
 
 [data-theme="dark"] .order-metric-value,
 [data-theme="dark"] .detail-card-title,
 [data-theme="dark"] .form-label {
-    color: #f5f5f5;
+    color: #f5f5f5 !important;
 }
 
 [data-theme="dark"] .orders-filter-bar {
-    background: rgba(30, 30, 30, 0.9);
-    border-color: #333333;
+    background: #171717 !important;
+    border-color: #262626 !important;
 }
 
 [data-theme="dark"] .orders-table th {
@@ -656,22 +679,23 @@
 }
 
 [data-theme="dark"] .orders-table td {
-    color: #e5e7eb;
-    border-color: #27272a;
+    color: #e5e7eb !important;
+    border-color: #242424 !important;
 }
 
 [data-theme="dark"] .orders-table tr:hover td {
-    background-color: rgba(40, 40, 40, 0.6);
+    background-color: rgba(255, 255, 255, 0.04) !important;
 }
 
 [data-theme="dark"] .btn-icon-action {
-    background-color: #262626;
-    border-color: #383838;
-    color: #f5f5f5;
+    background-color: #222222 !important;
+    border-color: #333333 !important;
+    color: #f5f5f5 !important;
 }
 
 [data-theme="dark"] .btn-icon-action:hover {
-    background-color: #563020;
+    background-color: #333333 !important;
+    color: #f97316 !important;
 }
 
 [data-theme="dark"] .form-control-input,

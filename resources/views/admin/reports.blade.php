@@ -31,20 +31,20 @@
     <div class="report-export-group">
         <span class="report-period-badge">
             <span class="live-dot"></span>
-            <span>Live DB Sync</span>
+            <span>Live System Sync</span>
         </span>
-        <a href="{{ route('admin.reports.export.pdf', request()->all()) }}" class="btn-export-pdf" id="btn_export_pdf" title="Export PDF">
+        <x-button variant="secondary" :href="route('admin.reports.export.pdf', request()->all())" class="btn-export-pdf" id="btn_export_pdf" title="Export PDF">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             <span data-lang-key="export_pdf">{{ __('messages.export_pdf') }}</span>
-        </a>
-        <a href="{{ route('admin.reports.export.excel', request()->all()) }}" class="btn-export-excel" id="btn_export_excel" title="Export Excel / CSV">
+        </x-button>
+        <x-button variant="secondary" :href="route('admin.reports.export.excel', request()->all())" class="btn-export-excel" id="btn_export_excel" title="Export Excel / CSV">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
             <span data-lang-key="export_excel">{{ __('messages.export_excel') }}</span>
-        </a>
-        <button type="button" class="btn btn-secondary btn-print-report" id="btn_print_report" onclick="window.print();" title="Print Layout">
+        </x-button>
+        <x-button variant="secondary" class="btn-print-report" id="btn_print_report" onclick="window.print();" title="Print Layout">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
             <span data-lang-key="print_report">{{ __('messages.print_report') }}</span>
-        </button>
+        </x-button>
     </div>
 </div>
 
@@ -365,7 +365,7 @@
                     $chanCount = $rec ? (int) $rec->count : 0;
                     $chanPercent = $reportData['totalSalesRevenue'] > 0 ? round(($chanTotal / $reportData['totalSalesRevenue']) * 100, 1) : 0;
                 @endphp
-                <div style="background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #eee9e0); border-radius: 16px; padding: 1rem 1.25rem; border-left: 4px solid {{ $chanMeta['color'] }};">
+                <div class="report-inner-card" style="padding: 1rem 1.25rem; border-left: 4px solid {{ $chanMeta['color'] }};">
                     <div style="font-size: 0.775rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">{{ $chanMeta['label'] }}</div>
                     <div style="font-size: 1.35rem; font-weight: 800; color: {{ $chanMeta['color'] }}; margin: 0.35rem 0 0.2rem;">
                         {{ $currency }}{{ number_format($chanTotal, 2) }}
@@ -374,7 +374,7 @@
                         <span>{{ number_format($chanCount) }} transactions</span>
                         <span style="font-weight: 700; color: var(--text-title);">{{ $chanPercent }}%</span>
                     </div>
-                    <div style="width: 100%; height: 6px; background: rgba(0,0,0,0.06); border-radius: 3px; margin-top: 0.5rem; overflow: hidden;">
+                    <div class="report-progress-track" style="width: 100%; height: 6px; margin-top: 0.5rem;">
                         <div style="width: {{ $chanPercent }}%; height: 100%; background: {{ $chanMeta['color'] }}; border-radius: 3px;"></div>
                     </div>
                 </div>
@@ -389,7 +389,7 @@
                     {{ __('messages.revenue_by_day') }}
                 </h2>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
-                    Continuous daily revenue aggregation from completed database transactions
+                    Daily revenue trends from completed sales
                 </p>
             </div>
             <div style="text-align: right;">
@@ -418,8 +418,8 @@
             <svg viewBox="0 0 800 220" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible;" id="revenue_svg_chart">
                 <defs>
                     <linearGradient id="reportChartGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#563020" stop-opacity="0.35" />
-                        <stop offset="100%" stop-color="#563020" stop-opacity="0.01" />
+                        <stop offset="0%" stop-color="#d97706" stop-opacity="0.35" />
+                        <stop offset="100%" stop-color="#d97706" stop-opacity="0.01" />
                     </linearGradient>
                 </defs>
 
@@ -434,7 +434,7 @@
 
                 @if($pointCount > 1)
                     <polygon points="{{ $areaPointsStr }}" fill="url(#reportChartGradient)" />
-                    <polyline points="{{ $pointsStr }}" fill="none" stroke="#563020" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                    <polyline points="{{ $pointsStr }}" fill="none" stroke="#d97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
                 @endif
 
                 @foreach($revValues as $idx => $r)
@@ -444,7 +444,7 @@
                         $lbl = $reportData['chartLabels'][$idx] ?? '';
                         $cnt = $reportData['chartOrderCounts'][$idx] ?? 0;
                     @endphp
-                    <circle cx="{{ $cx }}" cy="{{ $cy }}" r="4.5" fill="#563020" stroke="#ffffff" stroke-width="2" style="cursor: pointer;">
+                    <circle cx="{{ $cx }}" cy="{{ $cy }}" r="4.5" fill="#d97706" stroke="var(--card-bg, #ffffff)" stroke-width="2" style="cursor: pointer;">
                         <title>{{ $lbl }}: {{ $currency }}{{ number_format($r, 2) }} ({{ $cnt }} orders)</title>
                     </circle>
                     @if($pointCount <= 14 || $idx % intval(ceil($pointCount / 10)) === 0 || $idx === $pointCount - 1)
@@ -477,7 +477,7 @@
             @endphp
             @foreach($orderStatuses as $st)
                 @php $stPct = $reportData['totalOrders'] > 0 ? round(($st['count'] / $reportData['totalOrders']) * 100, 1) : 0; @endphp
-                <div style="background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #eee9e0); border-radius: 16px; padding: 1rem; border-top: 3px solid {{ $st['color'] }};">
+                <div class="report-inner-card" style="padding: 1rem; border-top: 3px solid {{ $st['color'] }};">
                     <div style="font-size: 0.775rem; font-weight: 700; color: var(--text-muted);">{{ $st['label'] }}</div>
                     <div style="font-size: 1.35rem; font-weight: 800; color: var(--text-title); margin: 0.25rem 0;">{{ number_format($st['count']) }}</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted);">
@@ -498,8 +498,8 @@
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
                 @foreach($reportData['top5'] as $rank => $prod)
-                    <div style="background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #eee9e0); border-radius: 16px; padding: 1rem; position: relative;">
-                        <span style="position: absolute; top: 10px; right: 12px; font-size: 0.75rem; font-weight: 800; color: #563020; background: rgba(86,48,32,0.1); border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;">#{{ $rank + 1 }}</span>
+                    <div class="report-inner-card" style="padding: 1rem; position: relative;">
+                        <span style="position: absolute; top: 10px; right: 12px; font-size: 0.75rem; font-weight: 800; color: var(--accent-brown, #d97736); background: rgba(217,119,54,0.15); border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;">#{{ $rank + 1 }}</span>
                         <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase;">{{ $prod->category_name ?? 'Bakery Item' }}</div>
                         <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-title); margin: 0.2rem 0 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $prod->product_name }}">
                             {{ $prod->product_name }}
@@ -515,9 +515,9 @@
     @endif
 @elseif($type === 'profit-loss')
     <div class="bakery-card" style="margin-bottom: 1.85rem; border-left: 4px solid #b45309;">
-        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-title); margin: 0 0 0.5rem 0;">Accounting & Financial Limitations Disclosure</h3>
+        <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-title); margin: 0 0 0.5rem 0;">Financial Notes</h3>
         <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
-            Operating expenses including bakery store rent, electricity, municipal utilities, delivery vehicle fuels, and staff hourly wages are not recorded in the database schema. The calculations presented above represent <strong>Gross Profit Based on Recorded Costs</strong> (Sales Revenue minus recorded Cost of Goods Sold from product recipe costs). Raw ingredient procurement spend from received purchase orders is displayed as a separate operational cash outflow metric to prevent double-counting inventory acquisitions.
+            General operating expenses such as rent and store utilities are not tracked here. The calculations above reflect <strong>Gross Profit Based on Recorded Costs</strong> (Total Sales minus recipe ingredient costs). Purchase order spend is displayed as a separate cash outflow metric.
         </p>
     </div>
     @if(isset($reportData['categoryBreakdown']) && count($reportData['categoryBreakdown']) > 0)
@@ -530,7 +530,7 @@
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
                 @foreach($reportData['categoryBreakdown'] as $cat)
-                    <div style="background: var(--bg-surface, #ffffff); border: 1px solid var(--border-color, #eee9e0); border-radius: 16px; padding: 1rem;">
+                    <div class="report-inner-card" style="padding: 1rem;">
                         <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-title);">{{ $cat->category_name }}</div>
                         <div style="margin-top: 0.5rem; display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-secondary);">
                             <span>Revenue:</span>
@@ -764,13 +764,13 @@
             <tbody>
                 @forelse($reportData['records'] as $index => $prod)
                     <tr>
-                        <td style="font-weight: 800; color: #563020;">#{{ $index + 1 }}</td>
+                        <td style="font-weight: 800; color: var(--accent-brown, #d97736);">#{{ $index + 1 }}</td>
                         <td style="font-weight: 800;">{{ $prod->product_name }}</td>
                         <td>{{ $prod->category_name ?? 'Uncategorized' }}</td>
                         <td style="font-family: monospace;">{{ $prod->sku ?? 'N/A' }}</td>
                         <td style="text-align: right;">{{ $currency }}{{ number_format((float) $prod->unit_price, 2) }}</td>
                         <td style="text-align: right;">{{ $currency }}{{ number_format((float) $prod->unit_cost, 2) }}</td>
-                        <td style="text-align: center; font-weight: 800; color: #563020;">{{ number_format((float) $prod->total_units_sold) }}</td>
+                        <td style="text-align: center; font-weight: 800; color: var(--text-title);">{{ number_format((float) $prod->total_units_sold) }}</td>
                         <td style="text-align: right; font-weight: 800; color: #16a34a;">{{ $currency }}{{ number_format((float) $prod->total_revenue, 2) }}</td>
                         <td style="text-align: center;">{{ number_format($prod->total_orders_count) }}</td>
                     </tr>
@@ -1021,7 +1021,7 @@
                     <td style="text-align: right; font-weight: 800; color: #dc2626;">-{{ $currency }}{{ number_format($reportData['productCogs'], 2) }}</td>
                     <td>Sum of (units sold &times; product recipe cost) for completed orders</td>
                 </tr>
-                <tr style="background: rgba(86, 48, 32, 0.05);">
+                <tr style="background: var(--bg-surface-subtle, rgba(217, 119, 54, 0.08));">
                     <td style="font-weight: 800; font-size: 0.95rem;">3. GROSS PROFIT (Based on Recorded Costs)</td>
                     <td style="text-align: right; font-weight: 800; font-size: 1.05rem; color: {{ $reportData['grossProfit'] >= 0 ? '#16a34a' : '#dc2626' }};">
                         {{ $currency }}{{ number_format($reportData['grossProfit'], 2) }}

@@ -96,8 +96,8 @@
 
 .btn-delete-product-icon:hover {
     background-color: #fee2e2;
-    transform: scale(1.1);
 }
+
 
 .product-card-body {
     padding: 1.25rem;

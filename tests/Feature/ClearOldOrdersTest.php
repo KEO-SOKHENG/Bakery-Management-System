@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Models\AuditLog;
 use App\Models\Category;
 use App\Models\Customer;
-use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
@@ -108,14 +107,6 @@ class ClearOldOrdersTest extends TestCase
             ]);
         }
 
-        Delivery::create([
-            'order_id' => $order->id,
-            'recipient_name' => $this->customer->name,
-            'delivery_address' => '123 Bakery Lane',
-            'delivery_status' => $status === 'completed' ? 'delivered' : 'pending',
-            'created_at' => $createdAt,
-        ]);
-
         return $order->fresh();
     }
 
@@ -152,7 +143,6 @@ class ClearOldOrdersTest extends TestCase
         $this->assertDatabaseMissing('order_items', ['order_id' => $oldOrder->id]);
         $this->assertDatabaseMissing('sales', ['order_id' => $oldOrder->id]);
         $this->assertDatabaseMissing('payments', ['order_id' => $oldOrder->id]);
-        $this->assertDatabaseMissing('deliveries', ['order_id' => $oldOrder->id]);
 
         $this->assertDatabaseHas('audit_logs', [
             'action' => 'orders_purged',

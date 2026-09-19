@@ -1,240 +1,82 @@
-/* Bakery Management System - macOS Apple Fluid System Animations */
+/* ==========================================================================
+   Bakery Management System - Minimal Functional Transitions
+   Purpose: Clean, fast, subtle UX micro-interactions without distracting motion.
+   ========================================================================== */
 
-/* macOS System Spring Easing: cubic-bezier(0.16, 1, 0.3, 1) */
-
-/* Keyframe Animations */
-@keyframes macosFadeIn {
-    0% {
-        opacity: 0;
-        transform: translateY(10px) scale(0.99);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes macosDockPulse {
-    0% { transform: scale(1); }
-    40% { transform: scale(0.95); }
-    80% { transform: scale(1.02); }
-    100% { transform: scale(1); }
-}
-
-@keyframes macosGlowPulse {
-    0% { box-shadow: 0 0 0 0 rgba(77, 44, 32, 0.35); }
-    70% { box-shadow: 0 0 0 12px rgba(77, 44, 32, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(77, 44, 32, 0); }
-}
-
-/* GPU Hardware Acceleration */
-.bakery-sidebar,
-.sidebar-toggle-btn,
+/* Standard smooth transitions for interactive elements */
 .btn,
-.btn-ios-save,
-.btn-card-outline,
+.btn-primary,
+.btn-secondary,
+.btn-success,
+.btn-danger,
+.btn-warning,
+.btn-outline,
+.btn-ghost,
+.btn-icon,
 .table-icon-btn,
-.icon-bell-btn,
-.stat-card,
-.quick-action-btn,
-.bakery-card {
-    will-change: transform, opacity, background-color, box-shadow;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-}
-
-/* Hamburger Toggle Button (☰) macOS Hover Animation */
-.sidebar-toggle-btn {
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.sidebar-toggle-btn:hover {
-    transform: scale(1.08) rotate(90deg) !important;
-    box-shadow: 0 8px 20px rgba(77, 44, 32, 0.35) !important;
-}
-
-.sidebar-toggle-btn:active {
-    animation: macosGlowPulse 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    transform: scale(0.95) rotate(90deg) !important;
-}
-
-/* macOS Smooth Page Load Entrance */
-.bakery-main-content {
-    animation: macosFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.stat-card {
-    animation: macosFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.stat-card:nth-child(1) { animation-delay: 0.05s; }
-.stat-card:nth-child(2) { animation-delay: 0.1s; }
-.stat-card:nth-child(3) { animation-delay: 0.15s; }
-.stat-card:nth-child(4) { animation-delay: 0.2s; }
-
-.quick-action-btn {
-    animation: macosFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.quick-action-btn:nth-child(1) { animation-delay: 0.08s; }
-.quick-action-btn:nth-child(2) { animation-delay: 0.15s; }
-.quick-action-btn:nth-child(3) { animation-delay: 0.22s; }
-
-.bakery-card {
-    animation: macosFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* macOS Buttons & Interactive Elements */
-.btn,
-.btn-ios-save,
-.btn-card-outline,
-.table-icon-btn,
-.icon-bell-btn {
-    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-                background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.btn:hover,
-.btn-ios-save:hover {
-    transform: translateY(-2px) scale(1.02) !important;
-    box-shadow: 0 8px 20px rgba(77, 44, 32, 0.22) !important;
+.btn-icon-action {
+    transition: background-color 0.15s ease,
+                border-color 0.15s ease,
+                color 0.15s ease,
+                box-shadow 0.15s ease,
+                transform 0.15s ease !important;
 }
 
 .btn:active,
-.btn-ios-save:active {
-    transform: translateY(0) scale(0.98) !important;
+.table-icon-btn:active,
+.btn-icon-action:active {
+    transform: scale(0.97) !important;
+}
+
+/* Sidebar Toggle: subtle clean background change without icon rotation */
+.sidebar-toggle-btn {
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.sidebar-toggle-btn:hover {
+    background-color: rgba(77, 44, 32, 0.08) !important;
+    transform: none !important;
+}
+
+.sidebar-toggle-btn:active {
+    transform: scale(0.96) !important;
+}
+
+/* Header Action Icons: clean highlight */
+.icon-bell-btn {
+    transition: background-color 0.15s ease, color 0.15s ease !important;
 }
 
 .icon-bell-btn:hover {
-    transform: rotate(12deg) scale(1.1) !important;
+    transform: none !important;
 }
 
-.table-icon-btn:hover {
-    transform: translateY(-1px) scale(1.12) !important;
-}
-
-/* ==========================================================================
-   THEME MODE ICON ANIMATIONS (ALL TIME CONTINUOUS ANIMATION)
-   ========================================================================== */
-
-/* 1. LIGHT MODE SUN ICON: CONTINUOUS 360° ROTATION ALL THE TIME */
-.segmented-option[data-theme="light"] svg {
-    transform-origin: center;
-    animation: sunSpin360 6s linear infinite !important;
-}
-
-@keyframes sunSpin360 {
+/* Standard Modal Entrance Animation */
+@keyframes modalSlideFadeIn {
     0% {
-        transform: rotate(0deg);
+        opacity: 0;
+        transform: scale(0.97) translateY(8px);
     }
     100% {
-        transform: rotate(360deg);
+        opacity: 1;
+        transform: scale(1) translateY(0);
     }
 }
 
-/* 2. DARK MODE MOON ICON: CONTINUOUS CRESCENT TILT & GLOW PULSE ALL THE TIME */
-.segmented-option[data-theme="dark"] svg {
-    transform-origin: center;
-    animation: moonSwingPulse 3s ease-in-out infinite alternate !important;
+.modal-backdrop.is-active .modal-card,
+.confirm-modal-backdrop.is-active .confirm-modal-card,
+.logout-modal-backdrop.is-active .logout-modal-card {
+    animation: modalSlideFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes moonSwingPulse {
-    0% {
-        transform: rotate(-18deg) scale(1);
-        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
-    }
-    50% {
-        transform: rotate(18deg) scale(1.2);
-        filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.7));
-    }
-    100% {
-        transform: rotate(-12deg) scale(1.08);
-        filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
-    }
-}
-
-/* 3. GLASS MODE SPARKLE ICON: CONTINUOUS TWINKLE & SCALE PULSE ALL THE TIME */
-.segmented-option[data-theme="glass"] svg {
-    transform-origin: center;
-    animation: glassSparkleTwinkle 2.5s ease-in-out infinite alternate !important;
-}
-
-@keyframes glassSparkleTwinkle {
-    0% {
-        transform: scale(1) rotate(0deg);
-        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
-    }
-    50% {
-        transform: scale(1.32) rotate(45deg);
-        filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.9));
-    }
-    100% {
-        transform: scale(1.1) rotate(90deg);
-        filter: drop-shadow(0 0 5px rgba(236, 72, 153, 0.7));
-    }
-}
-
-/* ==========================================================================
-   DARK MODE FIREFLY AMBIENT BACKGROUND EFFECT
-   ========================================================================== */
-.fireflies-layer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none !important;
-    z-index: 0;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.8s ease, visibility 0.8s ease;
-}
-
-[data-theme="dark"] .fireflies-layer {
-    opacity: 1;
-    visibility: visible;
-}
-
-.firefly-particle {
-    position: absolute;
-    border-radius: 50%;
-    background: radial-gradient(circle, #ffffff 30%, rgba(255, 255, 255, 0.8) 70%, rgba(255, 255, 255, 0) 100%);
-    box-shadow: 0 0 6px #ffffff, 0 0 12px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.4);
-    animation: fireflyFloat 14s ease-in-out infinite alternate, fireflyGlowPulse 3s ease-in-out infinite alternate;
-    will-change: transform, opacity;
-}
-
-@keyframes fireflyGlowPulse {
-    0%, 100% {
-        opacity: 0.2;
-        transform: scale(0.6);
-        box-shadow: 0 0 4px #ffffff, 0 0 8px rgba(255, 255, 255, 0.6);
-    }
-    50% {
-        opacity: 0.95;
-        transform: scale(1.2);
-        box-shadow: 0 0 10px #ffffff, 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(255, 255, 255, 0.6);
-    }
-}
-
-@keyframes fireflyFloat {
-    0% {
-        transform: translate(0, 0);
-    }
-    25% {
-        transform: translate(35px, -45px);
-    }
-    50% {
-        transform: translate(-30px, -90px);
-    }
-    75% {
-        transform: translate(45px, -135px);
-    }
-    100% {
-        transform: translate(-20px, -180px);
+/* Reduced motion preference support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }

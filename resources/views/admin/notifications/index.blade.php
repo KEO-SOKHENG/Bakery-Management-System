@@ -18,7 +18,7 @@
                 </svg>
                 <span data-lang-key="notification_center">Notification Center</span>
             </h1>
-            <p data-lang-key="notification_center_subtitle">Live database alerts, operational updates, and event notifications.</p>
+            <p data-lang-key="notification_center_subtitle">Real-time alerts, operational updates, and event notifications.</p>
         </div>
 
         <div class="notif-action-group">
@@ -380,36 +380,42 @@
     }
 
     function deleteNotification(id) {
-        if (!confirm('Are you sure you want to dismiss this notification?')) return;
-
-        fetch(`/notifications/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken || '',
-                'Accept': 'application/json'
-            }
-        }).then(res => res.json()).then(data => {
-            const row = document.getElementById(`notif_row_${id}`);
-            if (row) {
-                row.style.opacity = '0';
-                row.style.transform = 'translateY(-8px)';
-                setTimeout(() => row.remove(), 250);
-            }
-            if (data.unread_count !== undefined) {
-                const unreadBadge = document.getElementById('stat_unread_count');
-                if (unreadBadge) unreadBadge.textContent = data.unread_count;
-                const headerBadge = document.getElementById('notification_badge');
-                if (headerBadge) {
-                    if (data.unread_count > 0) {
-                        headerBadge.textContent = data.unread_count;
-                        headerBadge.style.display = 'inline-flex';
-                    } else {
-                        headerBadge.style.display = 'none';
+        window.showConfirmDialog({
+            title: 'Dismiss Notification',
+            message: 'Are you sure you want to dismiss this notification?',
+            confirmText: 'Dismiss',
+            isDanger: true,
+            onConfirm: function() {
+                fetch(`/notifications/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken || '',
+                        'Accept': 'application/json'
                     }
-                }
+                }).then(res => res.json()).then(data => {
+                    const row = document.getElementById(`notif_row_${id}`);
+                    if (row) {
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateY(-8px)';
+                        setTimeout(() => row.remove(), 250);
+                    }
+                    if (data.unread_count !== undefined) {
+                        const unreadBadge = document.getElementById('stat_unread_count');
+                        if (unreadBadge) unreadBadge.textContent = data.unread_count;
+                        const headerBadge = document.getElementById('notification_badge');
+                        if (headerBadge) {
+                            if (data.unread_count > 0) {
+                                headerBadge.textContent = data.unread_count;
+                                headerBadge.style.display = 'inline-flex';
+                            } else {
+                                headerBadge.style.display = 'none';
+                            }
+                        }
+                    }
+                }).catch(err => console.error(err));
             }
-        }).catch(err => console.error(err));
+        });
     }
 
     const markAllBtn = document.getElementById('page_mark_all_read');

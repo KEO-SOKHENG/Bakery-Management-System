@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Notification;
 use App\Services\NotificationService;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
@@ -24,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Set Bakery System custom pagination views
+        Paginator::defaultView('vendor.pagination.custom');
+        Paginator::defaultSimpleView('vendor.pagination.simple-custom');
+
         // Centralized RBAC Gate authorization
         Gate::before(function (\App\Models\User $user, string $ability) {
             return $user->hasPermission($ability) ?: null;

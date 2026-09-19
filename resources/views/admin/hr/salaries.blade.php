@@ -47,20 +47,17 @@
 
 <!-- Flash Notifications -->
 @if(session('success'))
-    <div style="background: rgba(22, 163, 74, 0.12); color: #16a34a; border: 1px solid rgba(22, 163, 74, 0.3); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        <span>{{ session('success') }}</span>
-    </div>
+    <x-alert type="success" :dismissible="true">{{ session('success') }}</x-alert>
 @endif
 
 @if($errors->any())
-    <div style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; font-weight: 700;">
+    <x-alert type="danger" :dismissible="true">
         <ul style="margin: 0; padding-left: 1.2rem;">
             @foreach($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
-    </div>
+    </x-alert>
 @endif
 
 <!-- KPI Cards -->
@@ -80,7 +77,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
         <div class="stat-content">
-            <div class="stat-label">Total Disbursed</div>
+            <div class="stat-label">Total Paid</div>
             <div class="stat-number">${{ number_format($stats['total_paid'], 2) }}</div>
         </div>
     </div>
@@ -144,7 +141,7 @@
 </div>
 
 <!-- Table Container -->
-<div class="users-card">
+<x-card class="users-card">
     <div class="users-table-container">
         <table class="users-table">
             <thead>
@@ -181,9 +178,9 @@
                         <td><strong style="font-size: 1rem; color: var(--user-primary);">${{ number_format($sal->net_salary, 2) }}</strong></td>
                         <td>
                             @if($sal->isPaid())
-                                <span class="user-badge active">Paid</span>
+                                <x-badge variant="success">Paid</x-badge>
                             @else
-                                <span class="user-badge suspended">Pending</span>
+                                <x-badge variant="warning">Pending</x-badge>
                             @endif
                         </td>
                         <td>
@@ -200,7 +197,7 @@
                             @if(!$sal->isPaid())
                                 <form action="{{ route('admin.hr.salaries.markPaid', $sal) }}" method="POST" style="display: inline-block;">
                                     @csrf
-                                    <button type="submit" class="btn-icon-action view" title="Mark as Paid" style="color: #16a34a; border-color: rgba(22, 163, 74, 0.3);" onclick="return confirm('Mark this salary as disbursed/paid?');">
+                                    <button type="submit" class="btn-icon-action view" title="Mark as Paid" style="color: #16a34a; border-color: rgba(22, 163, 74, 0.3);" onclick="return confirm('Mark this salary as paid?');">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                                     </button>
                                 </form>
@@ -232,7 +229,7 @@
             {{ $salaries->links() }}
         </div>
     @endif
-</div>
+</x-card>
 
 <!-- Modal: Generate Salary Slip -->
 <div class="user-modal-overlay" id="modal_generate_salary">

@@ -7,43 +7,33 @@
 @endpush
 
 @section('content')
-<div class="customers-header-bar">
-    <div class="customers-title-group">
-        <h2>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span data-lang-key="customers">Customer Management</span>
-            <span style="font-size: 0.9rem; font-weight: 700; color: var(--cust-muted);">({{ $totalCustomers }})</span>
-        </h2>
-        <p>Register bakery patrons, track loyalty points & tiers, and inspect purchase histories</p>
-    </div>
-
-    <button type="button" class="btn-cust-primary" id="btn_open_add_customer_modal">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span data-lang-key="add_customer">{{ __('messages.add_customer') }}</span>
-    </button>
-</div>
+<x-page-header title="Customer Management" subtitle="Register bakery patrons, track loyalty points & tiers, and inspect purchase histories">
+    <x-slot:actions>
+        <x-button variant="primary" id="btn_open_add_customer_modal" class="btn-cust-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span data-lang-key="add_customer">{{ __('messages.add_customer') }}</span>
+        </x-button>
+    </x-slot:actions>
+</x-page-header>
 
 <!-- Flash Notifications -->
 @if(session('success'))
-    <div style="background: rgba(22, 163, 74, 0.12); color: #16a34a; border: 1px solid rgba(22, 163, 74, 0.3); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        <span>{{ session('success') }}</span>
-    </div>
+    <x-alert type="success" :message="session('success')" />
 @endif
 
 @if($errors->any())
-    <div style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; font-weight: 700;">
+    <x-alert type="danger">
         <ul style="margin: 0; padding-left: 1.2rem;">
             @foreach($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
-    </div>
+    </x-alert>
 @endif
 
 <!-- Summary Metric Cards -->
 <div class="customer-stats-grid">
-    <div class="customer-stat-card">
+    <x-card class="customer-stat-card">
         <div class="stat-icon-wrapper total">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
@@ -51,9 +41,9 @@
             <div class="stat-label">Total Customers</div>
             <div class="stat-number">{{ number_format($totalCustomers) }}</div>
         </div>
-    </div>
+    </x-card>
 
-    <div class="customer-stat-card">
+    <x-card class="customer-stat-card">
         <div class="stat-icon-wrapper active">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
@@ -61,9 +51,9 @@
             <div class="stat-label">Active Accounts</div>
             <div class="stat-number">{{ number_format($activeCustomers) }}</div>
         </div>
-    </div>
+    </x-card>
 
-    <div class="customer-stat-card">
+    <x-card class="customer-stat-card">
         <div class="stat-icon-wrapper loyalty">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         </div>
@@ -71,9 +61,9 @@
             <div class="stat-label">Loyalty Members</div>
             <div class="stat-number">{{ number_format($loyaltyMembers) }}</div>
         </div>
-    </div>
+    </x-card>
 
-    <div class="customer-stat-card">
+    <x-card class="customer-stat-card">
         <div class="stat-icon-wrapper revenue">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
@@ -81,7 +71,7 @@
             <div class="stat-label">Customer Revenue</div>
             <div class="stat-number">${{ number_format($totalCustomerRevenue, 2) }}</div>
         </div>
-    </div>
+    </x-card>
 </div>
 
 <!-- Search & Filtering Toolbar -->
@@ -121,7 +111,7 @@
 </div>
 
 <!-- Customers Table Card -->
-<div class="customers-card">
+<x-card class="customers-card">
     <div style="overflow-x: auto;">
         <table class="customers-table" id="customers_table">
             <thead>
@@ -180,17 +170,9 @@
                             </span>
                         </td>
                         <td>
-                            @if($customer->status === 'active')
-                                <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.65rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 800; background: rgba(22, 163, 74, 0.12); color: #16a34a;">
-                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #16a34a;"></span>
-                                    Active
-                                </span>
-                            @else
-                                <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.65rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 800; background: rgba(239, 68, 68, 0.12); color: #ef4444;">
-                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #ef4444;"></span>
-                                    Inactive
-                                </span>
-                            @endif
+                            <x-badge :variant="$customer->status === 'active' ? 'success' : 'danger'">
+                                {{ ucfirst($customer->status) }}
+                            </x-badge>
                         </td>
                         <td>
                             <div class="cust-action-btns" style="justify-content: flex-end;">
@@ -243,7 +225,7 @@
     <div style="margin-top: 1.5rem;">
         {{ $customers->links() }}
     </div>
-</div>
+</x-card>
 
 <!-- ==========================================================================
      ADD CUSTOMER MODAL
@@ -251,7 +233,7 @@
 <div class="cust-modal-backdrop" id="add_customer_modal">
     <div class="cust-modal-card">
         <div class="cust-modal-header">
-            <h3 data-lang-key="add_customer">Add New Customer</h3>
+            <h3 data-lang-key="add_customer">Add Customer</h3>
             <button type="button" class="btn-modal-close" id="btn_close_add_customer">&times;</button>
         </div>
         <form action="{{ route('admin.customers.store') }}" method="POST">
@@ -293,8 +275,8 @@
                 </div>
             </div>
             <div class="cust-modal-footer">
-                <button type="button" class="btn-modal-cancel" id="btn_cancel_add_customer" data-lang-key="cancel">Cancel</button>
-                <button type="submit" class="btn-cust-primary" data-lang-key="save">Save Customer</button>
+                <x-button variant="secondary" id="btn_cancel_add_customer" data-lang-key="cancel">Cancel</x-button>
+                <x-button variant="primary" type="submit" class="btn-cust-primary" data-lang-key="save">Save Customer</x-button>
             </div>
         </form>
     </div>
@@ -349,8 +331,8 @@
                 </div>
             </div>
             <div class="cust-modal-footer">
-                <button type="button" class="btn-modal-cancel" id="btn_cancel_edit_customer" data-lang-key="cancel">Cancel</button>
-                <button type="submit" class="btn-cust-primary" data-lang-key="save">Update Customer</button>
+                <x-button variant="secondary" id="btn_cancel_edit_customer" data-lang-key="cancel">Cancel</x-button>
+                <x-button variant="primary" type="submit" class="btn-cust-primary" data-lang-key="save">Update Customer</x-button>
             </div>
         </form>
     </div>

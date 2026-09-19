@@ -59,11 +59,6 @@ class User extends Authenticatable
         return $this->hasMany(Payment::class);
     }
 
-    public function deliveries()
-    {
-        return $this->hasMany(Delivery::class);
-    }
-
     public function assignedProductions()
     {
         return $this->hasMany(Production::class, 'baker_id');
@@ -92,11 +87,6 @@ class User extends Authenticatable
     public function isBaker(): bool
     {
         return $this->role === 'baker';
-    }
-
-    public function isDeliveryStaff(): bool
-    {
-        return $this->role === 'delivery_staff';
     }
 
     public function attendances()

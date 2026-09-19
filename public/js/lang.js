@@ -47,6 +47,7 @@
             "analytics": "Analytics",
             "system": "System",
             "users_staff": "Users & Staff",
+            "notifications": "Notifications",
 
             // Settings Page Labels & Headings
             "settings_header": "System Settings",
@@ -199,7 +200,7 @@
             // Notifications
             "notifications": "Notifications",
             "notification_center": "Notification Center",
-            "notification_center_subtitle": "Live database alerts, operational updates, and event notifications.",
+            "notification_center_subtitle": "Live system alerts, operational updates, and event notifications.",
             "total_notifications": "Total Notifications",
             "unread_alerts": "Unread Alerts",
             "critical_action_required": "Critical / Out of Stock",
@@ -243,7 +244,7 @@
             // Notification System
             "notifications": "Notifications",
             "notification_center": "Notification Center",
-            "notification_center_subtitle": "Live database alerts, operational updates, and event notifications.",
+            "notification_center_subtitle": "Live system alerts, operational updates, and event notifications.",
             "total_notifications": "Total Notifications",
             "unread_alerts": "Unread Alerts",
             "unread": "Unread",
@@ -328,7 +329,7 @@
             "expiry_warning_days": "Expiry Warning Window (Days)",
             "expiry_warning_days_hint": "Days before ingredient expiration to trigger proactive notifications.",
             "backup_restore": "System Backup & Restore",
-            "backup_restore_sub": "Export database configuration snapshots or restore settings",
+            "backup_restore_sub": "Export configuration snapshots or restore settings",
             "download_backup": "System Configuration Backup",
             "backup_description": "Downloads verified JSON containing store settings, categories, and catalog metadata.",
             "backup_download": "Download Backup",
@@ -382,6 +383,7 @@
             "analytics": "ការវិភាគ",
             "system": "ប្រព័ន្ធ",
             "users_staff": "អ្នកប្រើប្រាស់ និងបុគ្គលិក",
+            "notifications": "ការជូនដំណឹង",
 
             // Settings Page Labels & Headings
             "settings_header": "ការកំណត់ប្រព័ន្ធ",

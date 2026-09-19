@@ -7,16 +7,14 @@
 @endpush
 
 @section('content')
-<div class="recipes-header-bar">
-    <div>
-        <h2 style="font-size: 1.3rem; font-weight: 800; margin: 0;">Bakery Formulas & Recipes ({{ $recipes->count() }})</h2>
-        <p style="font-size: 0.825rem; color: #71717a; margin-top: 0.2rem;">Standardized dough formulas, ingredient quantities, baking temperatures, and yield batch costs</p>
-    </div>
-    <button class="btn btn-primary" id="btn_open_recipe_modal" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.25rem; background: #4d2c20; color: #fff; border-radius: 9999px; border: none; font-weight: 700; cursor: pointer;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
-        <span>Add New Recipe</span>
-    </button>
-</div>
+<x-page-header title="Bakery Recipes" subtitle="Standardized recipes, ingredients, baking temperatures, and yield costs">
+    <x-slot:actions>
+        <x-button variant="primary" id="btn_open_recipe_modal">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+            <span>Add Recipe</span>
+        </x-button>
+    </x-slot:actions>
+</x-page-header>
 
 <div class="recipes-grid">
     @forelse($recipes as $recipe)
@@ -45,7 +43,7 @@
                 </div>
 
                 <div>
-                    <div class="recipe-section-heading">Required Ingredient Formula:</div>
+                    <div class="recipe-section-heading">Ingredients:</div>
                     <p class="recipe-ingredients-box">{{ $recipe->ingredients_summary }}</p>
                 </div>
 
@@ -67,72 +65,56 @@
                     <span class="recipe-cost-value" style="color: #563020;">${{ number_format($recipe->total_cost, 2) }}</span>
                 </div>
 
-                <form action="{{ route('admin.recipes.destroy', $recipe->id) }}" method="POST" onsubmit="return confirm('Delete this recipe formula?');">
+                <form action="{{ route('admin.recipes.destroy', $recipe->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete recipe \'{{ $recipe->recipe_name ?? 'Item' }}\'?');">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.8rem; font-weight: 700;">
-                        Delete
+                    <button type="submit" class="btn-icon-action delete" title="Delete Recipe">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
                     </button>
                 </form>
             </div>
         </div>
     @empty
         <div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem;">
-            No bakery recipes in database. Click "Add New Recipe" to create standard product formulas.
+            No recipes found. Click "Add Recipe" to create one.
         </div>
     @endforelse
 </div>
 
 <!-- ADD RECIPE MODAL -->
-<div class="dash-modal-overlay" id="add_recipe_modal">
-    <div class="dash-modal-content">
-        <div class="dash-modal-header">
-            <h3>Add Bakery Product Recipe Formula</h3>
-            <button type="button" class="btn-close-modal" id="btn_close_recipe_modal">&times;</button>
+<x-modal id="add_recipe_modal" title="Add Recipe" maxWidth="540px" class="dash-modal-overlay">
+    <form action="{{ route('admin.recipes.store') }}" method="POST">
+        @csrf
+        <x-input name="name" label="Recipe Name" placeholder="e.g. Classic Butter Croissant" :required="true" />
+        <x-select name="product_id" label="Bakery Product" :required="true">
+            @foreach($products as $p)
+                <option value="{{ $p->id }}">{{ $p->name }} ({{ $p->category ? $p->category->name : 'Bakery' }})</option>
+            @endforeach
+        </x-select>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+            <x-input type="number" name="yield_quantity" label="Batch Yield (pcs)" value="1" min="1" placeholder="50" :required="true" />
+            <x-input type="number" name="production_time" label="Baking Time (mins)" min="1" placeholder="45" :required="true" />
+            <x-input name="bake_temp" label="Bake Temp" placeholder="210°C" />
         </div>
-        <form action="{{ route('admin.recipes.store') }}" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
-            @csrf
-            <div>
-                <label class="form-label">Recipe Formula Name</label>
-                <input type="text" name="name" class="ios-input-field" placeholder="e.g. Classic Butter Croissant Formula" required>
-            </div>
-            <div>
-                <label class="form-label">Target Bakery Product</label>
-                <select name="product_id" class="ios-select-field" required>
-                    @foreach($products as $p)
-                        <option value="{{ $p->id }}">{{ $p->name }} ({{ $p->category ? $p->category->name : 'Bakery' }})</option>
-                    @endforeach
-                </select>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
-                <div>
-                    <label class="form-label">Batch Yield (pcs)</label>
-                    <input type="number" name="yield_quantity" class="ios-input-field" value="1" min="1" placeholder="50" required>
-                </div>
-                <div>
-                    <label class="form-label">Prod. Time (mins)</label>
-                    <input type="number" name="production_time" class="ios-input-field" min="1" placeholder="45" required>
-                </div>
-                <div>
-                    <label class="form-label">Bake Temp</label>
-                    <input type="text" name="bake_temp" class="ios-input-field" placeholder="210°C">
-                </div>
-            </div>
-            <div>
-                <label class="form-label">Ingredients Formula Summary</label>
-                <textarea name="description" class="ios-textarea-field" rows="2" placeholder="e.g. 10kg T55 Flour, 6.5kg Normandy Butter, 500g Sugar, 250g Yeast, 180g Salt"></textarea>
-            </div>
-            <div>
-                <label class="form-label">Baking Instructions & Notes</label>
-                <textarea name="instructions" class="ios-textarea-field" rows="2" placeholder="Fermentation steps, dough lamination notes, and oven humidity settings..."></textarea>
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
-                <button type="button" class="btn btn-secondary" id="btn_cancel_recipe" style="border-radius: 9999px; cursor: pointer;">Cancel</button>
-                <button type="submit" class="btn btn-primary" style="background: #4d2c20; color: #fff; border-radius: 9999px; border: none; font-weight: 700; cursor: pointer; padding: 0.65rem 1.5rem;">Save Recipe Formula</button>
-            </div>
-        </form>
-    </div>
-</div>
+        <div class="form-group">
+            <label class="form-label">Ingredients</label>
+            <textarea name="description" class="form-control-textarea" rows="2" placeholder="e.g. 10kg Flour, 6.5kg Butter, 500g Sugar, 250g Yeast, 180g Salt"></textarea>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Baking Notes</label>
+            <textarea name="instructions" class="form-control-textarea" rows="2" placeholder="Steps, dough folding notes, and oven temperature settings..."></textarea>
+        </div>
+        <div class="modal-footer" style="padding-top: 1rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+            <x-button variant="secondary" type="button" id="btn_cancel_recipe">Cancel</x-button>
+            <x-button variant="primary" type="submit">Save Recipe</x-button>
+        </div>
+    </form>
+</x-modal>
 
 @push('scripts')
 <script>
@@ -144,14 +126,16 @@
 
         function openModal() {
             if (modal) {
-                modal.classList.add('active');
+                modal.classList.add('active', 'is-active');
+                modal.style.display = 'flex';
                 document.body.style.overflow = 'hidden';
             }
         }
 
         function closeModal() {
             if (modal) {
-                modal.classList.remove('active');
+                modal.classList.remove('active', 'is-active');
+                modal.style.display = 'none';
                 document.body.style.overflow = '';
             }
         }
