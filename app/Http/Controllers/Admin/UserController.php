@@ -71,11 +71,12 @@ class UserController extends Controller
      */
     public function show(User $user, Request $request)
     {
-        $user->loadCount(['orders', 'sales', 'productions', 'payments']);
+        $user->loadCount(['orders', 'sales', 'productions', 'payments', 'assignedProductions', 'purchaseOrders', 'stockMovements']);
         
         $effectivePermissions = PermissionService::getEffectivePermissions($user);
         $roleDefaults = PermissionService::getRoleDefaults($user->role);
         $customOverrides = $user->custom_permissions ?? [];
+        $modules = PermissionService::getAllModules();
 
         $recentAudits = AuditLog::where(function ($q) use ($user) {
             $q->where('user_id', $user->id)
@@ -94,7 +95,7 @@ class UserController extends Controller
             ]);
         }
 
-        return view('admin.users.show', compact('user', 'effectivePermissions', 'roleDefaults', 'customOverrides', 'recentAudits'));
+        return view('admin.users.show', compact('user', 'effectivePermissions', 'roleDefaults', 'customOverrides', 'recentAudits', 'modules'));
     }
 
     /**
@@ -201,9 +202,7 @@ class UserController extends Controller
         $user->role = $newRole;
         $user->status = $newStatus;
 
-        if ($request->has('must_change_password')) {
-            $user->must_change_password = $request->boolean('must_change_password');
-        }
+        $user->must_change_password = $request->boolean('must_change_password');
 
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
@@ -340,14 +339,38 @@ class UserController extends Controller
         }
 
         $submittedOverrides = $request->input('permissions', []);
-
-        // Filter valid keys and cast to boolean
         $validKeys = PermissionService::getAllPermissionKeys();
+        $roleDefaults = PermissionService::getRoleDefaults($user->role);
         $cleanOverrides = [];
 
-        foreach ($validKeys as $key) {
-            if (isset($submittedOverrides[$key])) {
-                $cleanOverrides[$key] = filter_var($submittedOverrides[$key], FILTER_VALIDATE_BOOLEAN);
+        // Check if caller explicitly passed a key-value boolean map (e.g. from API/test)
+        $hasExplicitFalse = false;
+        foreach ($submittedOverrides as $v) {
+            if ($v === false || $v === 0 || $v === '0' || $v === 'false') {
+                $hasExplicitFalse = true;
+                break;
+            }
+        }
+
+        if ($hasExplicitFalse) {
+            foreach ($validKeys as $key) {
+                if (isset($submittedOverrides[$key])) {
+                    $cleanOverrides[$key] = filter_var($submittedOverrides[$key], FILTER_VALIDATE_BOOLEAN);
+                }
+            }
+        } else {
+            // Form submission from permissions modal (unchecked checkboxes are omitted)
+            foreach ($validKeys as $key) {
+                $isChecked = isset($submittedOverrides[$key]) && filter_var($submittedOverrides[$key], FILTER_VALIDATE_BOOLEAN);
+                $isDefault = in_array($key, $roleDefaults);
+
+                if ($isChecked && !$isDefault) {
+                    // Explicit grant override
+                    $cleanOverrides[$key] = true;
+                } elseif (!$isChecked && $isDefault) {
+                    // Explicit revocation override
+                    $cleanOverrides[$key] = false;
+                }
             }
         }
 
@@ -386,16 +409,20 @@ class UserController extends Controller
             }
         }
 
-        // Historical data check: preserve orders, sales, productions, payments
-        $hasTransactions = $user->orders()->exists()
-            || $user->sales()->exists()
-            || $user->productions()->exists()
-            || $user->payments()->exists()
-            || $user->deliveries()->exists();
+        // Disassociate user from historical business transactions so sales/orders/productions remain intact
+        \App\Models\Order::where('user_id', $user->id)->update(['user_id' => null]);
+        \App\Models\Sale::where('user_id', $user->id)->update(['user_id' => null]);
+        \App\Models\Production::where('user_id', $user->id)->update(['user_id' => null]);
+        \App\Models\Production::where('baker_id', $user->id)->update(['baker_id' => null]);
+        \App\Models\Payment::where('user_id', $user->id)->update(['user_id' => null]);
+        \App\Models\PurchaseOrder::where('user_id', $user->id)->update(['user_id' => null]);
+        \App\Models\StockMovement::where('user_id', $user->id)->update(['user_id' => null]);
 
-        if ($hasTransactions) {
-            return redirect()->back()->with('error', "Cannot delete '{$user->username}' because historical business records (orders/sales/productions) are associated with this staff member. Please deactivate or suspend the account instead to maintain audit integrity.");
-        }
+        // Clean up staff personal HR records
+        \App\Models\Attendance::where('user_id', $user->id)->delete();
+        \App\Models\WorkSchedule::where('user_id', $user->id)->delete();
+        \App\Models\Salary::where('user_id', $user->id)->delete();
+        \App\Models\Notification::where('user_id', $user->id)->delete();
 
         $username = $user->username;
         $userId = $user->id;
@@ -408,6 +435,6 @@ class UserController extends Controller
             ['deleted_user_id' => $userId, 'username' => $username]
         );
 
-        return redirect()->route('admin.users.index')->with('success', "User account '{$username}' deleted successfully.");
+        return redirect()->route('admin.users.index')->with('success', "Staff account '{$username}' deleted successfully. All associated business records have been preserved.");
     }
 }

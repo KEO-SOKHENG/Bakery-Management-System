@@ -16,7 +16,7 @@ test.describe('User & Staff Management + Roles & Permissions Module', () => {
         await expect(page).toHaveURL(/\/admin\/users/);
 
         // Header & KPI cards
-        await expect(page.locator('h2')).toContainText(/User & Staff Management/i);
+        await expect(page.locator('h1, h2')).toContainText(/User & Staff Management/i);
         await expect(page.locator('.user-stat-card')).toHaveCount(4);
 
         // Verify table displays users

@@ -3,7 +3,7 @@
 @section('title', 'Notification Center - Bakery Management')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/notifications.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/notifications.css') }}?v={{ @filemtime(public_path('css/notifications.css')) ?: '1.0' }}">
 @endpush
 
 @section('content')
@@ -22,23 +22,23 @@
         </div>
 
         <div class="notif-action-group">
-            <button type="button" class="btn-notif-action" id="page_refresh_alerts" onclick="window.location.reload();">
+            <x-button variant="secondary" id="page_refresh_alerts" onclick="window.location.reload();">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                <span data-lang-key="refresh">Refresh</span>
-            </button>
+                <span data-lang-key="refresh">{{ __('messages.refresh') ?? 'Refresh' }}</span>
+            </x-button>
 
             @if(auth()->user()->isAdmin() || auth()->user()->hasPermission('notifications.promote'))
-                <button type="button" class="btn-notif-action" id="btn_open_promotion_modal" onclick="openPromotionModal();" style="border-color: #d97706; color: #d97706;">
+                <x-button variant="warning" id="btn_open_promotion_modal" onclick="openPromotionModal();">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <span data-lang-key="broadcast_announcement">Broadcast Announcement</span>
-                </button>
+                    <span data-lang-key="broadcast_announcement">{{ __('messages.broadcast_announcement') ?? 'Broadcast Announcement' }}</span>
+                </x-button>
             @endif
 
             @if($stats['unread'] > 0)
-                <button type="button" class="btn-notif-action btn-notif-primary" id="page_mark_all_read">
+                <x-button variant="primary" id="page_mark_all_read">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span data-lang-key="mark_all_read">Mark All as Read</span>
-                </button>
+                    <span data-lang-key="mark_all_read">{{ __('messages.mark_all_read') ?? 'Mark All as Read' }}</span>
+                </x-button>
             @endif
         </div>
     </div>
@@ -86,66 +86,61 @@
         </div>
     </div>
 
-    <!-- Filter Bar -->
-    <div class="notif-filters-card">
-        <div class="notif-filter-pills">
+    <!-- Filter Tabs & Search Form -->
+    @php
+        $selectedStatus = request('status', 'all');
+        $selectedType = request('type', 'all');
+        $readCount = max(0, $stats['total'] - $stats['unread']);
+    @endphp
+
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+        <!-- Status Filter Tabs -->
+        <div class="orders-filter-bar" id="notif_status_tabs">
             <a href="{{ route('admin.notifications', array_merge(request()->except('status', 'page'), ['status' => 'all'])) }}"
-               class="filter-pill-btn {{ ($statusFilter ?? 'all') === 'all' ? 'active' : '' }}" data-lang-key="all">
-                All
+               class="filter-btn {{ (!request()->filled('status') || request('status') === 'all') ? 'active' : '' }}">
+                <span data-lang-key="all">{{ __('messages.all') ?? 'All' }}</span> ({{ $stats['total'] }})
             </a>
             <a href="{{ route('admin.notifications', array_merge(request()->except('status', 'page'), ['status' => 'unread'])) }}"
-               class="filter-pill-btn {{ ($statusFilter ?? '') === 'unread' ? 'active' : '' }}" data-lang-key="unread">
-                Unread
-                @if($stats['unread'] > 0)
-                    <span class="filter-pill-count">{{ $stats['unread'] }}</span>
-                @endif
+               class="filter-btn {{ request('status') === 'unread' ? 'active' : '' }}">
+                <span data-lang-key="unread">{{ __('messages.unread') ?? 'Unread' }}</span> ({{ $stats['unread'] }})
             </a>
             <a href="{{ route('admin.notifications', array_merge(request()->except('status', 'page'), ['status' => 'read'])) }}"
-               class="filter-pill-btn {{ ($statusFilter ?? '') === 'read' ? 'active' : '' }}" data-lang-key="read">
-                Read
-            </a>
-
-            <span style="display: inline-block; width: 1px; height: 16px; background: var(--notif-border-card); margin: 0 0.4rem;"></span>
-
-            <!-- Category Filters -->
-            <a href="{{ route('admin.notifications', array_merge(request()->except('type', 'page'), ['type' => 'all'])) }}"
-               class="filter-pill-btn {{ ($typeFilter ?? 'all') === 'all' && ($statusFilter !== 'all' ? false : true) ? 'active' : '' }}" data-lang-key="all_categories">
-                All Categories
-            </a>
-            <a href="{{ route('admin.notifications', array_merge(request()->except('type', 'page'), ['type' => 'inventory'])) }}"
-               class="filter-pill-btn {{ ($typeFilter ?? '') === 'inventory' ? 'active' : '' }}" data-lang-key="inventory">
-                Inventory
-            </a>
-            <a href="{{ route('admin.notifications', array_merge(request()->except('type', 'page'), ['type' => 'order'])) }}"
-               class="filter-pill-btn {{ ($typeFilter ?? '') === 'order' ? 'active' : '' }}" data-lang-key="orders">
-                Orders
-            </a>
-            <a href="{{ route('admin.notifications', array_merge(request()->except('type', 'page'), ['type' => 'production'])) }}"
-               class="filter-pill-btn {{ ($typeFilter ?? '') === 'production' ? 'active' : '' }}" data-lang-key="production">
-                Production
-            </a>
-            <a href="{{ route('admin.notifications', array_merge(request()->except('type', 'page'), ['type' => 'purchase_order'])) }}"
-               class="filter-pill-btn {{ ($typeFilter ?? '') === 'purchase_order' ? 'active' : '' }}" data-lang-key="purchase_orders">
-                Purchase Orders
-            </a>
-            <a href="{{ route('admin.notifications', array_merge(request()->except('type', 'page'), ['type' => 'promotion'])) }}"
-               class="filter-pill-btn {{ ($typeFilter ?? '') === 'promotion' ? 'active' : '' }}" data-lang-key="promotions">
-                Promotions
+               class="filter-btn {{ request('status') === 'read' ? 'active' : '' }}">
+                <span data-lang-key="read">{{ __('messages.read') ?? 'Read' }}</span> ({{ $readCount }})
             </a>
         </div>
-
-        <form action="{{ route('admin.notifications') }}" method="GET" style="display: flex; gap: 0.5rem; align-items: center;">
-            @if(request('status')) <input type="hidden" name="status" value="{{ request('status') }}"> @endif
-            @if(request('type')) <input type="hidden" name="type" value="{{ request('type') }}"> @endif
-            <div style="position: relative;">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search alerts..."
-                       style="padding: 0.45rem 0.85rem; border-radius: 9999px; border: 1px solid var(--notif-border-card); background: var(--notif-bg-card); color: var(--notif-text-primary); font-size: 0.825rem; outline: none; width: 180px;">
-            </div>
-            <button type="submit" class="btn-notif-action" style="padding: 0.45rem 0.85rem; border-radius: 9999px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </button>
-        </form>
     </div>
+
+    <!-- Live Search & Detailed Filters Form -->
+    <form action="{{ route('admin.notifications') }}" method="GET" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: center;">
+        @if(request('status') && request('status') !== 'all')
+            <input type="hidden" name="status" value="{{ request('status') }}">
+        @endif
+
+        <div style="flex: 1; min-width: 260px; position: relative;">
+            <input type="text" name="search" id="notif_search_input" value="{{ request('search') }}"
+                   placeholder="Search alerts by title or message..."
+                   class="form-control-input" style="padding-left: 2.6rem;">
+            <svg style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+
+        <div style="min-width: 170px;">
+            <select name="type" class="form-control-select" onchange="this.form.submit()">
+                <option value="all" {{ (!request()->filled('type') || request('type') === 'all') ? 'selected' : '' }} data-lang-key="all_categories">{{ __('messages.all_categories') ?? 'All Categories' }}</option>
+                <option value="inventory" {{ request('type') === 'inventory' ? 'selected' : '' }} data-lang-key="inventory">{{ __('messages.inventory') ?? 'Inventory' }}</option>
+                <option value="order" {{ request('type') === 'order' ? 'selected' : '' }} data-lang-key="orders">{{ __('messages.orders') ?? 'Orders' }}</option>
+                <option value="production" {{ request('type') === 'production' ? 'selected' : '' }} data-lang-key="production">{{ __('messages.production') ?? 'Production' }}</option>
+                <option value="purchase_order" {{ request('type') === 'purchase_order' ? 'selected' : '' }} data-lang-key="purchase_orders">{{ __('messages.purchase_orders') ?? 'Purchase Orders' }}</option>
+                <option value="promotion" {{ request('type') === 'promotion' ? 'selected' : '' }} data-lang-key="promotions">{{ __('messages.promotions') ?? 'Promotions' }}</option>
+            </select>
+        </div>
+
+        @if(request()->hasAny(['search', 'type']) && (request('search') || (request('type') && request('type') !== 'all')))
+            <a href="{{ route('admin.notifications', request('status') ? ['status' => request('status')] : []) }}" style="font-size: 0.85rem; font-weight: 700; color: #ef4444; text-decoration: none; padding: 0.5rem;" data-lang-key="clear_filters">
+                {{ __('messages.clear_filters') ?? 'Clear Filters' }}
+            </a>
+        @endif
+    </form>
 
     <!-- Notification Feed -->
     <div class="notif-feed-card">
@@ -284,8 +279,8 @@
                 </div>
 
                 <div class="notif-modal-footer">
-                    <button type="button" class="btn-notif-action" onclick="closePromotionModal();" data-lang-key="cancel">Cancel</button>
-                    <button type="submit" class="btn-notif-action btn-notif-primary" id="btn_submit_promotion" data-lang-key="send_promotion">Send Promotion</button>
+                    <x-button variant="secondary" onclick="closePromotionModal();" data-lang-key="cancel">{{ __('messages.cancel') ?? 'Cancel' }}</x-button>
+                    <x-button variant="primary" type="submit" id="btn_submit_promotion" data-lang-key="send_promotion">{{ __('messages.send_promotion') ?? 'Send Promotion' }}</x-button>
                 </div>
             </form>
         </div>

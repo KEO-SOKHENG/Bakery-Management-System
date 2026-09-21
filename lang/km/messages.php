@@ -466,8 +466,10 @@ return [
 
     // HR & Staff Extensions
     'attendance' => 'វត្តមានបុគ្គលិក',
+    'attendance_management' => 'ការគ្រប់គ្រងវត្តមាន',
     'work_schedules' => 'កាលវិភាគការងារ',
     'salaries' => 'ប្រាក់បៀវត្សរ៍ និងប្រាក់ខែ',
+    'salary_management' => 'ការគ្រប់គ្រងប្រាក់បៀវត្សរ៍',
     'check_in' => 'ចុះឈ្មោះចូល',
     'check_out' => 'ចុះឈ្មោះចេញ',
     'shift_name' => 'វេនការងារ',

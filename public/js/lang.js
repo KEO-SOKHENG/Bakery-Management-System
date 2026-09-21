@@ -240,6 +240,9 @@
             "save_permissions": "Save Permissions",
             "suspended": "Suspended",
             "role_baker": "Baker",
+            "salary_management": "Salary Management",
+            "attendance_management": "Attendance Management",
+            "work_schedules": "Work Schedules",
 
             // Notification System
             "notifications": "Notifications",
@@ -576,6 +579,9 @@
             "save_permissions": "រក្សាទុកសិទ្ធិ",
             "suspended": "បានផ្អាក",
             "role_baker": "អ្នកដុតនំ",
+            "salary_management": "ការគ្រប់គ្រងប្រាក់បៀវត្សរ៍",
+            "attendance_management": "ការគ្រប់គ្រងវត្តមាន",
+            "work_schedules": "កាលវិភាគការងារ",
 
             // Notification System
             "notifications": "ការជូនដំណឹង",

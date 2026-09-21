@@ -64,6 +64,16 @@ class User extends Authenticatable
         return $this->hasMany(Production::class, 'baker_id');
     }
 
+    public function purchaseOrders()
+    {
+        return $this->hasMany(PurchaseOrder::class);
+    }
+
+    public function stockMovements()
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
     public function notifications()
     {
         return $this->hasMany(Notification::class);

@@ -466,8 +466,10 @@ return [
 
     // HR & Staff Extensions
     'attendance' => 'Attendance',
+    'attendance_management' => 'Attendance Management',
     'work_schedules' => 'Work Schedules',
     'salaries' => 'Payroll & Salaries',
+    'salary_management' => 'Salary Management',
     'check_in' => 'Check In',
     'check_out' => 'Check Out',
     'shift_name' => 'Shift Name',

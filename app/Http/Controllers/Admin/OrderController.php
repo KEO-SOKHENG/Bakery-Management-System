@@ -86,16 +86,30 @@ class OrderController extends Controller
 
         $orders = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
 
-        // Summary KPI Metrics
-        $totalOrdersCount = Order::count();
-        $pendingCount = Order::where('order_status', 'pending')->count();
-        $preparingCount = Order::whereIn('order_status', ['preparing', 'baking'])->count();
-        $readyCount = Order::whereIn('order_status', ['ready_for_pickup', 'ready'])->count();
-        $outForDeliveryCount = Order::where('order_status', 'out_for_delivery')->count();
-        $completedCount = Order::where('order_status', 'completed')->count();
-        $cancelledCount = Order::where('order_status', 'cancelled')->count();
-        $totalRevenue = (float) Order::where('order_status', 'completed')->sum('total');
-        $customOrdersCount = Order::where('is_custom', true)->count();
+        // Summary KPI Metrics (Consolidated single aggregation query)
+        $summary = Order::query()
+            ->selectRaw("
+                COUNT(*) as total_orders_count,
+                COUNT(CASE WHEN order_status = 'pending' THEN 1 END) as pending_count,
+                COUNT(CASE WHEN order_status IN ('preparing', 'baking') THEN 1 END) as preparing_count,
+                COUNT(CASE WHEN order_status IN ('ready_for_pickup', 'ready') THEN 1 END) as ready_count,
+                COUNT(CASE WHEN order_status = 'out_for_delivery' THEN 1 END) as out_for_delivery_count,
+                COUNT(CASE WHEN order_status = 'completed' THEN 1 END) as completed_count,
+                COUNT(CASE WHEN order_status = 'cancelled' THEN 1 END) as cancelled_count,
+                COALESCE(SUM(CASE WHEN order_status = 'completed' THEN total ELSE 0 END), 0) as total_revenue,
+                COUNT(CASE WHEN is_custom = true THEN 1 END) as custom_orders_count
+            ")
+            ->first();
+
+        $totalOrdersCount    = (int) ($summary->total_orders_count ?? 0);
+        $pendingCount        = (int) ($summary->pending_count ?? 0);
+        $preparingCount      = (int) ($summary->preparing_count ?? 0);
+        $readyCount          = (int) ($summary->ready_count ?? 0);
+        $outForDeliveryCount = (int) ($summary->out_for_delivery_count ?? 0);
+        $completedCount      = (int) ($summary->completed_count ?? 0);
+        $cancelledCount      = (int) ($summary->cancelled_count ?? 0);
+        $totalRevenue        = (float) ($summary->total_revenue ?? 0.0);
+        $customOrdersCount   = (int) ($summary->custom_orders_count ?? 0);
 
         $currency = Setting::get('currency', '$');
         $taxPercentage = (float) Setting::get('tax_percentage', Setting::get('tax_rate', 10.0));

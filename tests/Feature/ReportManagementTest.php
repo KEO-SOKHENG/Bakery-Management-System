@@ -847,5 +847,49 @@ class ReportManagementTest extends TestCase
         $this->assertEquals(25.00, $data['productCogs'], 'COGS recognized matching sale');
         $this->assertEquals(55.00, $data['grossProfit']);
     }
+
+    /** 26. Reports consolidated navigation and overview dashboard test */
+    public function test_reports_consolidated_navigation_and_overview(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.reports'));
+        $response->assertStatus(200);
+        $response->assertViewHas('type', 'overview');
+
+        // Navigation elements
+        $response->assertSee('id="nav_overview"', false);
+        $response->assertSee('id="nav_sales"', false);
+        $response->assertSee('id="nav_inventory"', false);
+        $response->assertSee('id="tab_production"', false);
+        $response->assertSee('id="tab_customers"', false);
+        $response->assertSee('id="nav_more_toggle"', false);
+        $response->assertSee('id="reports_more_dropdown"', false);
+        $response->assertSee('id="tab_profit_loss"', false);
+
+        // Overview KPI summary cards
+        $response->assertSee('id="overview_sales_card"', false);
+        $response->assertSee('id="overview_revenue_card"', false);
+        $response->assertSee('id="overview_orders_card"', false);
+        $response->assertSee('id="overview_pl_card"', false);
+        $response->assertSee('id="overview_stock_card"', false);
+    }
+
+    /** 27. Reports contextual sub-navigation pills render for Sales and Inventory */
+    public function test_reports_contextual_sub_navigation_pills(): void
+    {
+        // Sales group sub-pills
+        $salesResponse = $this->actingAs($this->admin)->get(route('admin.reports', ['type' => 'sales']));
+        $salesResponse->assertStatus(200);
+        $salesResponse->assertSee('id="tab_sales"', false);
+        $salesResponse->assertSee('id="tab_revenue"', false);
+        $salesResponse->assertSee('id="tab_orders"', false);
+
+        // Inventory group sub-pills
+        $invResponse = $this->actingAs($this->admin)->get(route('admin.reports', ['type' => 'products']));
+        $invResponse->assertStatus(200);
+        $invResponse->assertSee('id="tab_products"', false);
+        $invResponse->assertSee('id="tab_inventory"', false);
+        $invResponse->assertSee('id="tab_low_stock"', false);
+        $invResponse->assertSee('id="tab_purchases"', false);
+    }
 }
 

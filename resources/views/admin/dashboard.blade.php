@@ -3,7 +3,7 @@
 @section('title', 'Admin Analytics & Dashboard - Bakery Management System')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}?v={{ @filemtime(public_path('css/admin-dashboard.css')) ?: '1.0' }}">
 @endpush
 
 @section('content')
@@ -199,95 +199,331 @@
 </div>
 
 <!-- Sales & Revenue Performance Visual Analytics -->
-<div class="chart-card" style="margin-bottom: 1.85rem;">
-    <div class="card-header-flex" style="flex-wrap: wrap; gap: 1rem;">
-        <div>
-            <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--text-title); margin: 0;" data-lang-key="sales_revenue_performance">
-                {{ __('messages.sales_revenue_performance') }}
-            </h2>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
-                Continuous timeline aggregation based on completed POS sales & orders
-            </p>
-        </div>
-        <div style="display: flex; gap: 1.25rem; align-items: center;">
-            <div style="text-align: right;">
-                <span style="font-size: 0.725rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">{{ __('messages.total_revenue') }}</span>
-                <div style="font-size: 1.25rem; font-weight: 800; color: #16a34a;">{{ $currency }}{{ number_format($periodTotalRevenue, 2) }}</div>
+<div class="dash-chart-card" id="sales_revenue_performance_card">
+    <div class="dash-chart-header">
+        <div class="dash-chart-title-group">
+            <div class="dash-chart-badge-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v18h18"/>
+                    <path d="m19 9-5 5-4-4-3 3"/>
+                </svg>
             </div>
-            <div style="text-align: right;">
-                <span style="font-size: 0.725rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">{{ __('messages.orders') }}</span>
-                <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-title);">{{ number_format($periodTotalOrders) }}</div>
-            </div>
-            <div style="text-align: right;">
-                <span style="font-size: 0.725rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">{{ __('messages.average_order_value') }}</span>
-                <div style="font-size: 1.25rem; font-weight: 800; color: #ca8a04;">
-                    {{ $currency }}{{ $periodTotalOrders > 0 ? number_format($periodTotalRevenue / $periodTotalOrders, 2) : '0.00' }}
+            <div>
+                <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+                    <h2 class="dash-chart-main-title" data-lang-key="sales_revenue_performance">
+                        {{ __('messages.sales_revenue_performance') }}
+                    </h2>
+                    <span class="dash-live-badge">
+                        <span class="dash-live-dot"></span>
+                        <span>Live</span>
+                    </span>
                 </div>
+                <p class="dash-chart-subtitle">
+                    Continuous timeline aggregation based on completed POS sales & orders
+                </p>
+            </div>
+        </div>
+
+        <!-- Quick Timeframe Switcher -->
+        @php
+            $currentPeriod = request('period', '7days');
+        @endphp
+        <div class="dash-period-switch">
+            <a href="{{ route('admin.dashboard', ['period' => '7days']) }}" class="dash-period-btn {{ $currentPeriod === '7days' ? 'active' : '' }}">7 Days</a>
+            <a href="{{ route('admin.dashboard', ['period' => '30days']) }}" class="dash-period-btn {{ $currentPeriod === '30days' ? 'active' : '' }}">30 Days</a>
+            <a href="{{ route('admin.dashboard', ['period' => 'this_month']) }}" class="dash-period-btn {{ $currentPeriod === 'this_month' ? 'active' : '' }}">This Month</a>
+        </div>
+    </div>
+
+    <!-- Modern Elevated Metric Cards Row -->
+    <div class="dash-chart-kpi-row">
+        <!-- Total Revenue -->
+        <div class="dash-kpi-chip kpi-revenue">
+            <div class="kpi-chip-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+            </div>
+            <div class="kpi-chip-data">
+                <span class="kpi-chip-label" data-lang-key="total_revenue">{{ __('messages.total_revenue') }}</span>
+                <span class="kpi-chip-value val-green">{{ $currency }}{{ number_format($periodTotalRevenue, 2) }}</span>
+            </div>
+        </div>
+
+        <!-- Total Orders -->
+        <div class="dash-kpi-chip kpi-orders">
+            <div class="kpi-chip-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+                    <path d="M3 6h18"/>
+                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+            </div>
+            <div class="kpi-chip-data">
+                <span class="kpi-chip-label" data-lang-key="orders">{{ __('messages.orders') }}</span>
+                <span class="kpi-chip-value val-neutral">{{ number_format($periodTotalOrders) }}</span>
+            </div>
+        </div>
+
+        <!-- Average Order Value -->
+        <div class="dash-kpi-chip kpi-aov">
+            <div class="kpi-chip-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                    <polyline points="16 7 22 7 22 13"/>
+                </svg>
+            </div>
+            <div class="kpi-chip-data">
+                <span class="kpi-chip-label" data-lang-key="average_order_value">{{ __('messages.average_order_value') }}</span>
+                <span class="kpi-chip-value val-amber">
+                    {{ $currency }}{{ $periodTotalOrders > 0 ? number_format($periodTotalRevenue / $periodTotalOrders, 2) : '0.00' }}
+                </span>
             </div>
         </div>
     </div>
 
-    <!-- Responsive Native SVG Revenue Chart -->
+    <!-- Responsive Smooth Spline SVG Chart Engine -->
     @php
-        $maxRev = max(max($chartRevenues ?: [0]), 10);
-        $pointCount = count($chartLabels);
-        $svgPoints = [];
-        $svgAreaPoints = [];
-        $barWidth = $pointCount > 0 ? min(38, max(12, intval(680 / $pointCount))) : 20;
-
-        foreach($chartRevenues as $idx => $r) {
-            $x = $pointCount > 1 ? 40 + ($idx / ($pointCount - 1)) * 720 : 400;
-            $y = 190 - ($r / $maxRev) * 150;
-            $svgPoints[] = "$x,$y";
+        $rawMax = max(max($chartRevenues ?: [0]), 10);
+        if ($rawMax <= 20) {
+            $niceMax = ceil($rawMax / 5) * 5;
+        } elseif ($rawMax <= 100) {
+            $niceMax = ceil($rawMax / 10) * 10;
+        } elseif ($rawMax <= 500) {
+            $niceMax = ceil($rawMax / 50) * 50;
+        } elseif ($rawMax <= 2000) {
+            $niceMax = ceil($rawMax / 100) * 100;
+        } else {
+            $niceMax = ceil($rawMax / 500) * 500;
         }
-        $pointsStr = implode(' ', $svgPoints);
-        $areaPointsStr = "40,190 " . $pointsStr . " 760,190";
+        if ($niceMax <= 0) $niceMax = 100;
+
+        $pointCount = count($chartLabels);
+        $pts = [];
+        foreach($chartRevenues as $idx => $r) {
+            $x = $pointCount > 1 ? round(55 + ($idx / ($pointCount - 1)) * 705, 1) : 400;
+            $y = round(190 - ($r / $niceMax) * 150, 1);
+            $pts[] = ['x' => $x, 'y' => $y];
+        }
+
+        $tension = 0.2;
+        $pathCommands = [];
+        for ($i = 0; $i < $pointCount - 1; $i++) {
+            $p0 = $i > 0 ? $pts[$i - 1] : $pts[$i];
+            $p1 = $pts[$i];
+            $p2 = $pts[$i + 1];
+            $p3 = $i + 2 < $pointCount ? $pts[$i + 2] : $p2;
+
+            $cp1x = round($p1['x'] + ($p2['x'] - $p0['x']) * $tension, 1);
+            $cp1y = round($p1['y'] + ($p2['y'] - $p0['y']) * $tension, 1);
+            $cp2x = round($p2['x'] - ($p3['x'] - $p1['x']) * $tension, 1);
+            $cp2y = round($p2['y'] - ($p3['y'] - $p1['y']) * $tension, 1);
+
+            $cp1y = max(35, min(190, $cp1y));
+            $cp2y = max(35, min(190, $cp2y));
+
+            $pathCommands[] = "C $cp1x $cp1y, $cp2x $cp2y, {$p2['x']} {$p2['y']}";
+        }
+
+        $curveStr = implode(' ', $pathCommands);
+        $linePath = $pointCount > 1 ? "M {$pts[0]['x']} {$pts[0]['y']} " . $curveStr : "";
+        $areaPath = $pointCount > 1 ? "M {$pts[0]['x']} 190 L {$pts[0]['x']} {$pts[0]['y']} " . $curveStr . " L {$pts[$pointCount - 1]['x']} 190 Z" : "";
+        $stepWidth = $pointCount > 1 ? 705 / ($pointCount - 1) : 700;
     @endphp
-    <div style="width: 100%; height: 230px; position: relative; margin-top: 1rem; overflow: hidden;">
-        <svg viewBox="0 0 800 220" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible;">
+
+    <div class="dash-chart-svg-container" id="dashChartContainer">
+        <!-- Floating Glassmorphic Interactive Tooltip -->
+        <div id="dashChartTooltip" class="dash-chart-tooltip" style="display: none;">
+            <div class="tooltip-header">
+                <span class="tooltip-dot"></span>
+                <span class="tooltip-date" id="dashTooltipDate">-</span>
+            </div>
+            <div class="tooltip-content">
+                <div class="tooltip-metric">
+                    <span class="tooltip-label">Revenue</span>
+                    <span class="tooltip-val revenue" id="dashTooltipRev">$0.00</span>
+                </div>
+                <div class="tooltip-metric">
+                    <span class="tooltip-label">Orders</span>
+                    <span class="tooltip-val orders" id="dashTooltipOrders">0</span>
+                </div>
+            </div>
+        </div>
+
+        <svg viewBox="0 0 800 230" preserveAspectRatio="none" class="dash-revenue-svg" id="dashRevenueSvg">
             <defs>
-                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#d97706" stop-opacity="0.35" />
-                    <stop offset="100%" stop-color="#d97706" stop-opacity="0.01" />
+                <!-- Warm Honey Gradient for Area Fill -->
+                <linearGradient id="chartAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.32" />
+                    <stop offset="50%" stop-color="#d97706" stop-opacity="0.10" />
+                    <stop offset="100%" stop-color="#d97706" stop-opacity="0.0" />
                 </linearGradient>
+
+                <!-- Gradient for Vibrant Smooth Curve -->
+                <linearGradient id="chartLineGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#ea580c" />
+                    <stop offset="50%" stop-color="#f59e0b" />
+                    <stop offset="100%" stop-color="#d97706" />
+                </linearGradient>
+
+                <!-- Luminous Drop Shadow Glow for Curve -->
+                <filter id="chartCurveGlow" x="-5%" y="-15%" width="110%" height="140%">
+                    <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#d97706" flood-opacity="0.25"/>
+                </filter>
             </defs>
 
             <!-- Horizontal Background Guide Lines -->
-            <line x1="40" y1="40" x2="760" y2="40" stroke="rgba(200, 190, 180, 0.25)" stroke-dasharray="4" />
-            <line x1="40" y1="90" x2="760" y2="90" stroke="rgba(200, 190, 180, 0.25)" stroke-dasharray="4" />
-            <line x1="40" y1="140" x2="760" y2="140" stroke="rgba(200, 190, 180, 0.25)" stroke-dasharray="4" />
-            <line x1="40" y1="190" x2="760" y2="190" stroke="rgba(200, 190, 180, 0.45)" stroke-width="1.5" />
+            <g class="chart-grid-lines">
+                <line x1="50" y1="40" x2="765" y2="40" stroke="currentColor" stroke-dasharray="3 4" class="grid-line" />
+                <line x1="50" y1="90" x2="765" y2="90" stroke="currentColor" stroke-dasharray="3 4" class="grid-line" />
+                <line x1="50" y1="140" x2="765" y2="140" stroke="currentColor" stroke-dasharray="3 4" class="grid-line" />
+                <line x1="50" y1="190" x2="765" y2="190" stroke="currentColor" stroke-width="1.2" class="grid-line-baseline" />
+            </g>
 
-            <!-- Y Axis Reference Markers -->
-            <text x="32" y="44" font-size="10" fill="#9ca3af" text-anchor="end">${{ number_format($maxRev, 0) }}</text>
-            <text x="32" y="119" font-size="10" fill="#9ca3af" text-anchor="end">${{ number_format($maxRev / 2, 0) }}</text>
-            <text x="32" y="194" font-size="10" fill="#9ca3af" text-anchor="end">$0</text>
+            <!-- Y Axis Clean Rounded Increments -->
+            <g class="chart-y-labels">
+                <text x="42" y="44" class="chart-axis-text" text-anchor="end">${{ number_format($niceMax, 0) }}</text>
+                <text x="42" y="94" class="chart-axis-text" text-anchor="end">${{ number_format($niceMax * 0.66, 0) }}</text>
+                <text x="42" y="144" class="chart-axis-text" text-anchor="end">${{ number_format($niceMax * 0.33, 0) }}</text>
+                <text x="42" y="194" class="chart-axis-text" text-anchor="end">$0</text>
+            </g>
 
-            <!-- Chart Filled Area & Polyline -->
+            <!-- Smooth Spline Area Fill & Spline Stroke -->
             @if($pointCount > 1)
-                <polygon points="{{ $areaPointsStr }}" fill="url(#chartGradient)" />
-                <polyline points="{{ $pointsStr }}" fill="none" stroke="#d97706" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="{{ $areaPath }}" fill="url(#chartAreaGradient)" class="chart-spline-area" />
+                <path d="{{ $linePath }}" fill="none" stroke="url(#chartLineGradient)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#chartCurveGlow)" class="chart-spline-line" />
             @endif
 
-            <!-- Data Point Nodes with Tooltips -->
+            <!-- Vertical Crosshair Guides (one per point, activated on hover) -->
+            @foreach($pts as $idx => $pt)
+                <line id="guide_line_{{ $idx }}" x1="{{ $pt['x'] }}" y1="35" x2="{{ $pt['x'] }}" y2="190" class="chart-guide-line" style="opacity: 0; pointer-events: none;" />
+            @endforeach
+
+            <!-- Data Point Nodes with Concentric Rings -->
             @foreach($chartRevenues as $idx => $r)
                 @php
-                    $cx = $pointCount > 1 ? 40 + ($idx / ($pointCount - 1)) * 720 : 400;
-                    $cy = 190 - ($r / $maxRev) * 150;
+                    $cx = $pts[$idx]['x'] ?? 400;
+                    $cy = $pts[$idx]['y'] ?? 190;
                     $lbl = $chartLabels[$idx] ?? '';
                     $cnt = $chartOrderCounts[$idx] ?? 0;
+                    $hasSale = $r > 0;
                 @endphp
-                <circle cx="{{ $cx }}" cy="{{ $cy }}" r="5" fill="#d97706" stroke="var(--card-bg, #ffffff)" stroke-width="2.5" style="cursor: pointer;">
-                    <title>{{ $lbl }}: ${{ number_format($r, 2) }} ({{ $cnt }} orders)</title>
-                </circle>
-                <!-- Date Axis Labels (Thinned if many dates) -->
+                <!-- Concentric Pulse Halo on hover -->
+                <circle id="node_halo_{{ $idx }}" cx="{{ $cx }}" cy="{{ $cy }}" r="12" fill="#f59e0b" fill-opacity="0.25" class="chart-node-halo" style="opacity: 0; pointer-events: none; transition: opacity 0.2s ease, r 0.2s ease;" />
+                <!-- Core Node Circle -->
+                <circle id="node_dot_{{ $idx }}" cx="{{ $cx }}" cy="{{ $cy }}" r="{{ $hasSale ? 5 : 3.5 }}" fill="{{ $hasSale ? '#d97706' : '#94a3b8' }}" stroke="var(--card-bg, #ffffff)" stroke-width="{{ $hasSale ? 2.5 : 1.5 }}" class="chart-node-dot {{ $hasSale ? 'active-point' : 'zero-point' }}" style="transition: all 0.2s ease; pointer-events: none;" />
+                <!-- X Axis Date Labels -->
                 @if($pointCount <= 14 || $idx % intval(ceil($pointCount / 10)) === 0 || $idx === $pointCount - 1)
-                    <text x="{{ $cx }}" y="212" font-size="10.5" fill="#71717a" text-anchor="middle" font-weight="600">{{ $lbl }}</text>
+                    <text x="{{ $cx }}" y="215" class="chart-x-label {{ $hasSale ? 'active' : '' }}" text-anchor="middle">{{ $lbl }}</text>
                 @endif
+            @endforeach
+
+            <!-- Invisible Hover Target Columns for Fluid Interaction -->
+            @foreach($chartRevenues as $idx => $r)
+                @php
+                    $cx = $pts[$idx]['x'] ?? 400;
+                    $cy = $pts[$idx]['y'] ?? 190;
+                    $lbl = $chartLabels[$idx] ?? '';
+                    $cnt = $chartOrderCounts[$idx] ?? 0;
+                    $hw = max(24, $stepWidth);
+                    $hx = $cx - ($hw / 2);
+                @endphp
+                <rect x="{{ $hx }}" y="25" width="{{ $hw }}" height="175" fill="transparent" class="chart-hover-trigger" data-index="{{ $idx }}" data-cx="{{ $cx }}" data-cy="{{ $cy }}" data-date="{{ $lbl }}" data-revenue="{{ $currency }}{{ number_format($r, 2) }}" data-orders="{{ $cnt }}" style="cursor: pointer;" />
             @endforeach
         </svg>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('dashChartContainer');
+    const tooltip = document.getElementById('dashChartTooltip');
+    const tipDate = document.getElementById('dashTooltipDate');
+    const tipRev = document.getElementById('dashTooltipRev');
+    const tipOrders = document.getElementById('dashTooltipOrders');
+    const triggers = document.querySelectorAll('.chart-hover-trigger');
+
+    if (!container || !tooltip || !triggers.length) return;
+
+    triggers.forEach(trigger => {
+        trigger.addEventListener('mouseenter', function() {
+            const idx = this.getAttribute('data-index');
+            const cx = parseFloat(this.getAttribute('data-cx'));
+            const cy = parseFloat(this.getAttribute('data-cy'));
+            const date = this.getAttribute('data-date');
+            const rev = this.getAttribute('data-revenue');
+            const orders = this.getAttribute('data-orders');
+
+            // Show guide line
+            const guide = document.getElementById('guide_line_' + idx);
+            if (guide) guide.style.opacity = '1';
+
+            // Show halo & expand dot
+            const halo = document.getElementById('node_halo_' + idx);
+            const dot = document.getElementById('node_dot_' + idx);
+            if (halo) {
+                halo.style.opacity = '1';
+                halo.setAttribute('r', '14');
+            }
+            if (dot) {
+                dot.setAttribute('r', '7');
+                dot.setAttribute('fill', '#ea580c');
+            }
+
+            // Update tooltip content
+            if (tipDate) tipDate.textContent = date;
+            if (tipRev) tipRev.textContent = rev;
+            if (tipOrders) tipOrders.textContent = orders + (orders === '1' ? ' order' : ' orders');
+
+            // Position tooltip dynamically
+            const containerRect = container.getBoundingClientRect();
+            const scaleX = containerRect.width / 800;
+            const scaleY = containerRect.height / 230;
+
+            const pixelX = cx * scaleX;
+            const pixelY = cy * scaleY;
+
+            tooltip.style.display = 'block';
+            tooltip.style.left = pixelX + 'px';
+            tooltip.style.top = Math.max(10, pixelY - 12) + 'px';
+            
+            if (pixelX > containerRect.width * 0.78) {
+                tooltip.style.transform = 'translate(-100%, -100%)';
+            } else if (pixelX < containerRect.width * 0.22) {
+                tooltip.style.transform = 'translate(0%, -100%)';
+            } else {
+                tooltip.style.transform = 'translate(-50%, -100%)';
+            }
+            tooltip.classList.add('visible');
+        });
+
+        trigger.addEventListener('mouseleave', function() {
+            const idx = this.getAttribute('data-index');
+            const guide = document.getElementById('guide_line_' + idx);
+            if (guide) guide.style.opacity = '0';
+
+            const halo = document.getElementById('node_halo_' + idx);
+            const dot = document.getElementById('node_dot_' + idx);
+            if (halo) halo.style.opacity = '0';
+            if (dot) {
+                const hasSale = !dot.classList.contains('zero-point');
+                dot.setAttribute('r', hasSale ? '5' : '3.5');
+                dot.setAttribute('fill', hasSale ? '#d97706' : '#94a3b8');
+            }
+        });
+    });
+
+    container.addEventListener('mouseleave', function() {
+        tooltip.classList.remove('visible');
+        setTimeout(() => {
+            if (!tooltip.classList.contains('visible')) {
+                tooltip.style.display = 'none';
+            }
+        }, 150);
+    });
+});
+</script>
 
 <!-- Two-Column Grid: Order Status Distribution & Best Selling Products -->
 <div class="dash-two-col-grid" style="margin-bottom: 1.85rem;">

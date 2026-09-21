@@ -707,17 +707,6 @@ body.sidebar-is-closed .bakery-main-content {
     }
 }
 
-/* .bakery-logo-icon {
-    width: 48px;
-    height: 48px;
-    background-color: #fcf6ee;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 0.4rem;
-    color: var(--accent-brown, #4d2c20);
-} */
 
 .bakery-logo-text {
     display: flex;

@@ -3,7 +3,7 @@
 @section('title', 'Batch #' . ($production->batch_number ?? $production->id) . ' - Production Details')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/production.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/production.css') }}?v={{ @filemtime(public_path('css/production.css')) ?: '1.0' }}">
 @endpush
 
 @section('content')

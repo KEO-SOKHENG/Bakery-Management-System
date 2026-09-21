@@ -12,9 +12,7 @@ class IngredientController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Ingredient::with(['supplier', 'stockMovements' => function ($q) {
-            $q->take(5);
-        }])->withCount(['recipes', 'purchaseOrderItems']);
+        $query = Ingredient::with('supplier')->withCount(['recipes', 'purchaseOrderItems']);
 
         if ($request->filled('search')) {
             $search = trim($request->search);
@@ -40,12 +38,21 @@ class IngredientController extends Controller
         $ingredients = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
         $suppliers = Supplier::where('status', 'active')->orderBy('name')->get();
 
-        $allIngredients = Ingredient::all();
+        // Consolidated KPI summary directly via database aggregation
+        $statsSummary = Ingredient::query()
+            ->selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN quantity > 0 AND quantity <= minimum_quantity THEN 1 END) as low_stock,
+                COUNT(CASE WHEN quantity <= 0 THEN 1 END) as out_of_stock,
+                COALESCE(SUM(quantity * cost), 0) as total_value
+            ")
+            ->first();
+
         $stats = [
-            'total'        => $allIngredients->count(),
-            'low_stock'    => $allIngredients->filter(fn ($i) => $i->isLowStock())->count(),
-            'out_of_stock' => $allIngredients->filter(fn ($i) => $i->isOutOfStock())->count(),
-            'total_value'  => (float) $allIngredients->sum(fn ($i) => (float) $i->quantity * (float) $i->cost),
+            'total'        => (int) ($statsSummary->total ?? 0),
+            'low_stock'    => (int) ($statsSummary->low_stock ?? 0),
+            'out_of_stock' => (int) ($statsSummary->out_of_stock ?? 0),
+            'total_value'  => (float) ($statsSummary->total_value ?? 0.0),
         ];
 
         return view('admin.ingredients', compact('ingredients', 'suppliers', 'stats'));

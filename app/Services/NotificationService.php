@@ -16,6 +16,35 @@ use Illuminate\Support\Facades\Cache;
 class NotificationService
 {
     /**
+     * In-memory cache for role-based users during the current service lifecycle.
+     */
+    protected array $cachedRoleUsers = [];
+
+    /**
+     * Fetch users by roles with memoization to prevent N+1 queries during batch processing.
+     */
+    public function getUsersByRoles(array $roles): \Illuminate\Database\Eloquent\Collection
+    {
+        $normalizedRoles = array_values(array_unique($roles));
+        sort($normalizedRoles);
+        $cacheKey = implode(',', $normalizedRoles);
+
+        if (!isset($this->cachedRoleUsers[$cacheKey])) {
+            $this->cachedRoleUsers[$cacheKey] = User::whereIn('role', $normalizedRoles)->get();
+        }
+
+        return $this->cachedRoleUsers[$cacheKey];
+    }
+
+    /**
+     * Clear the memoized role users cache.
+     */
+    public function clearUserCache(): void
+    {
+        $this->cachedRoleUsers = [];
+    }
+
+    /**
      * Create a persistent notification for a specific user, with automatic deduplication.
      */
     public function createNotification(
@@ -83,7 +112,7 @@ class NotificationService
         ?string $actionUrl = null,
         ?string $dedupKey = null
     ): int {
-        $users = User::whereIn('role', $roles)->get();
+        $users = $this->getUsersByRoles($roles);
         $count = 0;
 
         foreach ($users as $user) {
@@ -245,6 +274,8 @@ class NotificationService
             'resolved'     => 0,
         ];
 
+        $this->clearUserCache();
+
         // Check global notifications toggle
         if (!SettingsService::getBool('notifications_enabled', true)) {
             return $counts;
@@ -260,6 +291,8 @@ class NotificationService
         // -------------------------------------------------------------
         $ingredients = Ingredient::all();
         $targetRoles = ['admin', 'manager', 'baker'];
+        $outOfStockToResolve = [];
+        $keysToResolve = [];
 
         foreach ($ingredients as $ing) {
             $outOfStockKey = "out_of_stock:ingredient:{$ing->id}";
@@ -280,14 +313,12 @@ class NotificationService
                     $this->notifyRoles($targetRoles, 'inventory', $title, $message, 'warning', route('admin.ingredients'), $lowStockKey);
                     $counts['low_stock']++;
 
-                    // Resolve out of stock if quantity was restored above zero but still low
-                    Notification::where('dedup_key', $outOfStockKey)->whereNull('read_at')->update(['read_at' => now()]);
+                    // Mark out of stock alert for batch resolution
+                    $outOfStockToResolve[] = $outOfStockKey;
                 } else {
-                    // Self-Healing: Stock is above minimum threshold, auto-resolve any unread low-stock alerts
-                    $resolved = Notification::whereIn('dedup_key', [$lowStockKey, $outOfStockKey])
-                        ->whereNull('read_at')
-                        ->update(['read_at' => now()]);
-                    $counts['resolved'] += $resolved;
+                    // Self-Healing: Stock is above minimum threshold, queue for batch resolution
+                    $keysToResolve[] = $lowStockKey;
+                    $keysToResolve[] = $outOfStockKey;
                 }
             }
 
@@ -321,9 +352,21 @@ class NotificationService
                     $title = "Expiring in 7 Days: {$ing->name}";
                     $message = "{$ing->name} will expire on {$expiry->format('M d, Y')}.";
                     $this->notifyRoles($targetRoles, 'expiring', $title, $message, 'info', route('admin.ingredients'), "expiring_7days:ingredient:{$ing->id}");
-                    $counts['expiring']++;
                 }
             }
+        }
+
+        // Execute batched self-healing resolutions in 2 single queries instead of N loop queries
+        if (!empty($outOfStockToResolve)) {
+            Notification::whereIn('dedup_key', array_unique($outOfStockToResolve))
+                ->whereNull('read_at')
+                ->update(['read_at' => now()]);
+        }
+        if (!empty($keysToResolve)) {
+            $resolved = Notification::whereIn('dedup_key', array_unique($keysToResolve))
+                ->whereNull('read_at')
+                ->update(['read_at' => now()]);
+            $counts['resolved'] += $resolved;
         }
 
         // -------------------------------------------------------------

@@ -31,11 +31,11 @@
     </script>
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="{{ asset('css/common.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('css/animations.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/common.css') }}?v={{ @filemtime(public_path('css/common.css')) ?: '1.0' }}">
+    <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}?v={{ @filemtime(public_path('css/sidebar.css')) ?: '1.0' }}">
+    <link rel="stylesheet" href="{{ asset('css/animations.css') }}?v={{ @filemtime(public_path('css/animations.css')) ?: '1.0' }}">
     @stack('styles')
-    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}?v={{ @filemtime(public_path('css/responsive.css')) ?: '1.0' }}">
 </head>
 <body>
     <div class="bakery-app-layout">
@@ -459,8 +459,8 @@
     </div>
 
     @stack('scripts')
-    <script src="{{ asset('js/sidebar.js') }}?v={{ time() }}"></script>
-    <script src="{{ asset('js/lang.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/sidebar.js') }}?v={{ @filemtime(public_path('js/sidebar.js')) ?: '1.0' }}"></script>
+    <script src="{{ asset('js/lang.js') }}?v={{ @filemtime(public_path('js/lang.js')) ?: '1.0' }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Sidebar synchronization helper

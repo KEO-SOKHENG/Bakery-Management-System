@@ -3,7 +3,7 @@
 @section('title', __('messages.production_management') . ' - Bakery System')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/production.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/production.css') }}?v={{ @filemtime(public_path('css/production.css')) ?: '1.0' }}">
 @endpush
 
 @section('content')
@@ -80,44 +80,43 @@
         </x-card>
     </div>
 
-    <!-- 3. Toolbar & Filter Tabs -->
-    <div class="prod-toolbar-card">
-        <!-- Navigation Tabs -->
-        <div class="prod-tabs-row">
-            <a href="{{ route('admin.production', array_merge(request()->except('tab', 'page'), ['tab' => 'all'])) }}"
-               class="prod-tab-link {{ $tab === 'all' ? 'active' : '' }}" data-lang-key="all_batches">
-                {{ __('messages.all_batches') }} ({{ $stats['total'] }})
+    <!-- 3. Status Filter Tabs -->
+    <div class="orders-filter-bar" id="prod_status_tabs" style="margin-bottom: 1.25rem;">
+        <a href="{{ route('admin.production', array_merge(request()->except('tab', 'page'), ['tab' => 'all'])) }}"
+           class="filter-btn {{ $tab === 'all' ? 'active' : '' }}">
+            <span data-lang-key="all_batches">{{ __('messages.all_batches') }}</span> ({{ $stats['total'] }})
+        </a>
+        <a href="{{ route('admin.production', array_merge(request()->except('tab', 'page'), ['tab' => 'active'])) }}"
+           class="filter-btn {{ $tab === 'active' ? 'active' : '' }}">
+            <span data-lang-key="active_batches">{{ __('messages.active_batches') }}</span> ({{ $stats['scheduled'] + $stats['in_progress'] }})
+        </a>
+        <a href="{{ route('admin.production', array_merge(request()->except('tab', 'page'), ['tab' => 'history'])) }}"
+           class="filter-btn {{ $tab === 'history' ? 'active' : '' }}">
+            <span data-lang-key="completed_history">{{ __('messages.completed_history') }}</span> ({{ $stats['completed'] + $stats['cancelled'] }})
+        </a>
+        @if(auth()->user()->role === 'baker')
+            <a href="{{ route('admin.production', array_merge(request()->except('tab', 'page'), ['tab' => 'mine'])) }}"
+               class="filter-btn {{ $tab === 'mine' ? 'active' : '' }}">
+                <span data-lang-key="assigned_to_me">{{ __('messages.assigned_to_me') }}</span> ({{ $stats['my_batches'] }})
             </a>
-            <a href="{{ route('admin.production', array_merge(request()->except('tab', 'page'), ['tab' => 'active'])) }}"
-               class="prod-tab-link {{ $tab === 'active' ? 'active' : '' }}" data-lang-key="active_batches">
-                {{ __('messages.active_batches') }} ({{ $stats['scheduled'] + $stats['in_progress'] }})
-            </a>
-            <a href="{{ route('admin.production', array_merge(request()->except('tab', 'page'), ['tab' => 'history'])) }}"
-               class="prod-tab-link {{ $tab === 'history' ? 'active' : '' }}" data-lang-key="completed_history">
-                {{ __('messages.completed_history') }} ({{ $stats['completed'] + $stats['cancelled'] }})
-            </a>
-            @if(auth()->user()->role === 'baker')
-                <a href="{{ route('admin.production', array_merge(request()->except('tab', 'page'), ['tab' => 'mine'])) }}"
-                   class="prod-tab-link {{ $tab === 'mine' ? 'active' : '' }}" data-lang-key="assigned_to_me">
-                    {{ __('messages.assigned_to_me') }} ({{ $stats['my_batches'] }})
-                </a>
-            @endif
-        </div>
+        @endif
+    </div>
 
-        <!-- Filter Form -->
+    <!-- 4. Filter Toolbar -->
+    <div class="card" style="padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
         <form method="GET" action="{{ route('admin.production') }}" class="prod-filters-grid" id="prod_filter_form">
             <input type="hidden" name="tab" value="{{ $tab }}">
 
             <!-- Search -->
             <div class="prod-search-wrap">
                 <svg class="prod-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" name="search" id="prod_search_input" class="prod-input-search"
+                <input type="text" name="search" id="prod_search_input" class="form-control-input" style="padding-left: 2.4rem;"
                        value="{{ request('search') }}" placeholder="Search batch #, product, baker...">
             </div>
 
             <!-- Status Filter -->
             <div>
-                <select name="status" class="prod-select-filter" onchange="this.form.submit()">
+                <select name="status" class="form-control-select" onchange="this.form.submit()">
                     <option value="all">All Statuses</option>
                     <option value="scheduled" {{ request('status') === 'scheduled' ? 'selected' : '' }}>{{ __('messages.scheduled') }}</option>
                     <option value="in_progress" {{ request('status') === 'in_progress' ? 'selected' : '' }}>{{ __('messages.in_progress') }}</option>
@@ -128,7 +127,7 @@
 
             <!-- Product Filter -->
             <div>
-                <select name="product_id" class="prod-select-filter" onchange="this.form.submit()">
+                <select name="product_id" class="form-control-select" onchange="this.form.submit()">
                     <option value="all">All Products</option>
                     @foreach($products as $prod)
                         <option value="{{ $prod->id }}" {{ request('product_id') == $prod->id ? 'selected' : '' }}>
@@ -140,7 +139,7 @@
 
             <!-- Baker Filter -->
             <div>
-                <select name="baker_id" class="prod-select-filter" onchange="this.form.submit()">
+                <select name="baker_id" class="form-control-select" onchange="this.form.submit()">
                     <option value="all">All Bakers</option>
                     @foreach($bakers as $baker)
                         <option value="{{ $baker->id }}" {{ request('baker_id') == $baker->id ? 'selected' : '' }}>
@@ -152,7 +151,9 @@
 
             <!-- Reset -->
             <div>
-                <a href="{{ route('admin.production') }}" class="btn-filter-reset">Reset</a>
+                <x-button variant="secondary" size="sm" :href="route('admin.production', ['tab' => $tab])">
+                    Reset
+                </x-button>
             </div>
         </form>
     </div>
@@ -287,7 +288,7 @@
                                     @endif
 
                                     <!-- View Details Link -->
-                                    <a href="{{ route('admin.production.show', $batch->id) }}" class="btn-action-view" title="View Batch Details">
+                                    <a href="{{ route('admin.production.show', $batch->id) }}" class="btn-icon-action" title="View Batch Details">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                     </a>
 

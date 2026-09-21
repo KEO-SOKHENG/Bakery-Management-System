@@ -14,6 +14,7 @@ class ReportController extends Controller
     protected ReportService $reportService;
 
     public const ALLOWED_TYPES = [
+        'overview',
         'sales',
         'revenue',
         'orders',
@@ -36,9 +37,9 @@ class ReportController extends Controller
      */
     public function index(Request $request)
     {
-        $type = $request->get('type', 'sales');
+        $type = $request->get('type', 'overview');
         if (!in_array($type, self::ALLOWED_TYPES, true)) {
-            $type = 'sales';
+            $type = 'overview';
         }
 
         $dateInfo = $this->reportService->parseDateRange($request);
@@ -47,6 +48,13 @@ class ReportController extends Controller
         $endDate   = $dateInfo['endDate'];
 
         $reportData = match ($type) {
+            'overview'    => [
+                'sales'       => $this->reportService->getSalesReport($startDate, $endDate, $request, false),
+                'revenue'     => $this->reportService->getRevenueReport($startDate, $endDate),
+                'orders'      => $this->reportService->getOrderReport($startDate, $endDate, $request, false),
+                'profitLoss'  => $this->reportService->getProfitLossReport($startDate, $endDate),
+                'lowStock'    => $this->reportService->getLowStockReport($request, false),
+            ],
             'sales'       => $this->reportService->getSalesReport($startDate, $endDate, $request, true),
             'revenue'     => $this->reportService->getRevenueReport($startDate, $endDate),
             'orders'      => $this->reportService->getOrderReport($startDate, $endDate, $request, true),
@@ -79,7 +87,7 @@ class ReportController extends Controller
     public function exportPdf(Request $request)
     {
         $type = $request->get('type', 'sales');
-        if (!in_array($type, self::ALLOWED_TYPES, true)) {
+        if ($type === 'overview' || !in_array($type, self::ALLOWED_TYPES, true)) {
             $type = 'sales';
         }
 
@@ -146,7 +154,7 @@ class ReportController extends Controller
     public function exportExcel(Request $request): StreamedResponse
     {
         $type = $request->get('type', 'sales');
-        if (!in_array($type, self::ALLOWED_TYPES, true)) {
+        if ($type === 'overview' || !in_array($type, self::ALLOWED_TYPES, true)) {
             $type = 'sales';
         }
 

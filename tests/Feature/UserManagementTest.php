@@ -386,21 +386,16 @@ class UserManagementTest extends TestCase
             'payment_status' => 'paid',
         ]);
 
-        // Deleting cashier should be rejected because they have linked order transactions
+        // Deleting cashier succeeds and preserves linked historical order transactions with user_id null
         $response = $this->actingAs($this->admin)->delete(route('admin.users.destroy', $this->cashier));
-        $response->assertSessionHas('error');
+        $response->assertRedirect(route('admin.users.index'));
+        $response->assertSessionHas('success');
 
-        // Verify order still exists and user still exists
-        $this->assertDatabaseHas('users', ['id' => $this->cashier->id]);
-        $this->assertDatabaseHas('orders', ['id' => $order->id, 'user_id' => $this->cashier->id]);
+        // Verify user is deleted from users table
+        $this->assertDatabaseMissing('users', ['id' => $this->cashier->id]);
 
-        // Admin deactivates cashier instead
-        $this->actingAs($this->admin)->post(route('admin.users.updateStatus', $this->cashier), [
-            'status' => 'inactive',
-        ]);
-
-        // Historical order still references cashier accurately
-        $this->assertEquals($this->cashier->id, $order->fresh()->user_id);
+        // Historical order still exists accurately in database with null user reference
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'user_id' => null]);
     }
 
     /** 17. Existing authentication still works. */
@@ -429,5 +424,82 @@ class UserManagementTest extends TestCase
 
         // Cashier blocked from admin dashboard
         $this->actingAs($this->cashier)->get(route('admin.dashboard'))->assertRedirect(route('cashier.dashboard'));
+    }
+
+    /** 19. Admin can delete user without historical records (no deliveries() bug). */
+    public function test_admin_can_delete_user_without_historical_records(): void
+    {
+        $userToDelete = User::factory()->create([
+            'name' => 'Temporary Staff',
+            'username' => 'tempstaff20',
+            'email' => 'tempstaff20@bakery.com',
+            'role' => 'cashier',
+            'status' => 'active',
+        ]);
+
+        $response = $this->actingAs($this->admin)->delete(route('admin.users.destroy', $userToDelete));
+
+        $response->assertRedirect(route('admin.users.index'));
+        $response->assertSessionHas('success');
+        $this->assertDatabaseMissing('users', ['id' => $userToDelete->id]);
+
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'user_deleted',
+        ]);
+    }
+
+    /** 20. Admin can view user show profile page. */
+    public function test_admin_can_view_user_profile_page(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.users.show', $this->cashier));
+
+        $response->assertStatus(200);
+        $response->assertViewIs('admin.users.show');
+        $response->assertSee($this->cashier->name);
+        $response->assertSee('@' . $this->cashier->username);
+        $response->assertSee('Orders Handled');
+        $response->assertSee('Effective Role Permissions');
+    }
+
+    /** 21. Admin can uncheck must_change_password on update. */
+    public function test_admin_can_uncheck_must_change_password_on_update(): void
+    {
+        $user = User::factory()->create([
+            'must_change_password' => true,
+            'role' => 'cashier',
+            'status' => 'active',
+        ]);
+
+        $response = $this->actingAs($this->admin)->put(route('admin.users.update', $user), [
+            'name' => $user->name,
+            'username' => $user->username,
+            'email' => $user->email,
+            'role' => $user->role,
+            'status' => $user->status,
+            // must_change_password omitted (unchecked)
+        ]);
+
+        $response->assertRedirect(route('admin.users.index'));
+        $this->assertFalse($user->fresh()->must_change_password);
+    }
+
+    /** 22. Admin can revoke default permission via form submission. */
+    public function test_admin_can_revoke_default_permission_via_form(): void
+    {
+        // Cashier has pos.access by default
+        $this->assertTrue($this->cashier->hasPermission('pos.access'));
+
+        // Form submission for Cashier with only 'orders.view' checked (pos.access unchecked/omitted)
+        $response = $this->actingAs($this->admin)->put(route('admin.users.updatePermissions', $this->cashier), [
+            'permissions' => [
+                'orders.view' => '1',
+            ],
+        ]);
+
+        $response->assertRedirect(route('admin.users.index'));
+        $freshCashier = $this->cashier->fresh();
+        // pos.access was a default for Cashier, but was omitted from the form, so it was revoked
+        $this->assertFalse($freshCashier->hasPermission('pos.access'));
+        $this->assertTrue($freshCashier->hasPermission('orders.view'));
     }
 }

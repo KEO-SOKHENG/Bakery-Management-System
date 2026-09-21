@@ -7,7 +7,7 @@
 @endpush
 
 @section('content')
-<x-page-header title="User & Staff Management" subtitle="{{ __('messages.users_management_subtitle') }}">
+<x-page-header title="User & Staff Management" :subtitle="__('messages.users_management_subtitle')">
     <x-slot:actions>
         <x-button variant="primary" id="btn_open_create_user_modal" class="btn-user-primary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>

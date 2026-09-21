@@ -3,7 +3,7 @@
 @section('title', 'POS Sales Terminal - Bakery Management')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/pos.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/pos.css') }}?v={{ @filemtime(public_path('css/pos.css')) ?: '1.0' }}">
 @endpush
 
 @section('content')
@@ -31,13 +31,13 @@
                 >
             </div>
 
-            <div class="pos-category-tabs" id="pos_category_tabs">
-                <button type="button" class="pos-cat-pill active" data-category-id="all">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 4px;"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            <div class="orders-filter-bar pos-category-tabs" id="pos_category_tabs">
+                <button type="button" class="filter-btn pos-cat-pill active" data-category-id="all">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle;"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
                     <span data-lang-key="all_categories">All Items</span>
                 </button>
                 @foreach($categories as $category)
-                    <button type="button" class="pos-cat-pill" data-category-id="{{ $category->id }}">
+                    <button type="button" class="filter-btn pos-cat-pill" data-category-id="{{ $category->id }}">
                         {!! $category->getIconSvg(18) !!} <span>{{ $category->name }}</span>
                     </button>
                 @endforeach

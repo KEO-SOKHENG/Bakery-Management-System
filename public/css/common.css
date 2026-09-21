@@ -650,6 +650,36 @@ body {
     color: #2563eb;
 }
 
+[data-theme="dark"] .alert-success,
+body.dark-mode .alert-success {
+    background-color: rgba(34, 197, 94, 0.12) !important;
+    border-color: rgba(34, 197, 94, 0.28) !important;
+    color: #86efac !important;
+}
+
+[data-theme="dark"] .alert-error,
+[data-theme="dark"] .alert-danger,
+body.dark-mode .alert-error,
+body.dark-mode .alert-danger {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+    border-color: rgba(239, 68, 68, 0.28) !important;
+    color: #fca5a5 !important;
+}
+
+[data-theme="dark"] .alert-warning,
+body.dark-mode .alert-warning {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+    border-color: rgba(245, 158, 11, 0.28) !important;
+    color: #fcd34d !important;
+}
+
+[data-theme="dark"] .alert-info,
+body.dark-mode .alert-info {
+    background-color: rgba(59, 130, 246, 0.12) !important;
+    border-color: rgba(59, 130, 246, 0.28) !important;
+    color: #93c5fd !important;
+}
+
 .alert-close {
     margin-left: auto;
     background: none;
@@ -2749,6 +2779,49 @@ input[type="file"]::file-selector-button:hover,
     box-shadow: 0 4px 12px rgba(86, 48, 32, 0.25) !important;
 }
 
+/* Centralized Pill Filter Bar (.orders-filter-bar & .filter-btn) */
+.orders-filter-bar {
+    display: inline-flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 0.35rem 0.45rem;
+    border-radius: 50px;
+    border: 1px solid rgba(238, 233, 224, 0.85);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+}
+
+.filter-btn {
+    padding: 0.5rem 1.15rem !important;
+    font-size: 0.825rem !important;
+    font-weight: 700 !important;
+    border-radius: 50px !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    color: #64748b !important;
+    text-decoration: none !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    cursor: pointer !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.orders-filter-bar:not(.has-liquid-pill) .filter-btn:hover {
+    color: #29150d !important;
+    background: rgba(93, 64, 55, 0.08) !important;
+}
+
+.orders-filter-bar:not(.has-liquid-pill) .filter-btn.active {
+    background-color: #563020 !important;
+    color: #ffffff !important;
+    border-color: #563020 !important;
+    box-shadow: 0 4px 15px rgba(86, 48, 32, 0.25) !important;
+}
+
+
 /* ==========================================================================
    Horizontal Menu Bars Liquid Moving Pointer Pill (Exact Sidebar Parity)
    ========================================================================== */
@@ -2793,7 +2866,8 @@ body.dark-mode .menu-pointer-pill {
 .has-liquid-pill .hr-nav-tab,
 .has-liquid-pill .filter-pill-btn,
 .has-liquid-pill .prod-tab-link,
-.has-liquid-pill .pos-cat-pill {
+.has-liquid-pill .pos-cat-pill,
+.has-liquid-pill .pos-pay-btn {
     position: relative !important;
     z-index: 2 !important;
     border-radius: 50px !important;
@@ -2805,6 +2879,11 @@ body.dark-mode .menu-pointer-pill {
     cursor: pointer !important;
     pointer-events: auto !important;
     transition: color 0.18s ease !important;
+}
+
+.pos-payment-selector .menu-pointer-pill,
+.has-liquid-pill .pos-pay-btn {
+    border-radius: 10px !important;
 }
 
 /* COMPLETE SUPPRESSION OF INDIVIDUAL ITEM BACKGROUNDS ON HOVER & ACTIVE (Sidebar Parity) */
@@ -2829,6 +2908,9 @@ body.dark-mode .menu-pointer-pill {
 .has-liquid-pill .pos-cat-pill,
 .has-liquid-pill .pos-cat-pill:hover,
 .has-liquid-pill .pos-cat-pill.active,
+.has-liquid-pill .pos-pay-btn,
+.has-liquid-pill .pos-pay-btn:hover,
+.has-liquid-pill .pos-pay-btn.active,
 [data-theme="dark"] .has-liquid-pill .period-pill,
 [data-theme="dark"] .has-liquid-pill .period-pill:hover,
 [data-theme="dark"] .has-liquid-pill .period-pill.active,
@@ -2850,6 +2932,9 @@ body.dark-mode .menu-pointer-pill {
 [data-theme="dark"] .has-liquid-pill .pos-cat-pill,
 [data-theme="dark"] .has-liquid-pill .pos-cat-pill:hover,
 [data-theme="dark"] .has-liquid-pill .pos-cat-pill.active,
+[data-theme="dark"] .has-liquid-pill .pos-pay-btn,
+[data-theme="dark"] .has-liquid-pill .pos-pay-btn:hover,
+[data-theme="dark"] .has-liquid-pill .pos-pay-btn.active,
 [data-theme="glass"] .has-liquid-pill .period-pill,
 [data-theme="glass"] .has-liquid-pill .period-pill:hover,
 [data-theme="glass"] .has-liquid-pill .period-pill.active,
@@ -2871,6 +2956,9 @@ body.dark-mode .menu-pointer-pill {
 [data-theme="glass"] .has-liquid-pill .pos-cat-pill,
 [data-theme="glass"] .has-liquid-pill .pos-cat-pill:hover,
 [data-theme="glass"] .has-liquid-pill .pos-cat-pill.active,
+[data-theme="glass"] .has-liquid-pill .pos-pay-btn,
+[data-theme="glass"] .has-liquid-pill .pos-pay-btn:hover,
+[data-theme="glass"] .has-liquid-pill .pos-pay-btn.active,
 body.dark-mode .has-liquid-pill .period-pill,
 body.dark-mode .has-liquid-pill .period-pill:hover,
 body.dark-mode .has-liquid-pill .period-pill.active,
@@ -2891,7 +2979,10 @@ body.dark-mode .has-liquid-pill .prod-tab-link:hover,
 body.dark-mode .has-liquid-pill .prod-tab-link.active,
 body.dark-mode .has-liquid-pill .pos-cat-pill,
 body.dark-mode .has-liquid-pill .pos-cat-pill:hover,
-body.dark-mode .has-liquid-pill .pos-cat-pill.active {
+body.dark-mode .has-liquid-pill .pos-cat-pill.active,
+body.dark-mode .has-liquid-pill .pos-pay-btn,
+body.dark-mode .has-liquid-pill .pos-pay-btn:hover,
+body.dark-mode .has-liquid-pill .pos-pay-btn.active {
     background: transparent !important;
     background-color: transparent !important;
     border-color: transparent !important;
@@ -2905,7 +2996,8 @@ body.dark-mode .has-liquid-pill .pos-cat-pill.active {
 .has-liquid-pill .hr-nav-tab:not(.pill-highlighted),
 .has-liquid-pill .filter-pill-btn:not(.pill-highlighted),
 .has-liquid-pill .prod-tab-link:not(.pill-highlighted),
-.has-liquid-pill .pos-cat-pill:not(.pill-highlighted) {
+.has-liquid-pill .pos-cat-pill:not(.pill-highlighted),
+.has-liquid-pill .pos-pay-btn:not(.pill-highlighted) {
     color: #64748b !important;
 }
 
@@ -2915,7 +3007,8 @@ body.dark-mode .has-liquid-pill .pos-cat-pill.active {
 .has-liquid-pill .hr-nav-tab:not(.pill-highlighted) svg,
 .has-liquid-pill .filter-pill-btn:not(.pill-highlighted) svg,
 .has-liquid-pill .prod-tab-link:not(.pill-highlighted) svg,
-.has-liquid-pill .pos-cat-pill:not(.pill-highlighted) svg {
+.has-liquid-pill .pos-cat-pill:not(.pill-highlighted) svg,
+.has-liquid-pill .pos-pay-btn:not(.pill-highlighted) svg {
     color: #64748b !important;
     stroke: #64748b !important;
 }
@@ -2927,13 +3020,15 @@ body.dark-mode .has-liquid-pill .pos-cat-pill.active {
 [data-theme="dark"] .has-liquid-pill .filter-pill-btn:not(.pill-highlighted),
 [data-theme="dark"] .has-liquid-pill .prod-tab-link:not(.pill-highlighted),
 [data-theme="dark"] .has-liquid-pill .pos-cat-pill:not(.pill-highlighted),
+[data-theme="dark"] .has-liquid-pill .pos-pay-btn:not(.pill-highlighted),
 body.dark-mode .has-liquid-pill .period-pill:not(.pill-highlighted),
 body.dark-mode .has-liquid-pill .filter-btn:not(.pill-highlighted),
 body.dark-mode .has-liquid-pill .report-tab-btn:not(.pill-highlighted),
 body.dark-mode .has-liquid-pill .hr-nav-tab:not(.pill-highlighted),
 body.dark-mode .has-liquid-pill .filter-pill-btn:not(.pill-highlighted),
 body.dark-mode .has-liquid-pill .prod-tab-link:not(.pill-highlighted),
-body.dark-mode .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) {
+body.dark-mode .has-liquid-pill .pos-cat-pill:not(.pill-highlighted),
+body.dark-mode .has-liquid-pill .pos-pay-btn:not(.pill-highlighted) {
     color: #94a3b8 !important;
 }
 
@@ -2944,13 +3039,15 @@ body.dark-mode .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) {
 [data-theme="dark"] .has-liquid-pill .filter-pill-btn:not(.pill-highlighted) svg,
 [data-theme="dark"] .has-liquid-pill .prod-tab-link:not(.pill-highlighted) svg,
 [data-theme="dark"] .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) svg,
+[data-theme="dark"] .has-liquid-pill .pos-pay-btn:not(.pill-highlighted) svg,
 body.dark-mode .has-liquid-pill .period-pill:not(.pill-highlighted) svg,
 body.dark-mode .has-liquid-pill .filter-btn:not(.pill-highlighted) svg,
 body.dark-mode .has-liquid-pill .report-tab-btn:not(.pill-highlighted) svg,
 body.dark-mode .has-liquid-pill .hr-nav-tab:not(.pill-highlighted) svg,
 body.dark-mode .has-liquid-pill .filter-pill-btn:not(.pill-highlighted) svg,
 body.dark-mode .has-liquid-pill .prod-tab-link:not(.pill-highlighted) svg,
-body.dark-mode .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) svg {
+body.dark-mode .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) svg,
+body.dark-mode .has-liquid-pill .pos-pay-btn:not(.pill-highlighted) svg {
     color: #94a3b8 !important;
     stroke: #94a3b8 !important;
 }
@@ -2961,7 +3058,8 @@ body.dark-mode .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) svg {
 [data-theme="glass"] .has-liquid-pill .hr-nav-tab:not(.pill-highlighted),
 [data-theme="glass"] .has-liquid-pill .filter-pill-btn:not(.pill-highlighted),
 [data-theme="glass"] .has-liquid-pill .prod-tab-link:not(.pill-highlighted),
-[data-theme="glass"] .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) {
+[data-theme="glass"] .has-liquid-pill .pos-cat-pill:not(.pill-highlighted),
+[data-theme="glass"] .has-liquid-pill .pos-pay-btn:not(.pill-highlighted) {
     color: rgba(255, 255, 255, 0.7) !important;
 }
 
@@ -2971,7 +3069,8 @@ body.dark-mode .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) svg {
 [data-theme="glass"] .has-liquid-pill .hr-nav-tab:not(.pill-highlighted) svg,
 [data-theme="glass"] .has-liquid-pill .filter-pill-btn:not(.pill-highlighted) svg,
 [data-theme="glass"] .has-liquid-pill .prod-tab-link:not(.pill-highlighted) svg,
-[data-theme="glass"] .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) svg {
+[data-theme="glass"] .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) svg,
+[data-theme="glass"] .has-liquid-pill .pos-pay-btn:not(.pill-highlighted) svg {
     color: rgba(255, 255, 255, 0.7) !important;
     stroke: rgba(255, 255, 255, 0.7) !important;
 }
@@ -2984,6 +3083,7 @@ body.dark-mode .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) svg {
 .has-liquid-pill .filter-pill-btn.pill-highlighted,
 .has-liquid-pill .prod-tab-link.pill-highlighted,
 .has-liquid-pill .pos-cat-pill.pill-highlighted,
+.has-liquid-pill .pos-pay-btn.pill-highlighted,
 [data-theme="dark"] .has-liquid-pill .period-pill.pill-highlighted,
 [data-theme="dark"] .has-liquid-pill .filter-btn.pill-highlighted,
 [data-theme="dark"] .has-liquid-pill .report-tab-btn.pill-highlighted,
@@ -2991,6 +3091,7 @@ body.dark-mode .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) svg {
 [data-theme="dark"] .has-liquid-pill .filter-pill-btn.pill-highlighted,
 [data-theme="dark"] .has-liquid-pill .prod-tab-link.pill-highlighted,
 [data-theme="dark"] .has-liquid-pill .pos-cat-pill.pill-highlighted,
+[data-theme="dark"] .has-liquid-pill .pos-pay-btn.pill-highlighted,
 [data-theme="glass"] .has-liquid-pill .period-pill.pill-highlighted,
 [data-theme="glass"] .has-liquid-pill .filter-btn.pill-highlighted,
 [data-theme="glass"] .has-liquid-pill .report-tab-btn.pill-highlighted,
@@ -2998,13 +3099,15 @@ body.dark-mode .has-liquid-pill .pos-cat-pill:not(.pill-highlighted) svg {
 [data-theme="glass"] .has-liquid-pill .filter-pill-btn.pill-highlighted,
 [data-theme="glass"] .has-liquid-pill .prod-tab-link.pill-highlighted,
 [data-theme="glass"] .has-liquid-pill .pos-cat-pill.pill-highlighted,
+[data-theme="glass"] .has-liquid-pill .pos-pay-btn.pill-highlighted,
 body.dark-mode .has-liquid-pill .period-pill.pill-highlighted,
 body.dark-mode .has-liquid-pill .filter-btn.pill-highlighted,
 body.dark-mode .has-liquid-pill .report-tab-btn.pill-highlighted,
 body.dark-mode .has-liquid-pill .hr-nav-tab.pill-highlighted,
 body.dark-mode .has-liquid-pill .filter-pill-btn.pill-highlighted,
 body.dark-mode .has-liquid-pill .prod-tab-link.pill-highlighted,
-body.dark-mode .has-liquid-pill .pos-cat-pill.pill-highlighted {
+body.dark-mode .has-liquid-pill .pos-cat-pill.pill-highlighted,
+body.dark-mode .has-liquid-pill .pos-pay-btn.pill-highlighted {
     color: #ffffff !important;
 }
 
@@ -3015,6 +3118,7 @@ body.dark-mode .has-liquid-pill .pos-cat-pill.pill-highlighted {
 .has-liquid-pill .filter-pill-btn.pill-highlighted svg,
 .has-liquid-pill .prod-tab-link.pill-highlighted svg,
 .has-liquid-pill .pos-cat-pill.pill-highlighted svg,
+.has-liquid-pill .pos-pay-btn.pill-highlighted svg,
 [data-theme="dark"] .has-liquid-pill .period-pill.pill-highlighted svg,
 [data-theme="dark"] .has-liquid-pill .filter-btn.pill-highlighted svg,
 [data-theme="dark"] .has-liquid-pill .report-tab-btn.pill-highlighted svg,
@@ -3022,6 +3126,7 @@ body.dark-mode .has-liquid-pill .pos-cat-pill.pill-highlighted {
 [data-theme="dark"] .has-liquid-pill .filter-pill-btn.pill-highlighted svg,
 [data-theme="dark"] .has-liquid-pill .prod-tab-link.pill-highlighted svg,
 [data-theme="dark"] .has-liquid-pill .pos-cat-pill.pill-highlighted svg,
+[data-theme="dark"] .has-liquid-pill .pos-pay-btn.pill-highlighted svg,
 [data-theme="glass"] .has-liquid-pill .period-pill.pill-highlighted svg,
 [data-theme="glass"] .has-liquid-pill .filter-btn.pill-highlighted svg,
 [data-theme="glass"] .has-liquid-pill .report-tab-btn.pill-highlighted svg,
@@ -3029,13 +3134,15 @@ body.dark-mode .has-liquid-pill .pos-cat-pill.pill-highlighted {
 [data-theme="glass"] .has-liquid-pill .filter-pill-btn.pill-highlighted svg,
 [data-theme="glass"] .has-liquid-pill .prod-tab-link.pill-highlighted svg,
 [data-theme="glass"] .has-liquid-pill .pos-cat-pill.pill-highlighted svg,
+[data-theme="glass"] .has-liquid-pill .pos-pay-btn.pill-highlighted svg,
 body.dark-mode .has-liquid-pill .period-pill.pill-highlighted svg,
 body.dark-mode .has-liquid-pill .filter-btn.pill-highlighted svg,
 body.dark-mode .has-liquid-pill .report-tab-btn.pill-highlighted svg,
 body.dark-mode .has-liquid-pill .hr-nav-tab.pill-highlighted svg,
 body.dark-mode .has-liquid-pill .filter-pill-btn.pill-highlighted svg,
 body.dark-mode .has-liquid-pill .prod-tab-link.pill-highlighted svg,
-body.dark-mode .has-liquid-pill .pos-cat-pill.pill-highlighted svg {
+body.dark-mode .has-liquid-pill .pos-cat-pill.pill-highlighted svg,
+body.dark-mode .has-liquid-pill .pos-pay-btn.pill-highlighted svg {
     color: #ffffff !important;
     stroke: #ffffff !important;
 }
@@ -3127,6 +3234,32 @@ body.dark-mode .has-liquid-pill .pos-cat-pill.pill-highlighted svg {
     border-color: #d97706 !important;
     box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4) !important;
 }
+
+[data-theme="dark"] .orders-filter-bar,
+body.dark-mode .orders-filter-bar {
+    background: #171717 !important;
+    border-color: #262626 !important;
+}
+
+[data-theme="dark"] .orders-filter-bar:not(.has-liquid-pill) .filter-btn,
+body.dark-mode .orders-filter-bar:not(.has-liquid-pill) .filter-btn {
+    color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .orders-filter-bar:not(.has-liquid-pill) .filter-btn:hover,
+body.dark-mode .orders-filter-bar:not(.has-liquid-pill) .filter-btn:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .orders-filter-bar:not(.has-liquid-pill) .filter-btn.active,
+body.dark-mode .orders-filter-bar:not(.has-liquid-pill) .filter-btn.active {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+    color: #ffffff !important;
+    border-color: #d97706 !important;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4) !important;
+}
+
 
 [data-theme="dark"] .custom-date-group {
     background: #171717 !important;

@@ -81,15 +81,28 @@ class ProductionController extends Controller
 
         $productions = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
 
-        // 8. Aggregate Summary Stats
+        // 8. Aggregate Summary Stats (Consolidated single aggregation query)
+        $bakerId = $user?->id ?? 0;
+        $prodSummary = Production::query()
+            ->selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN status = 'scheduled' THEN 1 END) as scheduled,
+                COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as in_progress,
+                COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed,
+                COALESCE(SUM(CASE WHEN status = 'completed' THEN quantity ELSE 0 END), 0) as completed_units,
+                COUNT(CASE WHEN status = 'cancelled' THEN 1 END) as cancelled,
+                COUNT(CASE WHEN baker_id = ? THEN 1 END) as my_batches
+            ", [$bakerId])
+            ->first();
+
         $stats = [
-            'total'       => Production::count(),
-            'scheduled'   => Production::where('status', 'scheduled')->count(),
-            'in_progress' => Production::where('status', 'in_progress')->count(),
-            'completed'   => Production::where('status', 'completed')->count(),
-            'completed_units' => Production::where('status', 'completed')->sum('quantity'),
-            'cancelled'   => Production::where('status', 'cancelled')->count(),
-            'my_batches'  => $user ? Production::where('baker_id', $user->id)->count() : 0,
+            'total'           => (int) ($prodSummary->total ?? 0),
+            'scheduled'       => (int) ($prodSummary->scheduled ?? 0),
+            'in_progress'     => (int) ($prodSummary->in_progress ?? 0),
+            'completed'       => (int) ($prodSummary->completed ?? 0),
+            'completed_units' => (int) ($prodSummary->completed_units ?? 0),
+            'cancelled'       => (int) ($prodSummary->cancelled ?? 0),
+            'my_batches'      => (int) ($prodSummary->my_batches ?? 0),
         ];
 
         // 9. Active Products with linked Recipe & Ingredients (for live modal preview)

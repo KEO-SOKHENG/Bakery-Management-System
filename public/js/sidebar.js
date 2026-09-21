@@ -323,9 +323,7 @@ document.addEventListener("DOMContentLoaded", () => {
             { containerSelector: '.orders-filter-bar', itemSelector: '.filter-btn' },
             { containerSelector: '.report-nav-tabs', itemSelector: '.report-tab-btn' },
             { containerSelector: '.hr-nav-tabs', itemSelector: '.hr-nav-tab' },
-            { containerSelector: '.notif-filter-pills', itemSelector: '.filter-pill-btn' },
-            { containerSelector: '.prod-tabs-row', itemSelector: '.prod-tab-link' },
-            { containerSelector: '.pos-category-tabs', itemSelector: '.pos-cat-pill' }
+            { containerSelector: '.pos-payment-selector', itemSelector: '.pos-pay-btn' }
         ];
 
         barConfigs.forEach(({ containerSelector, itemSelector }) => {
@@ -679,12 +677,24 @@ function initGlobalConfirmModal() {
                 type: type,
                 onConfirm: function() {
                     form._isConfirmedByModal = true;
-                    if (submitter && typeof form.requestSubmit === 'function') {
-                        form.requestSubmit(submitter);
-                    } else if (typeof form.requestSubmit === 'function') {
-                        form.requestSubmit();
-                    } else {
-                        form.submit();
+                    const prevOnsubmit = form.onsubmit;
+                    const prevSubmitAttr = form.getAttribute('onsubmit');
+                    form.onsubmit = null;
+                    if (prevSubmitAttr) form.removeAttribute('onsubmit');
+
+                    try {
+                        if (submitter && typeof form.requestSubmit === 'function') {
+                            form.requestSubmit(submitter);
+                        } else if (typeof form.requestSubmit === 'function') {
+                            form.requestSubmit();
+                        } else {
+                            form.submit();
+                        }
+                    } finally {
+                        setTimeout(() => {
+                            if (prevOnsubmit) form.onsubmit = prevOnsubmit;
+                            if (prevSubmitAttr) form.setAttribute('onsubmit', prevSubmitAttr);
+                        }, 500);
                     }
                 }
             });
@@ -744,15 +754,39 @@ function initGlobalConfirmModal() {
                     const form = btn.closest('form');
                     if (form && btn.type === 'submit') {
                         form._isConfirmedByModal = true;
-                        if (typeof form.requestSubmit === 'function') {
-                            form.requestSubmit(btn);
-                        } else {
-                            form.submit();
+                        const prevOnsubmit = form.onsubmit;
+                        const prevSubmitAttr = form.getAttribute('onsubmit');
+                        form.onsubmit = null;
+                        if (prevSubmitAttr) form.removeAttribute('onsubmit');
+
+                        try {
+                            if (typeof form.requestSubmit === 'function') {
+                                form.requestSubmit(btn);
+                            } else {
+                                form.submit();
+                            }
+                        } finally {
+                            setTimeout(() => {
+                                if (prevOnsubmit) form.onsubmit = prevOnsubmit;
+                                if (prevSubmitAttr) form.setAttribute('onsubmit', prevSubmitAttr);
+                            }, 500);
                         }
                     } else if (btn.tagName === 'A' && btn.href && !btn.href.startsWith('javascript:')) {
                         window.location.href = btn.href;
                     } else {
-                        btn.click();
+                        const prevOnclick = btn.onclick;
+                        const prevClickAttr = btn.getAttribute('onclick');
+                        btn.onclick = null;
+                        if (prevClickAttr) btn.removeAttribute('onclick');
+
+                        try {
+                            btn.click();
+                        } finally {
+                            setTimeout(() => {
+                                if (prevOnclick) btn.onclick = prevOnclick;
+                                if (prevClickAttr) btn.setAttribute('onclick', prevClickAttr);
+                            }, 500);
+                        }
                     }
                 }
             });
