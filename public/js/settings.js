@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const actionUrl = this.getAttribute('action') || '/admin/settings/update';
             const formData = new FormData(this);
-            const cardTitle = this.closest('.settings-glass-card')?.querySelector('.card-title-text h3')?.textContent || 'Settings';
+            const cardTitle = this.closest('.card, .settings-glass-card')?.querySelector('.card-title, .card-title-text h3')?.textContent?.trim() || 'Settings';
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 3. Logo Upload Live Image Preview
+    // 4. Logo Upload Live Image Preview
     const logoFileInput = document.getElementById('shop_logo_input');
     const logoPreviewBox = document.getElementById('logo_preview_box');
 
@@ -72,15 +72,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    logoPreviewBox.innerHTML = `<img src="${event.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="Shop Logo">`;
-                    showToast('New logo selected! Click Save to apply.');
+                    logoPreviewBox.innerHTML = `<img src="${event.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" alt="Shop Logo">`;
+                    showToast('New logo selected! Click Save Changes to apply.');
                 };
                 reader.readAsDataURL(file);
             }
         });
     }
 
-    // 4. iOS Segmented Control (Light/Dark Theme Picker)
+    // 5. iOS Segmented Control (Light/Dark Theme Picker)
     const currentTheme = localStorage.getItem('bakery_theme') || 'light';
     const segmentedButtons = document.querySelectorAll('.segmented-option');
     segmentedButtons.forEach(btn => {
@@ -104,12 +104,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-CSRF-TOKEN': csrfToken || '',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({ theme: theme })
+                body: JSON.stringify({ theme_mode: theme })
             }).catch(e => {});
         });
     });
 
-    // 5. Notifications Toggle Switch Feedback
+    // 6. Notifications Toggle Switch Feedback
     const notifSwitch = document.getElementById('notifications_toggle');
     if (notifSwitch) {
         notifSwitch.addEventListener('change', function() {

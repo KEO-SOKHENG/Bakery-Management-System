@@ -22,11 +22,6 @@
         </div>
 
         <div class="notif-action-group">
-            <x-button variant="secondary" id="page_refresh_alerts" onclick="window.location.reload();">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                <span data-lang-key="refresh">{{ __('messages.refresh') ?? 'Refresh' }}</span>
-            </x-button>
-
             @if(auth()->user()->isAdmin() || auth()->user()->hasPermission('notifications.promote'))
                 <x-button variant="warning" id="btn_open_promotion_modal" onclick="openPromotionModal();">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>

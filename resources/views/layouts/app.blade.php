@@ -198,6 +198,14 @@
                     </a>
                 @endif
 
+                <!-- Staff & Accounts (Admin Only) -->
+                @if($role === 'admin')
+                    <a href="{{ route('admin.users.index') }}" class="sidebar-nav-item {{ request()->is('admin/users*') ? 'active' : '' }}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span data-lang-key="users_staff">Staff & Accounts</span>
+                    </a>
+                @endif
+
                 <!-- ==============================================
                      3. ANALYTICS SECTION (Admin & Manager)
                      ============================================== -->
@@ -216,8 +224,9 @@
                 @if(in_array($role, ['admin', 'manager']))
                     <div class="sidebar-section-header" data-lang-key="system">System</div>
 
+                    <!-- Settings Group (Expandable Submenu like Inventory) -->
                     @php
-                        $settingsOpen = request()->is('admin/settings*') || request()->is('admin/users*') || request()->is('admin/notifications*');
+                        $settingsOpen = request()->is('admin/settings*') || request()->is('admin/notifications*');
                     @endphp
                     <div class="sidebar-group {{ $settingsOpen ? 'is-open' : '' }}" id="group_settings">
                         <a href="{{ route('admin.settings') }}" class="sidebar-nav-item {{ $settingsOpen ? 'active' : '' }}">
@@ -231,6 +240,10 @@
                             </span>
                         </a>
                         <div class="sidebar-submenu">
+                            <a href="{{ route('admin.settings') }}" class="sidebar-submenu-item {{ request()->is('admin/settings*') ? 'active' : '' }}">
+                                <span class="submenu-dot"></span>
+                                <span data-lang-key="general">General</span>
+                            </a>
                             <a href="{{ route('admin.notifications') }}" class="sidebar-submenu-item {{ request()->is('admin/notifications*') ? 'active' : '' }}">
                                 <span class="submenu-dot"></span>
                                 <span data-lang-key="notifications">Notifications</span>
@@ -238,12 +251,6 @@
                                     <span class="sidebar-badge" style="margin-left: auto; background: #ef4444; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 9999px;">{{ $realUnreadCount }}</span>
                                 @endif
                             </a>
-                            @if($role === 'admin')
-                                <a href="{{ route('admin.users.index') }}" class="sidebar-submenu-item {{ request()->is('admin/users*') ? 'active' : '' }}">
-                                    <span class="submenu-dot"></span>
-                                    <span data-lang-key="users_staff">Users & Staff</span>
-                                </a>
-                            @endif
                         </div>
                     </div>
                 @endif

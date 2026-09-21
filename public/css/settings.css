@@ -1,143 +1,49 @@
-/* Bakery Management System - Apple iOS Liquid Glass Settings Stylesheet */
+/* ==========================================================================
+   Bakery Management System - Settings Page Stylesheet
+   Clean Information Architecture, 2-Column Responsive Layout & Tabs
+   ========================================================================== */
 
-.settings-header-intro {
-    margin-bottom: 2rem;
+/* Page Header Wrapper */
+.settings-header-wrapper {
+    margin-bottom: 1.5rem;
 }
 
-.settings-header-intro h1 {
-    font-size: 1.65rem;
-    font-weight: 800;
-    color: var(--text-title);
-    letter-spacing: -0.02em;
-}
 
-.settings-header-intro p {
-    font-size: 0.875rem;
-    color: #71717a;
-    margin-top: 0.2rem;
-}
 
-/* Settings 6-Card Grid Layout */
-.settings-glass-grid {
+/* Responsive Grid Layouts */
+.settings-primary-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    align-items: stretch;
 }
 
-/* iOS Liquid Glass Card */
-.settings-glass-card {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius: 22px;
-    padding: 1.75rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+.settings-secondary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    align-items: stretch;
 }
 
-.settings-glass-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.06);
+.settings-single-col {
+    max-width: 680px;
+    margin: 0 auto;
 }
 
-/* Card Header */
-.card-title-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    margin-bottom: 1.25rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-subtle);
-}
-
-.card-title-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    background: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.35rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    flex-shrink: 0;
-}
-
-.card-title-text h3 {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: var(--text-title);
-    line-height: 1.2;
-}
-
-.card-title-text p {
-    font-size: 0.775rem;
-    color: #71717a;
-}
-
-/* Form Layout inside Glass Cards */
+/* Forms inside Settings Cards */
 .settings-form {
     display: flex;
     flex-direction: column;
-    gap: 1.15rem;
-    flex: 1;
+    gap: 1.1rem;
+    height: 100%;
 }
 
-.form-field-group {
+.settings-card-body {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
-}
-
-.form-label {
-    font-size: 0.775rem;
-    font-weight: 700;
-    color: #4b5563;
-    letter-spacing: 0.01em;
-}
-
-.ios-input-field,
-.ios-select-field,
-.ios-textarea-field {
-    width: 100%;
-    padding: 0.7rem 1rem;
-    background-color: #9b9b9b4f;
-    border: 1.5px solid var(--border-color);
-    border-radius: 20px;
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-title);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
-    transition: all 0.2s ease;
-}
-
-.ios-select-field option {
-    padding: 10px 14px !important;
-    min-height: 40px !important;
-    font-size: 0.9rem !important;
-    font-weight: 600 !important;
-    line-height: 1.6 !important;
-    background-color: #ffffff;
-    color: #1a1a1a;
-}
-
-.ios-textarea-field {
-    min-height: 70px;
-    resize: vertical;
-}
-
-.ios-input-field:focus,
-.ios-select-field:focus,
-.ios-textarea-field:focus {
-    outline: none;
-    border-color: var(--accent-brown);
-    box-shadow: 0 0 0 3px rgba(77, 44, 32, 0.12);
+    gap: 1.1rem;
+    flex: 1;
 }
 
 /* Logo Upload Area */
@@ -145,68 +51,44 @@
     display: flex;
     align-items: center;
     gap: 1.25rem;
-    padding: 0.85rem;
-    background-color: #9b9b9b4f;
-    border: 1px dashed #d1d5db;
-    border-radius: 20px;
+    padding: 0.85rem 1rem;
+    background-color: var(--bg-surface-secondary, #faf7f2);
+    border: 1px dashed var(--border-color, #dcd4cb);
+    border-radius: 12px;
 }
 
 .logo-preview-img {
-    width: 56px;
-    height: 56px;
-    border-radius: 20px;
-    object-fit: cover;
-    background-color: #fdfbf7;
-    border: 1px solid var(--border-color);
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    background-color: var(--bg-card, #ffffff);
+    border: 1px solid var(--border-color, #eee9e0);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
+    color: var(--accent-brown, #5d3a1a);
     flex-shrink: 0;
+    overflow: hidden;
 }
 
 .logo-upload-info {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.35rem;
 }
 
-.btn-upload-trigger {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.85rem;
-    border-radius: 20px !important;
-    background-color: #f4ede6;
-    border: 1px solid var(--border-color, #eee9e0);
-    font-size: 0.775rem;
-    font-weight: 700;
-    color: var(--text-title, #29150d);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    width: fit-content;
-}
-
-.btn-upload-trigger:hover {
-    background-color: #ebdcd0;
-    color: var(--text-title, #29150d);
-}
-
-/* iOS Segmented Control (Theme Picker - Liquid Animated) */
+/* iOS Segmented Control (Theme Picker) */
 .ios-segmented-control {
     position: relative;
     display: inline-flex;
     align-items: center;
-    background-color: #f2ede6;
-    border-radius: 50px !important;
+    background-color: var(--bg-surface-secondary, #f4ede6);
+    border-radius: 10px;
     padding: 4px;
     gap: 4px;
-    isolation: isolate;
-    overflow: hidden;
     width: 100%;
     max-width: 320px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--border-color, #eee9e0);
 }
 
 .segmented-option {
@@ -218,53 +100,60 @@
     justify-content: center;
     gap: 0.45rem;
     padding: 0.55rem 0.9rem;
-    border-radius: 50px !important;
+    border-radius: 7px;
     border: none;
-    background: transparent !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
+    background: transparent;
     font-family: inherit;
     font-size: 0.85rem;
     font-weight: 600;
-    color: #71717a;
+    color: var(--text-secondary, #6b7280);
     cursor: pointer;
     white-space: nowrap;
-    transition: color 0.25s ease,
-                transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.2s ease;
 }
 
-.segmented-option.active,
-.segmented-option.pill-highlighted {
-    color: var(--text-title) !important;
-    font-weight: 700 !important;
-    background: transparent !important;
-    box-shadow: none !important;
+.segmented-option:hover {
+    color: var(--text-title, #29150d);
 }
 
-/* iOS Toggle Switch (Notifications) */
+.segmented-option.active {
+    background-color: var(--bg-card, #ffffff);
+    color: var(--text-title, #29150d);
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Toggle Switch Row */
 .ios-switch-row {
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 0.75rem 0;
+    justify-content: space-between;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border-subtle, #f0ebe4);
+}
+
+.ios-switch-row:last-child {
+    border-bottom: none;
 }
 
 .ios-switch-label {
-    font-size: 0.875rem;
+    font-size: 0.9rem;
     font-weight: 700;
-    color: var(--text-title);
+    color: var(--text-title, #29150d);
 }
 
 .ios-switch-subtitle {
     font-size: 0.775rem;
-    color: #71717a;
+    color: var(--text-secondary, #6b7280);
+    margin-top: 0.15rem;
 }
 
 .ios-switch {
     position: relative;
     display: inline-block;
-    width: 48px;
-    height: 26px;
+    width: 46px;
+    height: 24px;
+    flex-shrink: 0;
 }
 
 .ios-switch input {
@@ -277,22 +166,22 @@
     position: absolute;
     cursor: pointer;
     inset: 0;
-    background-color: #e5e7eb;
-    transition: 0.3s;
+    background-color: #d1d5db;
+    transition: 0.25s ease;
     border-radius: 9999px;
 }
 
 .switch-slider:before {
     position: absolute;
     content: "";
-    height: 20px;
-    width: 20px;
+    height: 18px;
+    width: 18px;
     left: 3px;
     bottom: 3px;
     background-color: white;
-    transition: 0.3s;
+    transition: 0.25s ease;
     border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 input:checked + .switch-slider {
@@ -303,250 +192,15 @@ input:checked + .switch-slider:before {
     transform: translateX(22px);
 }
 
-/* Card Action Footer Button */
-.card-save-footer {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-subtle);
-    display: flex;
-    justify-content: flex-end;
-}
-
-.btn-ios-save {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.65rem 1.35rem;
-    border-radius: 50px !important;
-    background-color: var(--accent-brown);
-    color: #ffffff;
-    border: none;
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(77, 44, 32, 0.2);
-    transition: all 0.2s ease;
-}
-
-.btn-ios-save:hover {
-    background-color: var(--accent-brown-hover);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(77, 44, 32, 0.3);
-}
-
-.btn-ios-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.65rem 1.35rem;
-    border-radius: 50px !important;
-    background-color: #f4ede6;
-    color: var(--text-title, #29150d);
-    border: 1px solid var(--border-color, #eee9e0);
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-ios-secondary:hover {
-    background-color: #ebdcd0;
-    border-color: #dfcdbf;
-    color: var(--text-title, #29150d);
-}
-
-.btn-ios-secondary svg,
-.btn-upload-trigger svg {
-    stroke: currentColor;
-    color: inherit;
-}
-
-/* ==========================================================================
-   DARK THEME OVERRIDES FOR SETTINGS (Icons, Cards, Inputs, Typography)
-   ========================================================================== */
-[data-theme="dark"] .card-title-bar {
-    border-bottom-color: #242424 !important;
-}
-
-[data-theme="dark"] .card-title-icon {
-    background-color: rgba(249, 115, 22, 0.12) !important;
-    border-color: rgba(249, 115, 22, 0.25) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
-}
-
-[data-theme="dark"] .card-title-icon svg {
-    stroke: #f97316 !important;
-}
-
-[data-theme="dark"] .logo-upload-box {
-    background-color: #171717 !important;
-    border-color: #333333 !important;
-}
-
-[data-theme="dark"] .logo-preview-img {
-    background-color: #1c1c1e !important;
-    border-color: #2e2e2e !important;
-}
-
-[data-theme="dark"] .logo-preview-img svg {
-    stroke: #f97316 !important;
-}
-
-[data-theme="dark"] .card-title-text h3 {
-    color: #ffffff !important;
-}
-
-[data-theme="dark"] .card-title-text p {
-    color: #a1a1aa !important;
-}
-
-[data-theme="dark"] .form-label {
-    color: #e5e5e5 !important;
-}
-
-[data-theme="dark"] .ios-switch-label {
-    color: #ffffff !important;
-}
-
-[data-theme="dark"] .ios-switch-subtitle {
-    color: #a1a1aa !important;
-}
-
-[data-theme="dark"] .switch-slider {
-    background-color: #2e2e2e !important;
-}
-
-[data-theme="dark"] .card-save-footer {
-    border-top-color: #242424 !important;
-}
-
-[data-theme="dark"] .ios-segmented-control {
-    background-color: #1c1c1e !important;
-    border-color: #2c2c2e !important;
-}
-
-[data-theme="dark"] .segmented-pointer-pill {
-    background: #27272a !important;
-    border-color: #3f3f46 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
-}
-
-[data-theme="dark"] .segmented-option {
-    color: #a1a1aa !important;
-}
-
-[data-theme="dark"] .segmented-option.active,
-[data-theme="dark"] .segmented-option.pill-highlighted {
-    color: #ffffff !important;
-}
-
-[data-theme="dark"] .btn-ios-secondary,
-[data-theme="dark"] .btn-upload-trigger {
-    background-color: #1f1f1f !important;
-    color: #ffffff !important;
-    border-color: #333333 !important;
-}
-
-[data-theme="dark"] .btn-ios-secondary:hover,
-[data-theme="dark"] .btn-upload-trigger:hover {
-    background-color: #2a2a2a !important;
-    color: #ffffff !important;
-    border-color: #444444 !important;
-}
-
-/* ==========================================================================
-   GLASS THEME OVERRIDES FOR SETTINGS (Icons, Cards, Inputs, Typography)
-   ========================================================================== */
-[data-theme="glass"] .card-title-bar {
-    border-bottom-color: rgba(255, 255, 255, 0.12) !important;
-}
-
-[data-theme="glass"] .card-title-icon {
-    background: rgba(255, 255, 255, 0.12) !important;
-    border-color: rgba(255, 255, 255, 0.25) !important;
-    backdrop-filter: blur(12px) !important;
-}
-
-[data-theme="glass"] .card-title-icon svg {
-    stroke: #ffffff !important;
-}
-
-[data-theme="glass"] .logo-upload-box {
-    background: rgba(255, 255, 255, 0.05) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-[data-theme="glass"] .logo-preview-img {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-[data-theme="glass"] .logo-preview-img svg {
-    stroke: #ffffff !important;
-}
-
-[data-theme="glass"] .card-title-text h3 {
-    color: #ffffff !important;
-}
-
-[data-theme="glass"] .card-title-text p {
-    color: rgba(255, 255, 255, 0.75) !important;
-}
-
-[data-theme="glass"] .form-label {
-    color: #ffffff !important;
-}
-
-[data-theme="glass"] .card-save-footer {
-    border-top-color: rgba(255, 255, 255, 0.12) !important;
-}
-
-[data-theme="glass"] .ios-segmented-control {
-    background: rgba(0, 0, 0, 0.3) !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-}
-
-[data-theme="glass"] .segmented-pointer-pill {
-    background: rgba(255, 255, 255, 0.2) !important;
-    border-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-[data-theme="glass"] .segmented-option {
-    color: rgba(255, 255, 255, 0.7) !important;
-}
-
-[data-theme="glass"] .segmented-option.active,
-[data-theme="glass"] .segmented-option.pill-highlighted {
-    color: #ffffff !important;
-}
-
-[data-theme="glass"] .btn-ios-secondary,
-[data-theme="glass"] .btn-upload-trigger {
-    background: rgba(255, 255, 255, 0.12) !important;
-    color: #ffffff !important;
-    border-color: rgba(255, 255, 255, 0.25) !important;
-}
-
-[data-theme="glass"] .btn-ios-secondary:hover,
-[data-theme="glass"] .btn-upload-trigger:hover {
-    background: rgba(255, 255, 255, 0.22) !important;
-    color: #ffffff !important;
-    border-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-/* Notification Toast Feedback */
+/* Toast Notification Feedback */
 .toast-notification {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    background-color: var(--accent-brown);
+    background-color: var(--accent-brown, #5d3a1a);
     color: #ffffff;
     padding: 0.85rem 1.5rem;
-    border-radius: 14px;
+    border-radius: 12px;
     font-weight: 700;
     font-size: 0.875rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
@@ -565,20 +219,98 @@ input:checked + .switch-slider:before {
     transform: translateY(0);
 }
 
-/* Responsive Media Queries for Settings */
-@media (max-width: 1024px) {
-    .settings-glass-grid {
+/* ==========================================================================
+   DARK THEME OVERRIDES
+   ========================================================================== */
+
+
+[data-theme="dark"] .logo-upload-box {
+    background-color: #1a1a1c;
+    border-color: #333336;
+}
+
+[data-theme="dark"] .logo-preview-img {
+    background-color: #242426;
+    border-color: #333336;
+    color: #f97316;
+}
+
+[data-theme="dark"] .ios-segmented-control {
+    background-color: #242426;
+    border-color: #333336;
+}
+
+[data-theme="dark"] .segmented-option {
+    color: #a1a1aa;
+}
+
+[data-theme="dark"] .segmented-option.active {
+    background-color: #1c1c1e;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .ios-switch-row {
+    border-bottom-color: #2e2e32;
+}
+
+[data-theme="dark"] .switch-slider {
+    background-color: #3f3f46;
+}
+
+/* ==========================================================================
+   GLASS THEME OVERRIDES
+   ========================================================================== */
+
+
+[data-theme="glass"] .logo-upload-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="glass"] .logo-preview-img {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
+[data-theme="glass"] .ios-segmented-control {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="glass"] .segmented-option {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="glass"] .segmented-option.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+[data-theme="glass"] .ios-switch-row {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   RESPONSIVE MEDIA QUERIES
+   ========================================================================== */
+@media (max-width: 991px) {
+    .settings-primary-grid,
+    .settings-secondary-grid {
         grid-template-columns: 1fr;
     }
+
+
 }
 
 @media (max-width: 640px) {
-    .settings-glass-card {
-        padding: 1.25rem;
-        border-radius: 18px;
+    .settings-header-wrapper {
+        margin-bottom: 1rem;
     }
-    
-    .card-title-bar {
-        gap: 0.65rem;
+
+    .logo-upload-box {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
     }
 }

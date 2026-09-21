@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'User & Staff Management - Bakery Management System')
+@section('title', 'Staff & Accounts - Bakery Management System')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/users.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/users.css') }}?v={{ @filemtime(public_path('css/users.css')) ?: '1.0' }}">
 @endpush
 
 @section('content')
-<x-page-header title="User & Staff Management" :subtitle="__('messages.users_management_subtitle')">
+<x-page-header title="Staff & Accounts" :subtitle="__('messages.users_management_subtitle')">
     <x-slot:actions>
         <x-button variant="primary" id="btn_open_create_user_modal" class="btn-user-primary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span data-lang-key="create_user">{{ __('messages.create_user') }}</span>
+            <span data-lang-key="add_staff">{{ __('messages.add_staff') }}</span>
         </x-button>
     </x-slot:actions>
 </x-page-header>
@@ -43,19 +43,19 @@
 <div class="hr-nav-tabs">
     <a href="{{ route('admin.users.index') }}" class="hr-nav-tab active">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <span data-lang-key="users_management">{{ __('messages.users_management') }}</span>
-    </a>
-    <a href="{{ route('admin.hr.salaries') }}" class="hr-nav-tab">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        <span data-lang-key="salary_management">{{ __('messages.salary_management') }}</span>
+        <span data-lang-key="tab_staff_accounts">{{ __('messages.tab_staff_accounts') }}</span>
     </a>
     <a href="{{ route('admin.hr.attendance') }}" class="hr-nav-tab">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span data-lang-key="attendance_management">{{ __('messages.attendance_management') }}</span>
+        <span data-lang-key="tab_attendance">{{ __('messages.tab_attendance') }}</span>
     </a>
     <a href="{{ route('admin.hr.schedules') }}" class="hr-nav-tab">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span data-lang-key="work_schedules">{{ __('messages.work_schedules') }}</span>
+        <span data-lang-key="tab_schedules">{{ __('messages.tab_schedules') }}</span>
+    </a>
+    <a href="{{ route('admin.hr.salaries') }}" class="hr-nav-tab">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span data-lang-key="tab_salaries">{{ __('messages.tab_salaries') }}</span>
     </a>
 </div>
 
@@ -106,7 +106,7 @@
 <div class="user-toolbar">
     <form action="{{ route('admin.users.index') }}" method="GET" class="user-search-form">
         <div class="user-search-input-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input
                 type="text"
                 name="search"
@@ -133,21 +133,21 @@
         </select>
 
         @if(request()->hasAny(['search', 'role', 'status']))
-            <a href="{{ route('admin.users.index') }}" style="font-size: 0.85rem; font-weight: 700; color: #ef4444; text-decoration: none; padding: 0.5rem;">Clear Filters</a>
+            <a href="{{ route('admin.users.index') }}" class="user-clear-filters">Clear Filters</a>
         @endif
     </form>
 </div>
 
 <!-- Users Table Card -->
 <x-card class="users-card">
-    <div style="overflow-x: auto;">
+    <div class="users-table-wrapper">
         <table class="users-table" id="users_table">
             <thead>
                 <tr>
-                    <th>Staff Member</th>
-                    <th>Contact Info</th>
+                    <th>Staff</th>
+                    <th>Contact</th>
                     <th>Role</th>
-                    <th>Account Status</th>
+                    <th>Status</th>
                     <th>Last Active</th>
                     <th style="text-align: right;">Actions</th>
                 </tr>
@@ -157,7 +157,6 @@
                     @php
                         $initials = strtoupper(substr($user->name, 0, 2));
                         $roleClass = 'role-' . strtolower($user->role);
-                        $statusClass = 'status-' . strtolower($user->status);
                     @endphp
                     <tr id="user_row_{{ $user->id }}">
                         <td>
@@ -167,10 +166,10 @@
                                     <div class="user-name">
                                         {{ $user->name }}
                                         @if($user->id === auth()->id())
-                                            <span style="font-size: 0.675rem; background: rgba(86, 48, 32, 0.1); color: #563020; padding: 0.15rem 0.45rem; border-radius: 9999px; font-weight: 800; margin-left: 0.35rem;">YOU</span>
+                                            <span class="user-tag-you">YOU</span>
                                         @endif
                                         @if($user->must_change_password)
-                                            <span style="font-size: 0.675rem; background: rgba(217, 119, 6, 0.12); color: #d97706; padding: 0.15rem 0.45rem; border-radius: 9999px; font-weight: 800; margin-left: 0.35rem;" title="Temporary Password Pending Change">TEMP PWD</span>
+                                            <span class="user-tag-temp" title="Temporary Password Pending Change">TEMP PWD</span>
                                         @endif
                                     </div>
                                     <div class="user-username">{{ '@' . $user->username }}</div>
@@ -178,8 +177,8 @@
                             </div>
                         </td>
                         <td>
-                            <div style="font-weight: 700; font-size: 0.875rem;">{{ $user->email }}</div>
-                            <div style="font-size: 0.775rem; color: var(--user-muted);">{{ $user->phone ?? '—' }}</div>
+                            <div class="user-email">{{ $user->email }}</div>
+                            <div class="user-phone">{{ $user->phone ?? '—' }}</div>
                         </td>
                         <td>
                             <span class="role-pill {{ $roleClass }}">
@@ -192,30 +191,31 @@
                             </x-badge>
                         </td>
                         <td>
-                            <div style="font-size: 0.85rem; font-weight: 600;">
+                            <div class="user-last-login">
                                 {{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}
                             </div>
-                            <div style="font-size: 0.75rem; color: var(--user-muted);">
+                            <div class="user-joined-date">
                                 Joined {{ $user->created_at ? $user->created_at->format('M d, Y') : '—' }}
                             </div>
                         </td>
                         <td>
-                            <div class="user-action-btns" style="justify-content: flex-end;">
+                            <div class="user-action-group">
                                 <!-- View Details & Audit Button -->
                                 <button
                                     type="button"
-                                    class="btn-icon-action btn-view-user"
-                                    title="View Profile & Audit Trail"
+                                    class="btn-action-btn btn-view-user"
+                                    title="View Profile & Activity"
                                     data-id="{{ $user->id }}"
                                 >
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <span>View</span>
                                 </button>
 
                                 <!-- Edit Profile Button -->
                                 <button
                                     type="button"
-                                    class="btn-icon-action btn-edit-user"
-                                    title="Edit User Profile"
+                                    class="btn-action-btn btn-edit-user"
+                                    title="Edit Staff Member"
                                     data-id="{{ $user->id }}"
                                     data-name="{{ $user->name }}"
                                     data-username="{{ $user->username }}"
@@ -225,55 +225,78 @@
                                     data-status="{{ $user->status }}"
                                     data-mustchange="{{ $user->must_change_password ? '1' : '0' }}"
                                 >
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                                    <span>Edit</span>
                                 </button>
 
-                                <!-- Manage Custom Permissions Button -->
-                                <button
-                                    type="button"
-                                    class="btn-icon-action btn-permissions-user"
-                                    title="Custom Permissions Override"
-                                    data-id="{{ $user->id }}"
-                                    data-name="{{ $user->name }}"
-                                    data-role="{{ $user->role }}"
-                                >
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                </button>
-
-                                <!-- Reset Password Button -->
-                                <button
-                                    type="button"
-                                    class="btn-icon-action warn btn-reset-pwd-user"
-                                    title="Reset Password & Issue Temporary Password"
-                                    data-id="{{ $user->id }}"
-                                    data-name="{{ $user->name }}"
-                                    data-username="{{ $user->username }}"
-                                >
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-                                </button>
-
-                                <!-- Status Quick Toggle Dropdown / Modal Trigger -->
-                                @if($user->id !== auth()->id())
+                                <!-- More Actions Dropdown -->
+                                <div class="user-more-wrapper">
                                     <button
                                         type="button"
-                                        class="btn-icon-action btn-status-user"
-                                        title="Change Status (Active / Inactive / Suspended)"
-                                        data-id="{{ $user->id }}"
-                                        data-name="{{ $user->name }}"
-                                        data-status="{{ $user->status }}"
+                                        class="btn-action-btn btn-more-toggle"
+                                        aria-haspopup="true"
+                                        aria-expanded="false"
+                                        title="More actions"
                                     >
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/></svg>
+                                        <span>More</span>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
                                     </button>
 
-                                    <!-- Delete Button (checks historical record protection) -->
-                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete user \'{{ $user->username }}\'? If they have sales or order records, consider deactivating them instead.');" style="display: inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-icon-action delete" title="Delete User">
-                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    <div class="user-more-menu" role="menu">
+                                        <!-- Permissions -->
+                                        <button
+                                            type="button"
+                                            class="dropdown-item btn-permissions-user"
+                                            data-id="{{ $user->id }}"
+                                            data-name="{{ $user->name }}"
+                                            data-role="{{ $user->role }}"
+                                            role="menuitem"
+                                        >
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                            <span>Permissions</span>
                                         </button>
-                                    </form>
-                                @endif
+
+                                        <!-- Change Password -->
+                                        <button
+                                            type="button"
+                                            class="dropdown-item btn-reset-pwd-user"
+                                            data-id="{{ $user->id }}"
+                                            data-name="{{ $user->name }}"
+                                            data-username="{{ $user->username }}"
+                                            role="menuitem"
+                                        >
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                                            <span>Change Password</span>
+                                        </button>
+
+                                        @if($user->id !== auth()->id())
+                                            <!-- Suspend / Activate Status -->
+                                            <button
+                                                type="button"
+                                                class="dropdown-item btn-status-user"
+                                                data-id="{{ $user->id }}"
+                                                data-name="{{ $user->name }}"
+                                                data-status="{{ $user->status }}"
+                                                role="menuitem"
+                                            >
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/></svg>
+                                                <span>{{ $user->status === 'active' ? 'Suspend Account' : 'Activate Account' }}</span>
+                                            </button>
+
+                                            <div class="dropdown-divider"></div>
+
+                                            <!-- Delete Button -->
+                                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="delete-user-form" onsubmit="return confirm('Are you sure you want to delete staff account \'{{ $user->username }}\'? If they have sales or order records, consider deactivating them instead.');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item dropdown-item-danger delete" role="menuitem">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                                    <span>Delete Account</span>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -648,6 +671,66 @@ document.addEventListener('DOMContentLoaded', function() {
     function closeModal(modal) {
         if (modal) modal.classList.remove('is-active');
     }
+
+    // 0. Actions "More" Dropdown Toggle
+    document.querySelectorAll('.btn-more-toggle').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const wrapper = this.closest('.user-more-wrapper');
+            const isOpen = wrapper.classList.contains('is-open');
+
+            // Close other open dropdowns
+            document.querySelectorAll('.user-more-wrapper.is-open').forEach(w => {
+                if (w !== wrapper) {
+                    w.classList.remove('is-open');
+                    const t = w.querySelector('.btn-more-toggle');
+                    if (t) t.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            if (isOpen) {
+                wrapper.classList.remove('is-open');
+                this.setAttribute('aria-expanded', 'false');
+            } else {
+                wrapper.classList.add('is-open');
+                this.setAttribute('aria-expanded', 'true');
+            }
+        });
+    });
+
+    // Close dropdown when clicking an action item
+    document.querySelectorAll('.user-more-menu .dropdown-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const wrapper = this.closest('.user-more-wrapper');
+            if (wrapper) {
+                wrapper.classList.remove('is-open');
+                const t = wrapper.querySelector('.btn-more-toggle');
+                if (t) t.setAttribute('aria-expanded', 'false');
+            }
+        });
+    });
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.user-more-wrapper')) {
+            document.querySelectorAll('.user-more-wrapper.is-open').forEach(w => {
+                w.classList.remove('is-open');
+                const t = w.querySelector('.btn-more-toggle');
+                if (t) t.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.user-more-wrapper.is-open').forEach(w => {
+                w.classList.remove('is-open');
+                const t = w.querySelector('.btn-more-toggle');
+                if (t) t.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
 
     // 1. Create User Modal
     const createModal = document.getElementById('create_user_modal');

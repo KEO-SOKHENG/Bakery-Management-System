@@ -8,10 +8,10 @@
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color, #eee9e0);">
             <div class="card-title-group">
                 @if($title)
-                    <h3 class="card-title" style="font-size: 1.1rem; font-weight: 700; color: var(--text-title, #29150d); margin: 0;">{{ $title }}</h3>
+                    <h3 class="card-title" style="font-size: 1.1rem; font-weight: 700; color: var(--text-title, #29150d); margin: 0;">{!! $title !!}</h3>
                 @endif
                 @if($subtitle)
-                    <p class="card-subtitle" style="font-size: 0.8rem; color: var(--text-secondary, #6b7280); margin-top: 0.2rem;">{{ $subtitle }}</p>
+                    <p class="card-subtitle" style="font-size: 0.8rem; color: var(--text-secondary, #6b7280); margin-top: 0.2rem;">{!! $subtitle !!}</p>
                 @endif
             </div>
             @if(isset($actions))
