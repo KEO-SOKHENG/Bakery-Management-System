@@ -621,4 +621,57 @@ class NotificationManagementTest extends TestCase
         $this->assertEquals('ការផ្សព្វផ្សាយ', __('messages.promotion'));
         $this->assertEquals('កំណត់ថាមិនទាន់អាន', __('messages.mark_as_unread'));
     }
+
+    /**
+     * Test bulk notification actions: bulkRead, bulkUnread, bulkDelete.
+     */
+    public function test_bulk_notification_operations(): void
+    {
+        $n1 = Notification::create([
+            'user_id'  => $this->admin->id,
+            'type'     => 'order',
+            'title'    => 'Bulk Order 1',
+            'message'  => 'Test order 1',
+            'severity' => 'info',
+        ]);
+
+        $n2 = Notification::create([
+            'user_id'  => $this->admin->id,
+            'type'     => 'production',
+            'title'    => 'Bulk Prod 2',
+            'message'  => 'Test prod 2',
+            'severity' => 'warning',
+        ]);
+
+        $this->assertTrue(!$n1->isRead());
+        $this->assertTrue(!$n2->isRead());
+
+        // 1. Bulk Read
+        $responseRead = $this->actingAs($this->admin)->postJson(route('notifications.bulkRead'), [
+            'ids' => [$n1->id, $n2->id],
+        ]);
+        $responseRead->assertStatus(200);
+        $responseRead->assertJson(['success' => true]);
+        $this->assertTrue($n1->fresh()->isRead());
+        $this->assertTrue($n2->fresh()->isRead());
+
+        // 2. Bulk Unread
+        $responseUnread = $this->actingAs($this->admin)->postJson(route('notifications.bulkUnread'), [
+            'ids' => [$n1->id],
+        ]);
+        $responseUnread->assertStatus(200);
+        $responseUnread->assertJson(['success' => true]);
+        $this->assertTrue(!$n1->fresh()->isRead());
+        $this->assertTrue($n2->fresh()->isRead());
+
+        // 3. Bulk Delete
+        $responseDelete = $this->actingAs($this->admin)->postJson(route('notifications.bulkDelete'), [
+            'ids' => [$n1->id, $n2->id],
+        ]);
+        $responseDelete->assertStatus(200);
+        $responseDelete->assertJson(['success' => true]);
+        $this->assertDatabaseMissing('notifications', ['id' => $n1->id]);
+        $this->assertDatabaseMissing('notifications', ['id' => $n2->id]);
+    }
 }
+

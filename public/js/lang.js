@@ -282,6 +282,12 @@
             "broadcast": "Broadcast",
             "severity": "Severity",
             "refresh": "Refresh",
+            "select_all": "Select All",
+            "selected": "selected",
+            "mark_selected_read": "Mark as Read",
+            "mark_selected_unread": "Mark as Unread",
+            "delete_selected": "Delete Selected",
+            "clear_selection": "Clear Selection",
 
             // System Settings Module
             "settings": "Settings",
@@ -622,6 +628,12 @@
             "broadcast": "ផ្សព្វផ្សាយ",
             "severity": "កម្រិតធ្ងន់ធ្ងរ",
             "refresh": "ផ្ទុកឡើងវិញ",
+            "select_all": "ជ្រើសរើសទាំងអស់",
+            "selected": "បានជ្រើសរើស",
+            "mark_selected_read": "កំណត់ថាបានអាន",
+            "mark_selected_unread": "កំណត់ថាមិនទាន់អាន",
+            "delete_selected": "លុបដែលបានជ្រើស",
+            "clear_selection": "សម្អាតការជ្រើសរើស",
 
             // System Settings Module
             "settings": "ការកំណត់",

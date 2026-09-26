@@ -202,6 +202,138 @@ body {
     background: #5D4037 !important;
 }
 
+/* ==========================================================================
+   UNIFIED STAT & KPI CARDS SYSTEM (GLOBAL FOR ALL PAGES)
+   ========================================================================== */
+.stats-grid,
+.orders-metrics-grid,
+.customer-stats-grid,
+.user-stats-grid,
+.prod-stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    gap: 1.15rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.stat-card,
+.order-metric-card,
+.customer-stat-card,
+.user-stat-card,
+.prod-stat-card {
+    background: #ffffff !important;
+    border-radius: 20px !important;
+    border: 1px solid var(--border-color, #e4e4e7) !important;
+    padding: 1.25rem 1.35rem !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 1.15rem !important;
+    min-width: 0 !important;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease !important;
+}
+
+.stat-card:hover,
+.order-metric-card:hover,
+.customer-stat-card:hover,
+.user-stat-card:hover,
+.prod-stat-card:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08) !important;
+    border-color: rgba(217, 119, 6, 0.3) !important;
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .order-metric-card,
+[data-theme="dark"] .customer-stat-card,
+[data-theme="dark"] .user-stat-card,
+[data-theme="dark"] .prod-stat-card {
+    background: #18181b !important;
+    border-color: #27272a !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="glass"] .stat-card,
+[data-theme="glass"] .order-metric-card,
+[data-theme="glass"] .customer-stat-card,
+[data-theme="glass"] .user-stat-card,
+[data-theme="glass"] .prod-stat-card {
+    background: rgba(255, 255, 255, 0.72) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05) !important;
+    backdrop-filter: blur(16px) !important;
+}
+
+.stat-icon-box,
+.order-metric-icon,
+.prod-stat-icon,
+.stat-icon-wrapper {
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 50px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+    transition: transform 0.25s ease !important;
+}
+
+.stat-icon-box svg,
+.order-metric-icon svg,
+.prod-stat-icon svg,
+.stat-icon-wrapper svg {
+    width: 24px !important;
+    height: 24px !important;
+    stroke-width: 2.2 !important;
+}
+
+.stat-info,
+.order-metric-info,
+.prod-stat-info,
+.stat-content {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+}
+
+.stat-label,
+.order-metric-label,
+.prod-stat-lbl {
+    font-size: 0.775rem !important;
+    font-weight: 700 !important;
+    color: var(--text-muted, #71717a) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    line-height: 1.25 !important;
+    margin-bottom: 0.15rem !important;
+}
+
+.stat-value,
+.order-metric-value,
+.prod-stat-val,
+.stat-number {
+    font-size: 1.625rem !important;
+    font-weight: 800 !important;
+    color: var(--text-title, #18181b) !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.02em !important;
+    white-space: nowrap !important;
+}
+
+[data-theme="dark"] .stat-value,
+[data-theme="dark"] .order-metric-value,
+[data-theme="dark"] .prod-stat-val,
+[data-theme="dark"] .stat-number {
+    color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .order-metric-label,
+[data-theme="dark"] .prod-stat-lbl {
+    color: #a1a1aa !important;
+}
+
 /* Base Stat Icon Boxes */
 .stat-icon-box.orange { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); color: #d97706; }
 .stat-icon-box.green  { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); color: #16a34a; }

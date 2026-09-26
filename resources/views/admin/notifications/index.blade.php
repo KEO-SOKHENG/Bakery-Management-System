@@ -140,10 +140,20 @@
     <!-- Notification Feed -->
     <div class="notif-feed-card">
         <div class="notif-feed-header">
-            <span class="notif-feed-title" data-lang-key="notification_activity">Notification Activity</span>
-            <span style="font-size: 0.8rem; color: var(--notif-text-muted);">
-                Showing {{ $notifications->firstItem() ?? 0 }} - {{ $notifications->lastItem() ?? 0 }} of {{ $notifications->total() }}
-            </span>
+            <div class="notif-feed-header-left">
+                <label class="notif-select-all-label" title="Select all on this page">
+                    <input type="checkbox" id="select_all_checkbox" onchange="toggleSelectAll(this.checked);">
+                    <span class="custom-checkbox"></span>
+                    <span class="select-all-text" data-lang-key="select_all">{{ __('messages.select_all') ?? 'Select All' }}</span>
+                </label>
+                <span class="notif-feed-divider"></span>
+                <span class="notif-feed-title" data-lang-key="notification_activity">{{ __('messages.notification_activity') ?? 'Notification Activity' }}</span>
+            </div>
+            <div class="notif-feed-header-right">
+                <span class="notif-feed-count-badge">
+                    Showing {{ $notifications->firstItem() ?? 0 }} - {{ $notifications->lastItem() ?? 0 }} of {{ $notifications->total() }}
+                </span>
+            </div>
         </div>
 
         <div class="notif-feed-list" id="feed_container">
@@ -153,56 +163,85 @@
                     $sev = $notif->severity ?? 'info';
                     $typeClass = $notif->type ?? 'system';
                 @endphp
-                <div class="notif-feed-row {{ $isUnread ? 'unread' : '' }}" id="notif_row_{{ $notif->id }}" data-id="{{ $notif->id }}">
-                    <div class="notif-row-icon {{ $sev }}">
-                        @if($sev === 'danger' || $sev === 'critical')
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 1 2 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div class="notif-feed-row {{ $isUnread ? 'unread' : '' }}" 
+                     id="notif_row_{{ $notif->id }}" 
+                     data-id="{{ $notif->id }}"
+                     data-url="{{ $notif->action_url ?: '' }}"
+                     onclick="handleCardClick(event, {{ $notif->id }}, '{{ $notif->action_url ?: '' }}');">
+                    
+                    <!-- Multi-select Checkbox -->
+                    <label class="notif-check-label" onclick="event.stopPropagation();" title="Select for bulk action">
+                        <input type="checkbox" class="notif-row-checkbox" value="{{ $notif->id }}" onchange="handleRowSelect();">
+                        <span class="custom-checkbox"></span>
+                    </label>
+
+                    <!-- Category / Severity Icon Box -->
+                    <div class="notif-row-icon {{ $sev }} {{ $typeClass }}">
+                        @if($typeClass === 'production')
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="4"/></svg>
+                        @elseif($typeClass === 'order')
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        @elseif($sev === 'danger' || $sev === 'critical')
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 1 2 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                         @elseif($sev === 'warning')
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         @elseif($sev === 'success')
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                         @else
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                         @endif
                     </div>
 
+                    <!-- Notification Content (Middle) -->
                     <div class="notif-row-body">
                         <div class="notif-row-top">
-                            <div class="notif-row-title-area">
-                                <span class="notif-row-title">{{ $notif->title }}</span>
+                            <div class="notif-row-meta">
                                 <span class="notif-type-tag {{ $typeClass }}">{{ str_replace('_', ' ', $notif->type) }}</span>
+                                <span class="notif-row-time">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    {{ $notif->time_ago }}
+                                </span>
+                                @if($isUnread)
+                                    <span class="notif-unread-indicator">
+                                        <span class="unread-pulse"></span>
+                                        <span data-lang-key="unread">{{ __('messages.unread') ?? 'Unread' }}</span>
+                                    </span>
+                                @endif
                             </div>
-                            <span class="notif-row-time">{{ $notif->time_ago }}</span>
                         </div>
+
+                        <div class="notif-row-title">{{ $notif->title }}</div>
 
                         <div class="notif-row-desc">
                             {{ $notif->message }}
                         </div>
+                    </div>
 
-                        <div class="notif-row-actions">
-                            @if($notif->action_url)
-                                <a href="{{ $notif->action_url }}" class="btn-notif-link" onclick="markRowRead({{ $notif->id }});">
-                                    <span data-lang-key="view_details">View Details</span> &rarr;
-                                </a>
-                            @endif
+                    <!-- Right Side Actions Toolbar -->
+                    <div class="notif-row-actions" onclick="event.stopPropagation();">
+                        @if($notif->action_url)
+                            <a href="{{ $notif->action_url }}" class="btn-row-action btn-row-primary" onclick="markRowRead({{ $notif->id }});" title="View Details">
+                                <span data-lang-key="view_details">{{ __('messages.view_details') ?? 'View Details' }}</span>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                            </a>
+                        @endif
 
-                            @if($isUnread)
-                                <button type="button" class="btn-row-action" onclick="markRowRead({{ $notif->id }});" id="btn_read_{{ $notif->id }}">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                                    <span data-lang-key="mark_as_read">Mark as read</span>
-                                </button>
-                            @else
-                                <button type="button" class="btn-row-action" onclick="markRowUnread({{ $notif->id }});" id="btn_unread_{{ $notif->id }}">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                                    <span data-lang-key="mark_as_unread">Mark as unread</span>
-                                </button>
-                            @endif
-
-                            <button type="button" class="btn-row-action btn-row-delete" onclick="deleteNotification({{ $notif->id }});" title="Delete notification" id="btn_delete_{{ $notif->id }}">
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                                <span data-lang-key="delete">Delete</span>
+                        @if($isUnread)
+                            <button type="button" class="btn-row-action btn-row-toggle" onclick="markRowRead({{ $notif->id }});" id="btn_read_{{ $notif->id }}" title="Mark as read">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span class="btn-action-label" data-lang-key="mark_as_read">{{ __('messages.mark_as_read') ?? 'Mark as read' }}</span>
                             </button>
-                        </div>
+                        @else
+                            <button type="button" class="btn-row-action btn-row-toggle is-read" onclick="markRowUnread({{ $notif->id }});" id="btn_unread_{{ $notif->id }}" title="Mark as unread">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <span class="btn-action-label" data-lang-key="mark_as_unread">{{ __('messages.mark_as_unread') ?? 'Mark as unread' }}</span>
+                            </button>
+                        @endif
+
+                        <button type="button" class="btn-row-action btn-row-delete" onclick="deleteNotification({{ $notif->id }});" title="Delete notification" id="btn_delete_{{ $notif->id }}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            <span class="btn-action-label" data-lang-key="delete">{{ __('messages.delete') ?? 'Delete' }}</span>
+                        </button>
                     </div>
                 </div>
             @empty
@@ -210,10 +249,36 @@
                     <div class="notif-empty-icon">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
                     </div>
-                    <h3 class="notif-empty-title" data-lang-key="no_notifications_found">No Notifications Found</h3>
-                    <p class="notif-empty-desc" data-lang-key="all_caught_up">You're all caught up! There are currently no notifications matching this criteria.</p>
+                    <h3 class="notif-empty-title" data-lang-key="no_notifications_found">{{ __('messages.no_notifications_found') ?? 'No Notifications Found' }}</h3>
+                    <p class="notif-empty-desc" data-lang-key="all_caught_up">{{ __('messages.all_caught_up') ?? "You're all caught up! There are currently no notifications matching this criteria." }}</p>
                 </div>
             @endforelse
+        </div>
+
+        <!-- Sticky / Floating Bulk Action Toolbar -->
+        <div class="notif-bulk-toolbar" id="notif_bulk_toolbar" style="display: none;">
+            <div class="bulk-toolbar-left">
+                <span class="bulk-selected-pill">
+                    <span id="bulk_selected_count">0</span> <span data-lang-key="selected">{{ __('messages.selected') ?? 'selected' }}</span>
+                </span>
+            </div>
+            <div class="bulk-toolbar-actions">
+                <button type="button" class="bulk-btn bulk-btn-read" onclick="bulkMarkRead();">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span data-lang-key="mark_selected_read">{{ __('messages.mark_selected_read') ?? 'Mark as Read' }}</span>
+                </button>
+                <button type="button" class="bulk-btn bulk-btn-unread" onclick="bulkMarkUnread();">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span data-lang-key="mark_selected_unread">{{ __('messages.mark_selected_unread') ?? 'Mark as Unread' }}</span>
+                </button>
+                <button type="button" class="bulk-btn bulk-btn-delete" onclick="bulkDelete();">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    <span data-lang-key="delete_selected">{{ __('messages.delete_selected') ?? 'Delete Selected' }}</span>
+                </button>
+                <button type="button" class="bulk-btn bulk-btn-clear" onclick="clearSelection();" title="Clear selection">
+                    &times; <span data-lang-key="clear_selection">{{ __('messages.clear_selection') ?? 'Clear' }}</span>
+                </button>
+            </div>
         </div>
 
         @if($notifications->hasPages())
@@ -295,6 +360,37 @@
         if (modal) modal.classList.remove('is-active');
     }
 
+    function handleCardClick(event, id, url) {
+        if (event.target.closest('button') || event.target.closest('a') || event.target.closest('label') || event.target.closest('input')) {
+            return;
+        }
+        if (url && url !== '#' && url !== 'javascript:void(0)') {
+            markRowRead(id);
+            window.location.href = url;
+        }
+    }
+
+    function syncBadges(unreadCount) {
+        if (unreadCount === undefined) return;
+        const statBadge = document.getElementById('stat_unread_count');
+        if (statBadge) statBadge.textContent = unreadCount;
+        
+        const headerBadge = document.getElementById('notification_badge');
+        if (headerBadge) {
+            if (unreadCount > 0) {
+                headerBadge.textContent = unreadCount;
+                headerBadge.style.display = 'inline-flex';
+            } else {
+                headerBadge.style.display = 'none';
+            }
+        }
+        
+        const markAllBtn = document.getElementById('page_mark_all_read');
+        if (markAllBtn && unreadCount === 0) {
+            markAllBtn.style.display = 'none';
+        }
+    }
+
     function markRowRead(id) {
         fetch(`/notifications/${id}/read`, {
             method: 'POST',
@@ -307,28 +403,18 @@
             const row = document.getElementById(`notif_row_${id}`);
             if (row) {
                 row.classList.remove('unread');
+                const ind = row.querySelector('.notif-unread-indicator');
+                if (ind) ind.remove();
+                
                 const readBtn = document.getElementById(`btn_read_${id}`);
                 if (readBtn) {
-                    readBtn.outerHTML = `<button type="button" class="btn-row-action" onclick="markRowUnread(${id});" id="btn_unread_${id}">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                        <span data-lang-key="mark_as_unread">Mark as unread</span>
+                    readBtn.outerHTML = `<button type="button" class="btn-row-action btn-row-toggle is-read" onclick="markRowUnread(${id});" id="btn_unread_${id}" title="Mark as unread">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span class="btn-action-label" data-lang-key="mark_as_unread">Mark as unread</span>
                     </button>`;
                 }
             }
-            // Update unread badges
-            const unreadBadge = document.getElementById('stat_unread_count');
-            if (unreadBadge && data.unread_count !== undefined) {
-                unreadBadge.textContent = data.unread_count;
-            }
-            const headerBadge = document.getElementById('notification_badge');
-            if (headerBadge) {
-                if (data.unread_count > 0) {
-                    headerBadge.textContent = data.unread_count;
-                    headerBadge.style.display = 'inline-flex';
-                } else {
-                    headerBadge.style.display = 'none';
-                }
-            }
+            syncBadges(data.unread_count);
         }).catch(err => console.error(err));
     }
 
@@ -344,68 +430,214 @@
             const row = document.getElementById(`notif_row_${id}`);
             if (row) {
                 row.classList.add('unread');
+                const meta = row.querySelector('.notif-row-meta');
+                if (meta && !meta.querySelector('.notif-unread-indicator')) {
+                    const ind = document.createElement('span');
+                    ind.className = 'notif-unread-indicator';
+                    ind.innerHTML = '<span class="unread-pulse"></span> <span data-lang-key="unread">Unread</span>';
+                    meta.appendChild(ind);
+                }
+                
                 const unreadBtn = document.getElementById(`btn_unread_${id}`);
                 if (unreadBtn) {
-                    unreadBtn.outerHTML = `<button type="button" class="btn-row-action" onclick="markRowRead(${id});" id="btn_read_${id}">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span data-lang-key="mark_as_read">Mark as read</span>
+                    unreadBtn.outerHTML = `<button type="button" class="btn-row-action btn-row-toggle" onclick="markRowRead(${id});" id="btn_read_${id}" title="Mark as read">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span class="btn-action-label" data-lang-key="mark_as_read">Mark as read</span>
                     </button>`;
                 }
             }
-            // Update unread badges
-            const unreadBadge = document.getElementById('stat_unread_count');
-            if (unreadBadge && data.unread_count !== undefined) {
-                unreadBadge.textContent = data.unread_count;
-            }
-            const headerBadge = document.getElementById('notification_badge');
-            if (headerBadge) {
-                if (data.unread_count > 0) {
-                    headerBadge.textContent = data.unread_count;
-                    headerBadge.style.display = 'inline-flex';
-                } else {
-                    headerBadge.style.display = 'none';
-                }
-            }
+            syncBadges(data.unread_count);
         }).catch(err => console.error(err));
     }
 
     function deleteNotification(id) {
-        window.showConfirmDialog({
-            title: 'Dismiss Notification',
-            message: 'Are you sure you want to dismiss this notification?',
-            confirmText: 'Dismiss',
-            isDanger: true,
-            onConfirm: function() {
-                fetch(`/notifications/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken || '',
-                        'Accept': 'application/json'
+        const executeDelete = () => {
+            fetch(`/notifications/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || '',
+                    'Accept': 'application/json'
+                }
+            }).then(res => res.json()).then(data => {
+                const row = document.getElementById(`notif_row_${id}`);
+                if (row) {
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateY(-8px)';
+                    setTimeout(() => {
+                        row.remove();
+                        handleRowSelect();
+                    }, 220);
+                }
+                syncBadges(data.unread_count);
+            }).catch(err => console.error(err));
+        };
+
+        if (typeof window.showConfirmDialog === 'function') {
+            window.showConfirmDialog({
+                title: 'Dismiss Notification',
+                message: 'Are you sure you want to dismiss this notification?',
+                confirmText: 'Dismiss',
+                isDanger: true,
+                onConfirm: executeDelete
+            });
+        } else if (confirm('Are you sure you want to dismiss this notification?')) {
+            executeDelete();
+        }
+    }
+
+    // Bulk selection handlers
+    function toggleSelectAll(checked) {
+        document.querySelectorAll('.notif-row-checkbox').forEach(cb => {
+            cb.checked = checked;
+        });
+        updateBulkToolbar();
+    }
+
+    function handleRowSelect() {
+        const allBoxes = document.querySelectorAll('.notif-row-checkbox');
+        const checkedBoxes = document.querySelectorAll('.notif-row-checkbox:checked');
+        const selectAllBox = document.getElementById('select_all_checkbox');
+        if (selectAllBox && allBoxes.length > 0) {
+            selectAllBox.checked = (allBoxes.length === checkedBoxes.length);
+        }
+        updateBulkToolbar();
+    }
+
+    function updateBulkToolbar() {
+        const checkedBoxes = document.querySelectorAll('.notif-row-checkbox:checked');
+        const toolbar = document.getElementById('notif_bulk_toolbar');
+        const countSpan = document.getElementById('bulk_selected_count');
+        if (toolbar) {
+            if (checkedBoxes.length > 0) {
+                toolbar.style.display = 'flex';
+                if (countSpan) countSpan.textContent = checkedBoxes.length;
+            } else {
+                toolbar.style.display = 'none';
+            }
+        }
+    }
+
+    function clearSelection() {
+        document.querySelectorAll('.notif-row-checkbox').forEach(cb => cb.checked = false);
+        const selectAllBox = document.getElementById('select_all_checkbox');
+        if (selectAllBox) selectAllBox.checked = false;
+        updateBulkToolbar();
+    }
+
+    function getSelectedIds() {
+        return Array.from(document.querySelectorAll('.notif-row-checkbox:checked')).map(cb => cb.value);
+    }
+
+    function bulkMarkRead() {
+        const ids = getSelectedIds();
+        if (ids.length === 0) return;
+
+        fetch('{{ route('notifications.bulkRead') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken || '',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ ids: ids })
+        }).then(res => res.json()).then(data => {
+            ids.forEach(id => {
+                const row = document.getElementById(`notif_row_${id}`);
+                if (row) {
+                    row.classList.remove('unread');
+                    const ind = row.querySelector('.notif-unread-indicator');
+                    if (ind) ind.remove();
+                    const readBtn = document.getElementById(`btn_read_${id}`);
+                    if (readBtn) {
+                        readBtn.outerHTML = `<button type="button" class="btn-row-action btn-row-toggle is-read" onclick="markRowUnread(${id});" id="btn_unread_${id}" title="Mark as unread">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <span class="btn-action-label" data-lang-key="mark_as_unread">Mark as unread</span>
+                        </button>`;
                     }
-                }).then(res => res.json()).then(data => {
+                }
+            });
+            syncBadges(data.unread_count);
+            clearSelection();
+        }).catch(err => console.error(err));
+    }
+
+    function bulkMarkUnread() {
+        const ids = getSelectedIds();
+        if (ids.length === 0) return;
+
+        fetch('{{ route('notifications.bulkUnread') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken || '',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ ids: ids })
+        }).then(res => res.json()).then(data => {
+            ids.forEach(id => {
+                const row = document.getElementById(`notif_row_${id}`);
+                if (row) {
+                    row.classList.add('unread');
+                    const meta = row.querySelector('.notif-row-meta');
+                    if (meta && !meta.querySelector('.notif-unread-indicator')) {
+                        const ind = document.createElement('span');
+                        ind.className = 'notif-unread-indicator';
+                        ind.innerHTML = '<span class="unread-pulse"></span> <span data-lang-key="unread">Unread</span>';
+                        meta.appendChild(ind);
+                    }
+                    const unreadBtn = document.getElementById(`btn_unread_${id}`);
+                    if (unreadBtn) {
+                        unreadBtn.outerHTML = `<button type="button" class="btn-row-action btn-row-toggle" onclick="markRowRead(${id});" id="btn_read_${id}" title="Mark as read">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span class="btn-action-label" data-lang-key="mark_as_read">Mark as read</span>
+                        </button>`;
+                    }
+                }
+            });
+            syncBadges(data.unread_count);
+            clearSelection();
+        }).catch(err => console.error(err));
+    }
+
+    function bulkDelete() {
+        const ids = getSelectedIds();
+        if (ids.length === 0) return;
+
+        const executeBulkDelete = () => {
+            fetch('{{ route('notifications.bulkDelete') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || '',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ ids: ids })
+            }).then(res => res.json()).then(data => {
+                ids.forEach(id => {
                     const row = document.getElementById(`notif_row_${id}`);
                     if (row) {
                         row.style.opacity = '0';
                         row.style.transform = 'translateY(-8px)';
-                        setTimeout(() => row.remove(), 250);
+                        setTimeout(() => row.remove(), 220);
                     }
-                    if (data.unread_count !== undefined) {
-                        const unreadBadge = document.getElementById('stat_unread_count');
-                        if (unreadBadge) unreadBadge.textContent = data.unread_count;
-                        const headerBadge = document.getElementById('notification_badge');
-                        if (headerBadge) {
-                            if (data.unread_count > 0) {
-                                headerBadge.textContent = data.unread_count;
-                                headerBadge.style.display = 'inline-flex';
-                            } else {
-                                headerBadge.style.display = 'none';
-                            }
-                        }
-                    }
-                }).catch(err => console.error(err));
-            }
-        });
+                });
+                syncBadges(data.unread_count);
+                clearSelection();
+            }).catch(err => console.error(err));
+        };
+
+        if (typeof window.showConfirmDialog === 'function') {
+            window.showConfirmDialog({
+                title: 'Dismiss Notifications',
+                message: `Are you sure you want to dismiss ${ids.length} selected notifications?`,
+                confirmText: 'Dismiss All',
+                isDanger: true,
+                onConfirm: executeBulkDelete
+            });
+        } else if (confirm(`Are you sure you want to dismiss ${ids.length} selected notifications?`)) {
+            executeBulkDelete();
+        }
     }
 
     const markAllBtn = document.getElementById('page_mark_all_read');
@@ -421,19 +653,18 @@
             }).then(res => res.json()).then(data => {
                 document.querySelectorAll('.notif-feed-row.unread').forEach(row => {
                     row.classList.remove('unread');
+                    const ind = row.querySelector('.notif-unread-indicator');
+                    if (ind) ind.remove();
                     const id = row.dataset.id;
                     const readBtn = document.getElementById(`btn_read_${id}`);
                     if (readBtn) {
-                        readBtn.outerHTML = `<button type="button" class="btn-row-action" onclick="markRowUnread(${id});" id="btn_unread_${id}">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                            <span data-lang-key="mark_as_unread">Mark as unread</span>
+                        readBtn.outerHTML = `<button type="button" class="btn-row-action btn-row-toggle is-read" onclick="markRowUnread(${id});" id="btn_unread_${id}" title="Mark as unread">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <span class="btn-action-label" data-lang-key="mark_as_unread">Mark as unread</span>
                         </button>`;
                     }
                 });
-                const statBadge = document.getElementById('stat_unread_count');
-                if (statBadge) statBadge.textContent = '0';
-                const headerBadge = document.getElementById('notification_badge');
-                if (headerBadge) headerBadge.style.display = 'none';
+                syncBadges(0);
                 markAllBtn.style.display = 'none';
             }).catch(err => console.error(err));
         });

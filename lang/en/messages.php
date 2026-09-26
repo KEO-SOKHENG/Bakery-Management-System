@@ -347,6 +347,12 @@ return [
     'promotion_message' => 'Announcement Message',
     'promotions' => 'Promotions',
     'purchase_orders' => 'Purchase Orders',
+    'select_all' => 'Select All',
+    'selected' => 'selected',
+    'mark_selected_read' => 'Mark as Read',
+    'mark_selected_unread' => 'Mark as Unread',
+    'delete_selected' => 'Delete Selected',
+    'clear_selection' => 'Clear Selection',
 
     // Users & Staff Management Module
     'users_staff' => 'Staff & Accounts',

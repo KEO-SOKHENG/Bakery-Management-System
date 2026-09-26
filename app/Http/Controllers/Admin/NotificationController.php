@@ -209,6 +209,61 @@ class NotificationController extends Controller
     }
 
     /**
+     * Bulk mark notifications as read.
+     */
+    public function bulkRead(Request $request): JsonResponse
+    {
+        $ids = $request->input('ids', []);
+        if (!empty($ids) && is_array($ids)) {
+            Notification::forUser(Auth::id())
+                ->whereIn('id', $ids)
+                ->unread()
+                ->update(['read_at' => now()]);
+        }
+
+        return response()->json([
+            'success'      => true,
+            'unread_count' => Notification::forUser(Auth::id())->unread()->count(),
+        ]);
+    }
+
+    /**
+     * Bulk mark notifications as unread.
+     */
+    public function bulkUnread(Request $request): JsonResponse
+    {
+        $ids = $request->input('ids', []);
+        if (!empty($ids) && is_array($ids)) {
+            Notification::forUser(Auth::id())
+                ->whereIn('id', $ids)
+                ->update(['read_at' => null]);
+        }
+
+        return response()->json([
+            'success'      => true,
+            'unread_count' => Notification::forUser(Auth::id())->unread()->count(),
+        ]);
+    }
+
+    /**
+     * Bulk delete notifications.
+     */
+    public function bulkDelete(Request $request): JsonResponse
+    {
+        $ids = $request->input('ids', []);
+        if (!empty($ids) && is_array($ids)) {
+            Notification::forUser(Auth::id())
+                ->whereIn('id', $ids)
+                ->delete();
+        }
+
+        return response()->json([
+            'success'      => true,
+            'unread_count' => Notification::forUser(Auth::id())->unread()->count(),
+        ]);
+    }
+
+    /**
      * Send / broadcast a manual promotion or system announcement (Admin only).
      */
     public function sendPromotion(Request $request)

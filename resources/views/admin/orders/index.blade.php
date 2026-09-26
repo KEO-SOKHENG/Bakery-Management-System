@@ -21,45 +21,45 @@
 
     <!-- KPI Summary Metrics Grid -->
     <div class="orders-metrics-grid">
-        <x-card class="order-metric-card">
-            <div class="order-metric-icon" style="background: rgba(217, 119, 54, 0.15); color: var(--accent-brown, #d97736);">
+        <div class="stat-card">
+            <div class="stat-icon-box orange">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
             </div>
-            <div class="order-metric-info">
-                <span class="order-metric-label">Total Orders</span>
-                <span class="order-metric-value" id="kpi_total_orders">{{ number_format($totalOrdersCount) }}</span>
+            <div class="stat-info">
+                <span class="stat-label">Total Orders</span>
+                <div class="stat-value" id="kpi_total_orders">{{ number_format($totalOrdersCount) }}</div>
             </div>
-        </x-card>
+        </div>
 
-        <x-card class="order-metric-card">
-            <div class="order-metric-icon" style="background: rgba(245, 158, 11, 0.12); color: #d97706;">
+        <div class="stat-card">
+            <div class="stat-icon-box yellow">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
-            <div class="order-metric-info">
-                <span class="order-metric-label">Pending / Baking</span>
-                <span class="order-metric-value" id="kpi_pending_orders">{{ number_format($pendingCount + $preparingCount) }}</span>
+            <div class="stat-info">
+                <span class="stat-label">Pending / Baking</span>
+                <div class="stat-value" id="kpi_pending_orders">{{ number_format($pendingCount + $preparingCount) }}</div>
             </div>
-        </x-card>
+        </div>
 
-        <x-card class="order-metric-card">
-            <div class="order-metric-icon" style="background: rgba(13, 148, 136, 0.12); color: #0d9488;">
+        <div class="stat-card">
+            <div class="stat-icon-box teal">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
             </div>
-            <div class="order-metric-info">
-                <span class="order-metric-label">Ready for Pickup</span>
-                <span class="order-metric-value" id="kpi_ready_orders">{{ number_format($readyCount) }}</span>
+            <div class="stat-info">
+                <span class="stat-label">Ready for Pickup</span>
+                <div class="stat-value" id="kpi_ready_orders">{{ number_format($readyCount) }}</div>
             </div>
-        </x-card>
+        </div>
 
-        <x-card class="order-metric-card">
-            <div class="order-metric-icon" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <div class="stat-card">
+            <div class="stat-icon-box green">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v12"/></svg>
             </div>
-            <div class="order-metric-info">
-                <span class="order-metric-label">Completed Sales</span>
-                <span class="order-metric-value" id="kpi_total_revenue">{{ $currency }}{{ number_format($totalRevenue, 2) }}</span>
+            <div class="stat-info">
+                <span class="stat-label">Completed Sales</span>
+                <div class="stat-value" id="kpi_total_revenue">{{ $currency }}{{ number_format($totalRevenue, 2) }}</div>
             </div>
-        </x-card>
+        </div>
     </div>
 
     <!-- Header Actions & Search / Filter Controls -->

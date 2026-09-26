@@ -347,6 +347,12 @@ return [
     'promotion_message' => 'ខ្លឹមសារសេចក្តីជូនដំណឹង',
     'promotions' => 'ការផ្សព្វផ្សាយ',
     'purchase_orders' => 'ការបញ្ជាទិញទំនិញចូល',
+    'select_all' => 'ជ្រើសរើសទាំងអស់',
+    'selected' => 'បានជ្រើសរើស',
+    'mark_selected_read' => 'កំណត់ថាបានអាន',
+    'mark_selected_unread' => 'កំណត់ថាមិនទាន់អាន',
+    'delete_selected' => 'លុបដែលបានជ្រើស',
+    'clear_selection' => 'សម្អាតការជ្រើសរើស',
 
     // Users & Staff Management Module
     'users_staff' => 'បុគ្គលិក និងគណនី',
