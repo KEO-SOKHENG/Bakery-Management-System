@@ -60,9 +60,10 @@ class NotificationController extends Controller
         // Filter: Search Term
         if ($request->filled('search')) {
             $term = '%' . trim($request->search) . '%';
-            $query->where(function ($q) use ($term) {
-                $q->where('title', 'like', $term)
-                  ->orWhere('message', 'like', $term);
+            $like = \Illuminate\Support\Facades\DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $query->where(function ($q) use ($term, $like) {
+                $q->where('title', $like, $term)
+                  ->orWhere('message', $like, $term);
             });
         }
 

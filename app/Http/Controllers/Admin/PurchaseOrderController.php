@@ -22,11 +22,12 @@ class PurchaseOrderController extends Controller
         // 1. Search Filter
         if ($request->filled('search')) {
             $search = trim($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->where('po_number', 'like', "%{$search}%")
-                  ->orWhere('notes', 'like', "%{$search}%")
-                  ->orWhereHas('supplier', function ($s) use ($search) {
-                      $s->where('name', 'like', "%{$search}%");
+            $like = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $query->where(function ($q) use ($search, $like) {
+                $q->where('po_number', $like, "%{$search}%")
+                  ->orWhere('notes', $like, "%{$search}%")
+                  ->orWhereHas('supplier', function ($s) use ($search, $like) {
+                      $s->where('name', $like, "%{$search}%");
                   });
             });
         }

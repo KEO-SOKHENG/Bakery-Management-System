@@ -162,7 +162,7 @@
     <!-- 2 Column Details: Staff & Recipe -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem;">
         <!-- Assigned Baker Card -->
-        <div class="prod-stat-card" style="flex-direction: column; align-items: stretch; gap: 0.75rem;">
+        <div class="card" style="padding: 1.25rem; display: flex; flex-direction: column; align-items: stretch; gap: 0.75rem;">
             <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted, #71717a); text-transform: uppercase;">
                 Production Personnel
             </div>
@@ -186,7 +186,7 @@
         </div>
 
         <!-- Recipe Information Card -->
-        <div class="prod-stat-card" style="flex-direction: column; align-items: stretch; gap: 0.75rem;">
+        <div class="card" style="padding: 1.25rem; display: flex; flex-direction: column; align-items: stretch; gap: 0.75rem;">
             <div style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted, #71717a); text-transform: uppercase;">
                 Recipe & Instructions
             </div>

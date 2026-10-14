@@ -13,10 +13,11 @@ class CategoryController extends Controller
         $query = Category::withCount('products');
 
         if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+            $search = trim($request->search);
+            $like = \Illuminate\Support\Facades\DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $query->where(function($q) use ($search, $like) {
+                $q->where('name', $like, "%{$search}%")
+                  ->orWhere('description', $like, "%{$search}%");
             });
         }
 

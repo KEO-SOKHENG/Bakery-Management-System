@@ -18,54 +18,45 @@
 </x-page-header>
 
 <!-- KPI Metrics Grid -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-    <div class="card" style="padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
-        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(77, 44, 32, 0.08); display: flex; align-items: center; justify-content: center; color: var(--accent-brown, #4d2c20); flex-shrink: 0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon-box orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
         </div>
-        <div>
-            <div style="font-size: 0.8rem; color: var(--text-muted, #64748b); font-weight: 600;">Total Purchase Orders</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary, #0f172a);">{{ $stats['total'] }}</div>
-        </div>
-    </div>
-
-    <div class="card" style="padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
-        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(148, 163, 184, 0.15); display: flex; align-items: center; justify-content: center; color: #475569; flex-shrink: 0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        </div>
-        <div>
-            <div style="font-size: 0.8rem; color: var(--text-muted, #64748b); font-weight: 600;">Draft Orders</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: #475569;">{{ $stats['draft'] }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Total Purchase Orders</span>
+            <div class="stat-value">{{ $stats['total'] }}</div>
         </div>
     </div>
 
-    <div class="card" style="padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
-        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(245, 158, 11, 0.12); display: flex; align-items: center; justify-content: center; color: #b45309; flex-shrink: 0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box teal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
         </div>
-        <div>
-            <div style="font-size: 0.8rem; color: var(--text-muted, #64748b); font-weight: 600;">Ordered (In Transit)</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: #b45309;">{{ $stats['ordered'] }}</div>
-        </div>
-    </div>
-
-    <div class="card" style="padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
-        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(16, 185, 129, 0.12); display: flex; align-items: center; justify-content: center; color: #059669; flex-shrink: 0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <div>
-            <div style="font-size: 0.8rem; color: var(--text-muted, #64748b); font-weight: 600;">Received & Stocked In</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: #059669;">{{ $stats['received'] }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Pending Purchase Orders</span>
+            <div class="stat-value">{{ $stats['draft'] + $stats['ordered'] }}</div>
+            <span class="stat-trend {{ ($stats['draft'] + $stats['ordered']) > 0 ? 'warning' : 'neutral' }}">{{ $stats['ordered'] }} ordered</span>
         </div>
     </div>
 
-    <div class="card" style="padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 1rem;">
-        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; color: #2563eb; flex-shrink: 0;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
-        <div>
-            <div style="font-size: 0.8rem; color: var(--text-muted, #64748b); font-weight: 600;">Total Procured Value</div>
-            <div style="font-size: 1.4rem; font-weight: 800; color: #2563eb;">${{ number_format($stats['total_spend'], 2) }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Received & Stocked In</span>
+            <div class="stat-value">{{ $stats['received'] }}</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon-box blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Total Procured Value</span>
+            <div class="stat-value">${{ number_format($stats['total_spend'], 2) }}</div>
         </div>
     </div>
 </div>

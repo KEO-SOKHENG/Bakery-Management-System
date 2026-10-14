@@ -14,11 +14,12 @@ class ProductController extends Controller
         $query = Product::with('category');
 
         if ($request->has('search') && !empty($request->search)) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+            $search = trim($request->search);
+            $like = \Illuminate\Support\Facades\DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $query->where(function($q) use ($search, $like) {
+                $q->where('name', $like, "%{$search}%")
+                  ->orWhere('sku', $like, "%{$search}%")
+                  ->orWhere('description', $like, "%{$search}%");
             });
         }
 
@@ -104,10 +105,12 @@ class ProductController extends Controller
             'minimum_stock' => 'nullable|integer|min:0',
             'shelf_life' => 'nullable|integer|min:1',
             'expiry_date' => 'nullable|date',
-            'status' => 'required|string|in:active,inactive',
+            'status' => 'nullable|string|in:active,inactive',
             'image_emoji' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
+
+        $validated['status'] = $validated['status'] ?? $product->status ?? 'active';
 
         if ($request->hasFile('image')) {
             if ($product->image_path && file_exists(public_path($product->image_path))) {
@@ -126,6 +129,21 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        if ($product->orderItems()->exists()) {
+            return redirect()->route('admin.products')
+                ->with('error', "Cannot delete product '{$product->name}': Historical sales and orders reference this item. Consider setting its status to inactive instead.");
+        }
+
+        if ($product->productions()->exists()) {
+            return redirect()->route('admin.products')
+                ->with('error', "Cannot delete product '{$product->name}': Production records reference this item.");
+        }
+
+        if ($product->recipe()->exists()) {
+            return redirect()->route('admin.products')
+                ->with('error', "Cannot delete product '{$product->name}': A recipe is linked to this item. Please delete or reassign the recipe first.");
+        }
+
         if ($product->image_path && file_exists(public_path($product->image_path))) {
             @unlink(public_path($product->image_path));
         }

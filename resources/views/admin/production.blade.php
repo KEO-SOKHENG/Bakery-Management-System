@@ -38,46 +38,46 @@
     @endif
 
     <!-- 2. KPI Summary Cards -->
-    <div class="prod-stats-grid">
-        <x-card class="prod-stat-card">
-            <div class="prod-stat-icon total">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon-box orange">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
             </div>
-            <div class="prod-stat-info">
-                <span class="prod-stat-val">{{ number_format($stats['total']) }}</span>
-                <span class="prod-stat-lbl" data-lang-key="all_batches">{{ __('messages.all_batches') }}</span>
+            <div class="stat-info">
+                <span class="stat-label" data-lang-key="all_batches">{{ __('messages.all_batches') }}</span>
+                <div class="stat-value">{{ number_format($stats['total']) }}</div>
             </div>
-        </x-card>
+        </div>
 
-        <x-card class="prod-stat-card">
-            <div class="prod-stat-icon scheduled">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div class="stat-card">
+            <div class="stat-icon-box blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
-            <div class="prod-stat-info">
-                <span class="prod-stat-val">{{ number_format($stats['scheduled']) }}</span>
-                <span class="prod-stat-lbl" data-lang-key="scheduled">{{ __('messages.scheduled') }}</span>
+            <div class="stat-info">
+                <span class="stat-label" data-lang-key="scheduled">{{ __('messages.scheduled') }}</span>
+                <div class="stat-value">{{ number_format($stats['scheduled']) }}</div>
             </div>
-        </x-card>
+        </div>
 
-        <x-card class="prod-stat-card">
-            <div class="prod-stat-icon in-progress">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        <div class="stat-card">
+            <div class="stat-icon-box amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
             </div>
-            <div class="prod-stat-info">
-                <span class="prod-stat-val">{{ number_format($stats['in_progress']) }}</span>
-                <span class="prod-stat-lbl" data-lang-key="in_progress">{{ __('messages.in_progress') }}</span>
+            <div class="stat-info">
+                <span class="stat-label" data-lang-key="in_progress">{{ __('messages.in_progress') }}</span>
+                <div class="stat-value">{{ number_format($stats['in_progress']) }}</div>
             </div>
-        </x-card>
+        </div>
 
-        <x-card class="prod-stat-card">
-            <div class="prod-stat-icon completed">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <div class="stat-card">
+            <div class="stat-icon-box green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
-            <div class="prod-stat-info">
-                <span class="prod-stat-val">{{ number_format($stats['completed']) }}</span>
-                <span class="prod-stat-lbl" data-lang-key="completed">{{ __('messages.completed') }}</span>
+            <div class="stat-info">
+                <span class="stat-label" data-lang-key="completed">{{ __('messages.completed') }}</span>
+                <div class="stat-value">{{ number_format($stats['completed']) }}</div>
             </div>
-        </x-card>
+        </div>
     </div>
 
     <!-- 3. Status Filter Tabs -->

@@ -7,6 +7,8 @@ use App\Models\Ingredient;
 use App\Models\Supplier;
 use App\Models\StockMovement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class IngredientController extends Controller
 {
@@ -16,7 +18,13 @@ class IngredientController extends Controller
 
         if ($request->filled('search')) {
             $search = trim($request->search);
-            $query->where('name', 'like', "%{$search}%");
+            $like = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $query->where(function ($q) use ($search, $like) {
+                $q->where('name', $like, "%{$search}%")
+                  ->orWhereHas('supplier', function ($sq) use ($search, $like) {
+                      $sq->where('name', $like, "%{$search}%");
+                  });
+            });
         }
 
         if ($request->filled('supplier_id') && $request->supplier_id !== 'all') {
@@ -71,28 +79,40 @@ class IngredientController extends Controller
             'status'           => 'nullable|string|in:active,inactive',
         ]);
 
-        $ingredient = Ingredient::create([
-            'supplier_id'      => $validated['supplier_id'] ?? null,
-            'name'             => $validated['name'],
-            'unit'             => $validated['unit'],
-            'quantity'         => $validated['quantity'],
-            'cost'             => $validated['cost'],
-            'minimum_quantity' => $validated['minimum_quantity'] ?? 10.00,
-            'expiry_date'      => $validated['expiry_date'] ?? null,
-            'status'           => $validated['status'] ?? 'active',
-        ]);
+        $ingredient = DB::transaction(function () use ($validated) {
+            $ingredient = Ingredient::create([
+                'supplier_id'      => $validated['supplier_id'] ?? null,
+                'name'             => $validated['name'],
+                'unit'             => $validated['unit'],
+                'quantity'         => $validated['quantity'],
+                'cost'             => $validated['cost'],
+                'minimum_quantity' => $validated['minimum_quantity'] ?? 10.00,
+                'expiry_date'      => $validated['expiry_date'] ?? null,
+                'status'           => $validated['status'] ?? 'active',
+            ]);
 
-        // If initial quantity > 0, record initial stock movement
-        if ((float) $ingredient->quantity > 0) {
-            StockMovement::create([
-                'ingredient_id'    => $ingredient->id,
-                'type'             => 'in',
-                'quantity'         => $ingredient->quantity,
-                'unit'             => $ingredient->unit,
-                'unit_cost'        => $ingredient->cost,
-                'reference_type'   => 'manual_adjustment',
-                'notes'            => 'Initial inventory stock on creation',
-                'user_id'          => auth()->id(),
+            // If initial quantity > 0, record initial stock movement
+            if ((float) $ingredient->quantity > 0) {
+                StockMovement::create([
+                    'ingredient_id'    => $ingredient->id,
+                    'type'             => 'in',
+                    'quantity'         => $ingredient->quantity,
+                    'unit'             => $ingredient->unit,
+                    'unit_cost'        => $ingredient->cost,
+                    'reference_type'   => 'manual_adjustment',
+                    'notes'            => 'Initial inventory stock on creation',
+                    'user_id'          => Auth::id(),
+                ]);
+            }
+
+            return $ingredient;
+        });
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Ingredient added successfully!',
+                'data'    => $ingredient->load('supplier'),
             ]);
         }
 
@@ -107,45 +127,75 @@ class IngredientController extends Controller
             'unit'             => 'required|string|max:50',
             'quantity'         => 'required|numeric|min:0',
             'cost'             => 'required|numeric|min:0',
-            'minimum_quantity' => 'required|numeric|min:0',
+            'minimum_quantity' => 'nullable|numeric|min:0',
             'expiry_date'      => 'nullable|date',
-            'status'           => 'required|string|in:active,inactive',
+            'status'           => 'nullable|string|in:active,inactive',
         ]);
+
+        $validated['minimum_quantity'] = $validated['minimum_quantity'] ?? $ingredient->minimum_quantity ?? 10.00;
+        $validated['status'] = $validated['status'] ?? $ingredient->status ?? 'active';
 
         $oldQty = (float) $ingredient->quantity;
         $newQty = (float) $validated['quantity'];
 
-        $ingredient->update($validated);
+        DB::transaction(function () use ($ingredient, $validated, $oldQty, $newQty) {
+            $ingredient->update($validated);
 
-        // Record manual adjustment if stock was changed directly from ingredient edit
-        if (abs($newQty - $oldQty) > 0.001) {
-            $diff = round($newQty - $oldQty, 2);
-            StockMovement::create([
-                'ingredient_id'    => $ingredient->id,
-                'type'             => $diff > 0 ? 'in' : 'out',
-                'quantity'         => abs($diff),
-                'unit'             => $ingredient->unit,
-                'unit_cost'        => $ingredient->cost,
-                'reference_type'   => 'manual_adjustment',
-                'notes'            => "Manual inventory adjustment ({$oldQty} -> {$newQty})",
-                'user_id'          => auth()->id(),
+            // Record manual adjustment if stock was changed directly from ingredient edit
+            if (abs($newQty - $oldQty) > 0.001) {
+                $diff = round($newQty - $oldQty, 2);
+                StockMovement::create([
+                    'ingredient_id'    => $ingredient->id,
+                    'type'             => $diff > 0 ? 'in' : 'out',
+                    'quantity'         => abs($diff),
+                    'unit'             => $ingredient->unit,
+                    'unit_cost'        => $ingredient->cost,
+                    'reference_type'   => 'manual_adjustment',
+                    'notes'            => "Manual inventory adjustment ({$oldQty} -> {$newQty})",
+                    'user_id'          => Auth::id(),
+                ]);
+            }
+        });
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Ingredient updated successfully!',
+                'data'    => $ingredient->fresh()->load('supplier'),
             ]);
         }
 
         return redirect()->route('admin.ingredients')->with('success', 'Ingredient updated successfully!');
     }
 
-    public function destroy(Ingredient $ingredient)
+    public function destroy(Request $request, Ingredient $ingredient)
     {
         if ($ingredient->recipes()->exists()) {
-            return back()->with('error', "Cannot delete ingredient '{$ingredient->name}': It is currently used in active recipes.");
+            $message = "Cannot delete ingredient '{$ingredient->name}': It is currently used in active recipes.";
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+            return back()->with('error', $message);
         }
 
         if ($ingredient->purchaseOrderItems()->exists()) {
-            return back()->with('error', "Cannot delete ingredient '{$ingredient->name}': Historical purchase orders reference this item.");
+            $message = "Cannot delete ingredient '{$ingredient->name}': Historical purchase orders reference this item.";
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+            return back()->with('error', $message);
         }
 
+        $name = $ingredient->name;
         $ingredient->delete();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Ingredient '{$name}' deleted successfully!",
+            ]);
+        }
+
         return redirect()->route('admin.ingredients')->with('success', 'Ingredient deleted successfully!');
     }
 }

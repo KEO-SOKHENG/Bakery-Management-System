@@ -61,44 +61,44 @@
 @endif
 
 <!-- KPI Cards -->
-<div class="user-stats-grid">
-    <div class="user-stat-card">
-        <div class="stat-icon-wrapper active">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon-box green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Present</div>
-            <div class="stat-number">{{ $stats['present'] }}</div>
-        </div>
-    </div>
-
-    <div class="user-stat-card">
-        <div class="stat-icon-wrapper suspended">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
-        </div>
-        <div class="stat-content">
-            <div class="stat-label">Late</div>
-            <div class="stat-number">{{ $stats['late'] }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Present</span>
+            <div class="stat-value">{{ $stats['present'] }}</div>
         </div>
     </div>
 
-    <div class="user-stat-card">
-        <div class="stat-icon-wrapper inactive">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">On Leave / Absent</div>
-            <div class="stat-number">{{ $stats['leave'] }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Late</span>
+            <div class="stat-value">{{ $stats['late'] }}</div>
         </div>
     </div>
 
-    <div class="user-stat-card">
-        <div class="stat-icon-wrapper total">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Total Logged</div>
-            <div class="stat-number">{{ $stats['total'] }}</div>
+        <div class="stat-info">
+            <span class="stat-label">On Leave / Absent</span>
+            <div class="stat-value">{{ $stats['leave'] }}</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon-box orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Total Logged</span>
+            <div class="stat-value">{{ $stats['total'] }}</div>
         </div>
     </div>
 </div>

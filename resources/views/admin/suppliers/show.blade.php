@@ -77,22 +77,45 @@
 </div>
 
 <!-- KPI Metrics Grid -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-    <div class="bakery-card" style="padding: 1.1rem 1.25rem; border-radius: 1rem; background: var(--card-bg, #ffffff); border: 1px solid var(--border-color, #e2e8f0);">
-        <div style="font-size: 0.8rem; color: var(--text-muted, #64748b); font-weight: 600;">Total Purchase Orders</div>
-        <div style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary, #0f172a); margin-top: 0.25rem;">{{ $stats['total_orders'] }}</div>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon-box orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Total Purchase Orders</span>
+            <div class="stat-value">{{ $stats['total_orders'] }}</div>
+        </div>
     </div>
-    <div class="bakery-card" style="padding: 1.1rem 1.25rem; border-radius: 1rem; background: var(--card-bg, #ffffff); border: 1px solid var(--border-color, #e2e8f0);">
-        <div style="font-size: 0.8rem; color: var(--text-muted, #64748b); font-weight: 600;">Pending Delivery</div>
-        <div style="font-size: 1.4rem; font-weight: 800; color: #f59e0b; margin-top: 0.25rem;">{{ $stats['pending_orders'] }}</div>
+
+    <div class="stat-card">
+        <div class="stat-icon-box amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Pending Delivery</span>
+            <div class="stat-value">{{ $stats['pending_orders'] }}</div>
+        </div>
     </div>
-    <div class="bakery-card" style="padding: 1.1rem 1.25rem; border-radius: 1rem; background: var(--card-bg, #ffffff); border: 1px solid var(--border-color, #e2e8f0);">
-        <div style="font-size: 0.8rem; color: var(--text-muted, #64748b); font-weight: 600;">Received & Stocked In</div>
-        <div style="font-size: 1.4rem; font-weight: 800; color: #10b981; margin-top: 0.25rem;">{{ $stats['received_orders'] }}</div>
+
+    <div class="stat-card">
+        <div class="stat-icon-box green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Received & Stocked In</span>
+            <div class="stat-value">{{ $stats['received_orders'] }}</div>
+        </div>
     </div>
-    <div class="bakery-card" style="padding: 1.1rem 1.25rem; border-radius: 1rem; background: var(--card-bg, #ffffff); border: 1px solid var(--border-color, #e2e8f0);">
-        <div style="font-size: 0.8rem; color: var(--text-muted, #64748b); font-weight: 600;">Total Procured Value</div>
-        <div style="font-size: 1.4rem; font-weight: 800; color: #3b82f6; margin-top: 0.25rem;">${{ number_format($stats['total_spend'], 2) }}</div>
+
+    <div class="stat-card">
+        <div class="stat-icon-box blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Total Procured Value</span>
+            <div class="stat-value">${{ number_format($stats['total_spend'], 2) }}</div>
+        </div>
     </div>
 </div>
 

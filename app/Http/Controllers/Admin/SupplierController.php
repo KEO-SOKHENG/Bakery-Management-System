@@ -15,12 +15,13 @@ class SupplierController extends Controller
 
         if ($request->filled('search')) {
             $search = trim($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('contact_person', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('address', 'like', "%{$search}%");
+            $like = \Illuminate\Support\Facades\DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $query->where(function ($q) use ($search, $like) {
+                $q->where('name', $like, "%{$search}%")
+                  ->orWhere('contact_person', $like, "%{$search}%")
+                  ->orWhere('phone', $like, "%{$search}%")
+                  ->orWhere('email', $like, "%{$search}%")
+                  ->orWhere('address', $like, "%{$search}%");
             });
         }
 
@@ -93,9 +94,11 @@ class SupplierController extends Controller
             'phone'          => 'nullable|string|max:50',
             'email'          => 'nullable|email|max:255',
             'address'        => 'nullable|string',
-            'status'         => 'required|string|in:active,inactive',
+            'status'         => 'nullable|string|in:active,inactive',
             'notes'          => 'nullable|string',
         ]);
+
+        $validated['status'] = $validated['status'] ?? $supplier->status ?? 'active';
 
         $supplier->update($validated);
 

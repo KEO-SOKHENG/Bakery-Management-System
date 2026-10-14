@@ -39,44 +39,44 @@
     </div>
 
     <!-- KPI Summary Cards -->
-    <div class="notif-stats-grid">
-        <div class="notif-stat-card">
-            <div class="notif-stat-icon info">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon-box blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
             </div>
-            <div class="notif-stat-info">
+            <div class="stat-info">
+                <span class="stat-label" data-lang-key="total_notifications">Total Notifications</span>
                 <div class="stat-value">{{ $stats['total'] }}</div>
-                <div class="stat-label" data-lang-key="total_notifications">Total Notifications</div>
             </div>
         </div>
 
-        <div class="notif-stat-card">
-            <div class="notif-stat-icon warning">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <div class="stat-card">
+            <div class="stat-icon-box yellow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
             </div>
-            <div class="notif-stat-info">
+            <div class="stat-info">
+                <span class="stat-label" data-lang-key="unread_alerts">Unread Alerts</span>
                 <div class="stat-value" id="stat_unread_count">{{ $stats['unread'] }}</div>
-                <div class="stat-label" data-lang-key="unread_alerts">Unread Alerts</div>
             </div>
         </div>
 
-        <div class="notif-stat-card">
-            <div class="notif-stat-icon danger">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 1 2 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div class="stat-card">
+            <div class="stat-icon-box red">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 1 2 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </div>
-            <div class="notif-stat-info">
+            <div class="stat-info">
+                <span class="stat-label" data-lang-key="critical_action_required">Critical / Out of Stock</span>
                 <div class="stat-value">{{ $stats['critical'] }}</div>
-                <div class="stat-label" data-lang-key="critical_action_required">Critical / Out of Stock</div>
             </div>
         </div>
 
-        <div class="notif-stat-card">
-            <div class="notif-stat-icon success">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        <div class="stat-card">
+            <div class="stat-icon-box green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
             </div>
-            <div class="notif-stat-info">
+            <div class="stat-info">
+                <span class="stat-label" data-lang-key="inventory_alerts">Inventory Alerts</span>
                 <div class="stat-value">{{ $stats['inventory'] }}</div>
-                <div class="stat-label" data-lang-key="inventory_alerts">Inventory Alerts</div>
             </div>
         </div>
     </div>

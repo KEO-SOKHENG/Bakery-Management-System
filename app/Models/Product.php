@@ -49,6 +49,11 @@ class Product extends Model
         return $this->hasOne(Recipe::class);
     }
 
+    public function productions()
+    {
+        return $this->hasMany(Production::class);
+    }
+
     public function isLowStock(): bool
     {
         return $this->stock <= $this->minimum_stock;

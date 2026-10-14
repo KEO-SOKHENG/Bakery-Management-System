@@ -61,24 +61,24 @@
 @endif
 
 <!-- KPI Cards -->
-<div class="user-stats-grid">
-    <div class="user-stat-card">
-        <div class="stat-icon-wrapper active">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon-box green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Scheduled Shifts In Window</div>
-            <div class="stat-number">{{ $stats['total_shifts'] }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Scheduled Shifts In Window</span>
+            <div class="stat-value">{{ $stats['total_shifts'] }}</div>
         </div>
     </div>
 
-    <div class="user-stat-card">
-        <div class="stat-icon-wrapper total">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Shifts Scheduled Today</div>
-            <div class="stat-number">{{ $stats['scheduled_today'] }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Shifts Scheduled Today</span>
+            <div class="stat-value">{{ $stats['scheduled_today'] }}</div>
         </div>
     </div>
 </div>

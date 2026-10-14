@@ -41,6 +41,11 @@ class Recipe extends Model
         return $this->hasMany(RecipeIngredient::class);
     }
 
+    public function productions()
+    {
+        return $this->hasMany(Production::class);
+    }
+
     /**
      * Total Recipe Cost = SUM(ingredient required quantity * ingredient purchase/cost price)
      */

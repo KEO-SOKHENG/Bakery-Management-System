@@ -32,15 +32,16 @@ class ProductionController extends Controller
         // 2. Search Filter
         if ($request->filled('search')) {
             $search = trim($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->where('batch_number', 'like', "%{$search}%")
-                  ->orWhere('notes', 'like', "%{$search}%")
-                  ->orWhereHas('product', function ($p) use ($search) {
-                      $p->where('name', 'like', "%{$search}%")
-                        ->orWhere('sku', 'like', "%{$search}%");
+            $like = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $query->where(function ($q) use ($search, $like) {
+                $q->where('batch_number', $like, "%{$search}%")
+                  ->orWhere('notes', $like, "%{$search}%")
+                  ->orWhereHas('product', function ($p) use ($search, $like) {
+                      $p->where('name', $like, "%{$search}%")
+                        ->orWhere('sku', $like, "%{$search}%");
                   })
-                  ->orWhereHas('baker', function ($b) use ($search) {
-                      $b->where('name', 'like', "%{$search}%");
+                  ->orWhereHas('baker', function ($b) use ($search, $like) {
+                      $b->where('name', $like, "%{$search}%");
                   });
             });
         }

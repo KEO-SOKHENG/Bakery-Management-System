@@ -124,46 +124,46 @@
 </div>
 
 <!-- Operational Metric Cards -->
-<div class="user-stats-grid">
-    <x-card class="user-stat-card">
-        <div class="stat-icon-wrapper total">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon-box orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Orders Handled</div>
-            <div class="stat-number">{{ number_format($user->orders_count ?? 0) }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Orders Handled</span>
+            <div class="stat-value">{{ number_format($user->orders_count ?? 0) }}</div>
         </div>
-    </x-card>
+    </div>
 
-    <x-card class="user-stat-card">
-        <div class="stat-icon-wrapper active">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Sales Recorded</div>
-            <div class="stat-number">{{ number_format($user->sales_count ?? 0) }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Sales Recorded</span>
+            <div class="stat-value">{{ number_format($user->sales_count ?? 0) }}</div>
         </div>
-    </x-card>
+    </div>
 
-    <x-card class="user-stat-card">
-        <div class="stat-icon-wrapper" style="background: rgba(217, 119, 6, 0.12); color: #d97706;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Baking Batches</div>
-            <div class="stat-number">{{ number_format(($user->productions_count ?? 0) + ($user->assigned_productions_count ?? 0)) }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Baking Batches</span>
+            <div class="stat-value">{{ number_format(($user->productions_count ?? 0) + ($user->assigned_productions_count ?? 0)) }}</div>
         </div>
-    </x-card>
+    </div>
 
-    <x-card class="user-stat-card">
-        <div class="stat-icon-wrapper" style="background: rgba(91, 33, 182, 0.1); color: #5b21b6;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Purchase Orders</div>
-            <div class="stat-number">{{ number_format($user->purchase_orders_count ?? 0) }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Purchase Orders</span>
+            <div class="stat-value">{{ number_format($user->purchase_orders_count ?? 0) }}</div>
         </div>
-    </x-card>
+    </div>
 </div>
 
 <!-- Main Two-Column Profile Grid -->

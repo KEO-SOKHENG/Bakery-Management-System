@@ -61,44 +61,44 @@
 @endif
 
 <!-- KPI Cards -->
-<div class="user-stats-grid">
-    <div class="user-stat-card">
-        <div class="stat-icon-wrapper total">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon-box orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Total Payroll</div>
-            <div class="stat-number">${{ number_format($stats['total_payroll'], 2) }}</div>
-        </div>
-    </div>
-
-    <div class="user-stat-card">
-        <div class="stat-icon-wrapper active">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <div class="stat-content">
-            <div class="stat-label">Total Paid</div>
-            <div class="stat-number">${{ number_format($stats['total_paid'], 2) }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Total Payroll</span>
+            <div class="stat-value">${{ number_format($stats['total_payroll'], 2) }}</div>
         </div>
     </div>
 
-    <div class="user-stat-card">
-        <div class="stat-icon-wrapper suspended">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Pending Payouts</div>
-            <div class="stat-number">{{ $stats['pending_count'] }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Total Paid</span>
+            <div class="stat-value">${{ number_format($stats['total_paid'], 2) }}</div>
         </div>
     </div>
 
-    <div class="user-stat-card">
-        <div class="stat-icon-wrapper active">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Completed Slips</div>
-            <div class="stat-number">{{ $stats['paid_count'] }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Pending Payouts</span>
+            <div class="stat-value">{{ $stats['pending_count'] }}</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon-box blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-label">Completed Slips</span>
+            <div class="stat-value">{{ $stats['paid_count'] }}</div>
         </div>
     </div>
 </div>

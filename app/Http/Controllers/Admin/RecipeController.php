@@ -99,6 +99,10 @@ class RecipeController extends Controller
 
     public function destroy(Recipe $recipe)
     {
+        if ($recipe->productions()->exists()) {
+            return back()->with('error', "Cannot delete recipe '{$recipe->name}': Historical production batches reference this recipe.");
+        }
+
         $recipe->delete();
         return redirect()->route('admin.recipes')->with('success', 'Recipe deleted successfully!');
     }

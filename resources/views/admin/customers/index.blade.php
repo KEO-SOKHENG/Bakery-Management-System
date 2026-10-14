@@ -32,46 +32,46 @@
 @endif
 
 <!-- Summary Metric Cards -->
-<div class="customer-stats-grid">
-    <x-card class="customer-stat-card">
-        <div class="stat-icon-wrapper total">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon-box blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Total Customers</div>
-            <div class="stat-number">{{ number_format($totalCustomers) }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Total Customers</span>
+            <div class="stat-value">{{ number_format($totalCustomers) }}</div>
         </div>
-    </x-card>
+    </div>
 
-    <x-card class="customer-stat-card">
-        <div class="stat-icon-wrapper active">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Active Accounts</div>
-            <div class="stat-number">{{ number_format($activeCustomers) }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Active Accounts</span>
+            <div class="stat-value">{{ number_format($activeCustomers) }}</div>
         </div>
-    </x-card>
+    </div>
 
-    <x-card class="customer-stat-card">
-        <div class="stat-icon-wrapper loyalty">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Loyalty Members</div>
-            <div class="stat-number">{{ number_format($loyaltyMembers) }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Loyalty Members</span>
+            <div class="stat-value">{{ number_format($loyaltyMembers) }}</div>
         </div>
-    </x-card>
+    </div>
 
-    <x-card class="customer-stat-card">
-        <div class="stat-icon-wrapper revenue">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <div class="stat-card">
+        <div class="stat-icon-box orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
-        <div class="stat-content">
-            <div class="stat-label">Customer Revenue</div>
-            <div class="stat-number">${{ number_format($totalCustomerRevenue, 2) }}</div>
+        <div class="stat-info">
+            <span class="stat-label">Customer Revenue</span>
+            <div class="stat-value">${{ number_format($totalCustomerRevenue, 2) }}</div>
         </div>
-    </x-card>
+    </div>
 </div>
 
 <!-- Search & Filtering Toolbar -->
