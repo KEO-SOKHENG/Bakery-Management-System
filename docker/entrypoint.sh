@@ -19,6 +19,9 @@ mkdir -p storage/framework/cache/data \
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
+# Safe read-only check of database connectivity (non-destructive)
+php artisan db:show || echo "Database connectivity check failed. Check DATABASE_URL and credentials."
+
 # Optional: Run database migrations if RUN_MIGRATIONS=true
 if [ "${RUN_MIGRATIONS}" = "true" ]; then
     echo "RUN_MIGRATIONS=true detected. Running migrations..."

@@ -69,6 +69,8 @@ COPY docker/entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh \
     && chmod +x /usr/local/bin/docker-entrypoint.sh
 
+ENV LOG_CHANNEL=stderr
+
 EXPOSE 80
 
 ENTRYPOINT ["docker-entrypoint.sh"]

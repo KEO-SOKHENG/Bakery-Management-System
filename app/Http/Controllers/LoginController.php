@@ -10,15 +10,25 @@ class LoginController extends Controller
 {
     public function index()
     {
-        if (Auth::check()) {
-            $user = Auth::user();
-            return match (strtolower($user->role)) {
-                'admin' => redirect()->route('admin.dashboard'),
-                'manager' => redirect()->route('manager.dashboard'),
-                'cashier' => redirect()->route('cashier.dashboard'),
-                'baker' => redirect()->route('admin.production'),
-                default => redirect()->route('login'),
-            };
+        try {
+            if (Auth::check()) {
+                $user = Auth::user();
+                return match (strtolower($user->role)) {
+                    'admin' => redirect()->route('admin.dashboard'),
+                    'manager' => redirect()->route('manager.dashboard'),
+                    'cashier' => redirect()->route('cashier.dashboard'),
+                    'baker' => redirect()->route('admin.production'),
+                    default => redirect()->route('login'),
+                };
+            }
+        } catch (\Throwable $e) {
+            report($e);
+            try {
+                Auth::logout();
+                request()->session()->invalidate();
+            } catch (\Throwable) {
+                // Ignore secondary cleanup errors
+            }
         }
 
         return view('login');
@@ -37,7 +47,16 @@ class LoginController extends Controller
         // Check if input is email or username
         $fieldType = filter_var($loginInput, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        if (Auth::attempt([$fieldType => $loginInput, 'password' => $credentials['password']], $remember)) {
+        try {
+            $authenticated = Auth::attempt([$fieldType => $loginInput, 'password' => $credentials['password']], $remember);
+        } catch (\Throwable $e) {
+            report($e);
+            return back()->withErrors([
+                'username' => 'Authentication service is temporarily unavailable. Please try again later.',
+            ])->onlyInput('username');
+        }
+
+        if ($authenticated) {
             $user = Auth::user();
 
             if ($user->status !== 'active') {

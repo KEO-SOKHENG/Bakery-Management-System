@@ -3,8 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Exception;
+use Illuminate\Contracts\Auth\StatefulGuard;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Mockery;
 use Tests\TestCase;
 
 class LoginAuthenticationTest extends TestCase
@@ -198,5 +203,44 @@ class LoginAuthenticationTest extends TestCase
         $cashier = User::where('username', 'test_cashier')->first();
         $this->actingAs($cashier);
         $this->get(route('login'))->assertRedirect(route('cashier.dashboard'));
+    }
+
+    /**
+     * Test POST /login handles unexpected authentication or database exceptions gracefully without HTTP 500.
+     */
+    public function test_login_post_handles_service_exception_gracefully(): void
+    {
+        $guard = Mockery::mock(StatefulGuard::class);
+        $guard->shouldReceive('check')->andReturn(false);
+        $guard->shouldReceive('attempt')
+            ->once()
+            ->andThrow(new QueryException('pgsql', 'SELECT * FROM users', [], new Exception('Connection refused')));
+        Auth::swap($guard);
+
+        $response = $this->post(route('login.post'), [
+            'username' => 'test_admin',
+            'password' => 'password123',
+        ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHasErrors('username');
+    }
+
+    /**
+     * Test GET /login renders cleanly even if Auth::check throws an unexpected exception.
+     */
+    public function test_login_get_handles_auth_exception_gracefully(): void
+    {
+        $guard = Mockery::mock(StatefulGuard::class);
+        $guard->shouldReceive('check')
+            ->once()
+            ->andThrow(new QueryException('pgsql', 'SELECT * FROM users', [], new Exception('Connection refused')));
+        $guard->shouldReceive('logout')->andReturnNull();
+        Auth::swap($guard);
+
+        $response = $this->get(route('login'));
+
+        $response->assertStatus(200);
+        $response->assertViewIs('login');
     }
 }
