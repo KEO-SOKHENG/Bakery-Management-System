@@ -5,7 +5,7 @@ set -e
 PORT="${PORT:-80}"
 
 # Adjust Apache port in ports.conf and 000-default.conf
-sed -i "s/Listen .*/Listen ${PORT}/g" /etc/apache2/ports.conf
+echo "Listen ${PORT}" > /etc/apache2/ports.conf
 sed -i "s/<VirtualHost \*:[0-9]*>/<VirtualHost \*:${PORT}>/g" /etc/apache2/sites-available/000-default.conf
 
 # Ensure required storage and cache directories exist

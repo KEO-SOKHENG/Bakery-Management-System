@@ -16,4 +16,19 @@ class ExampleTest extends TestCase
 
         $response->assertRedirect('/login');
     }
+
+    public function test_healthz_endpoint_returns_ok(): void
+    {
+        $response = $this->get('/healthz');
+
+        $response->assertStatus(200);
+        $response->assertSee('OK');
+    }
+
+    public function test_up_endpoint_returns_ok(): void
+    {
+        $response = $this->get('/up');
+
+        $response->assertStatus(200);
+    }
 }

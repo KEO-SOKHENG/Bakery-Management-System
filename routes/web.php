@@ -23,6 +23,11 @@ use App\Http\Controllers\Admin\HrController;
 use App\Http\Controllers\PasswordChangeController;
 use App\Http\Controllers\PosController;
 
+// Health Check Endpoint (Render, Kubernetes, monitoring services)
+Route::get('/healthz', function () {
+    return response('OK', 200)->header('Content-Type', 'text/plain');
+});
+
 // Redirect root to Login Page
 Route::get('/', function () {
     return redirect()->route('login');
