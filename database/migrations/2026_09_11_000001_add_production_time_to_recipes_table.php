@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('recipes', function (Blueprint $table) {
-            $table->integer('production_time')->nullable()->after('instructions')->comment('Estimated production time in minutes');
-            $table->integer('yield_quantity')->default(1)->after('production_time')->comment('Expected output units from recipe');
+            $table->integer('production_time')->nullable()->comment('Estimated production time in minutes');
+            $table->integer('yield_quantity')->default(1)->comment('Expected output units from recipe');
         });
     }
 

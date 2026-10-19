@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->boolean('is_custom')->default(false)->after('order_status');
-            $table->text('special_instructions')->nullable()->after('is_custom');
-            $table->dateTime('pickup_date')->nullable()->after('special_instructions');
+            $table->boolean('is_custom')->default(false);
+            $table->text('special_instructions')->nullable();
+            $table->dateTime('pickup_date')->nullable();
         });
     }
 

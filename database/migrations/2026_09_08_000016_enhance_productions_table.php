@@ -6,28 +6,37 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+
     public function up(): void
     {
         Schema::table('productions', function (Blueprint $table) {
             if (!Schema::hasColumn('productions', 'batch_number')) {
-                $table->string('batch_number')->nullable()->unique()->after('id');
+                $table->string('batch_number')->nullable()->unique();
             }
+
             if (!Schema::hasColumn('productions', 'scheduled_at')) {
-                $table->timestamp('scheduled_at')->nullable()->after('quantity');
+                $table->timestamp('scheduled_at')->nullable();
             }
+
             if (!Schema::hasColumn('productions', 'started_at')) {
-                $table->timestamp('started_at')->nullable()->after('scheduled_at');
+                $table->timestamp('started_at')->nullable();
             }
+
             if (!Schema::hasColumn('productions', 'completed_at')) {
-                $table->timestamp('completed_at')->nullable()->after('started_at');
+                $table->timestamp('completed_at')->nullable();
             }
+
             if (!Schema::hasColumn('productions', 'baker_id')) {
-                $table->foreignId('baker_id')->nullable()->after('user_id')->constrained('users')->onDelete('set null');
+                $table->foreignId('baker_id')
+                    ->nullable()
+                    ->constrained('users')
+                    ->nullOnDelete();
             }
-            // Allow recipe_id to be nullable for products without recipes
+
             $table->foreignId('recipe_id')->nullable()->change();
         });
     }
+
 
     public function down(): void
     {

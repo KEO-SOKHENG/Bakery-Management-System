@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('ingredients', function (Blueprint $table) {
             if (!Schema::hasColumn('ingredients', 'expiry_date')) {
-                $table->date('expiry_date')->nullable()->after('minimum_quantity');
+                $table->date('expiry_date')->nullable();
             }
         });
     }

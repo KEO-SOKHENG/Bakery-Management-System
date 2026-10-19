@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::table('suppliers', function (Blueprint $table) {
             if (!Schema::hasColumn('suppliers', 'contact_person')) {
-                $table->string('contact_person')->nullable()->after('name');
+                $table->string('contact_person')->nullable();
             }
             if (!Schema::hasColumn('suppliers', 'notes')) {
-                $table->text('notes')->nullable()->after('status');
+                $table->text('notes')->nullable();
             }
         });
     }

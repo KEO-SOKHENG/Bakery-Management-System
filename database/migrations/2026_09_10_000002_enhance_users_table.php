@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             if (!Schema::hasColumn('users', 'phone')) {
-                $table->string('phone')->nullable()->after('email');
+                $table->string('phone')->nullable();
             }
             if (!Schema::hasColumn('users', 'must_change_password')) {
-                $table->boolean('must_change_password')->default(false)->after('password');
+                $table->boolean('must_change_password')->default(false);
             }
             if (!Schema::hasColumn('users', 'custom_permissions')) {
-                $table->json('custom_permissions')->nullable()->after('role');
+                $table->json('custom_permissions')->nullable();
             }
             if (!Schema::hasColumn('users', 'last_login_at')) {
-                $table->timestamp('last_login_at')->nullable()->after('remember_token');
+                $table->timestamp('last_login_at')->nullable();
             }
         });
     }

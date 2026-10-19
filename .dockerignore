@@ -1,0 +1,44 @@
+# Secrets, credentials and database files
+.env
+.env.*
+!.env.example
+*.sqlite
+database/*.sqlite
+*.sql
+
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Local dependencies
+/vendor
+/node_modules
+
+# Local build artifacts and caches
+/public/build
+/public/hot
+/public/storage
+.phpunit.result.cache
+.phpunit.cache
+
+# Development and testing files
+/tests
+/scratch
+/e2e
+/playwright-report
+/test-results
+/blob-report
+playwright.config.js
+
+# IDE and system files
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+*.log
+
+# Local storage keys and temporary data
+/storage/*.key
+/storage/logs/*.log
+/storage/pail
