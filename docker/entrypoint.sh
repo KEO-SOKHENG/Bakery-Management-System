@@ -19,13 +19,19 @@ mkdir -p storage/framework/cache/data \
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-# Safe read-only check of database connectivity (non-destructive)
-php artisan db:show || echo "Database connectivity check failed. Check DATABASE_URL and credentials."
-
-# Optional: Run database migrations if RUN_MIGRATIONS=true
-if [ "${RUN_MIGRATIONS}" = "true" ]; then
-    echo "RUN_MIGRATIONS=true detected. Running migrations..."
-    php artisan migrate --force --no-interaction
+# Safe read-only diagnostic check of database connectivity (non-destructive, credentials never logged)
+if php artisan db:diagnostic; then
+    # Optional: Run database migrations only if explicitly enabled AND connectivity verified
+    if [ "${RUN_MIGRATIONS}" = "true" ]; then
+        echo "RUN_MIGRATIONS=true detected. Running migrations..."
+        php artisan migrate --force --no-interaction
+    fi
+else
+    echo "Database connectivity diagnostic check failed. Please verify database configuration."
+    if [ "${RUN_MIGRATIONS}" = "true" ]; then
+        echo "Aborting migrations due to database connectivity failure."
+        exit 1
+    fi
 fi
 
 # Execute CMD (apache2-foreground)

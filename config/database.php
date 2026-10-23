@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', env('DATABASE_URL') ? 'pgsql' : 'sqlite'),
+    'default' => env('DB_CONNECTION') ?: (((env('DATABASE_URL') ?: env('DB_URL')) || env('DB_HOST')) ? 'pgsql' : 'sqlite'),
 
     /*
     |--------------------------------------------------------------------------
@@ -84,20 +84,31 @@ return [
             ]) : [],
         ],
 
-        'pgsql' => [
-            'driver' => 'pgsql',
-            'url' => env('DB_URL', env('DATABASE_URL')),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset' => env('DB_CHARSET', 'utf8'),
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'search_path' => 'public',
-            'sslmode' => env('DB_SSLMODE', 'prefer'),
-        ],
+        'pgsql' => (function () {
+            $databaseUrl = env('DATABASE_URL') ?: env('DB_URL');
+            $parsedUrl = $databaseUrl
+                ? (new \Illuminate\Support\ConfigurationUrlParser)->parseConfiguration($databaseUrl)
+                : [];
+
+            // Remove raw URL from configuration array to prevent credential leakage in logs, db:show, or dumps
+            unset($parsedUrl['url']);
+
+            $isLocalOrTesting = in_array(env('APP_ENV', 'production'), ['local', 'testing'], true);
+
+            return [
+                'driver' => 'pgsql',
+                'host' => $parsedUrl['host'] ?? env('DB_HOST', $isLocalOrTesting ? '127.0.0.1' : null),
+                'port' => $parsedUrl['port'] ?? env('DB_PORT', '5432'),
+                'database' => $parsedUrl['database'] ?? env('DB_DATABASE'),
+                'username' => $parsedUrl['username'] ?? env('DB_USERNAME'),
+                'password' => $parsedUrl['password'] ?? env('DB_PASSWORD'),
+                'charset' => env('DB_CHARSET', 'utf8'),
+                'prefix' => '',
+                'prefix_indexes' => true,
+                'search_path' => env('DB_SCHEMA', 'public'),
+                'sslmode' => $parsedUrl['sslmode'] ?? env('DB_SSLMODE', 'prefer'),
+            ];
+        })(),
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',
