@@ -26,10 +26,23 @@ if php artisan db:diagnostic; then
         echo "RUN_MIGRATIONS=true detected. Running migrations..."
         php artisan migrate --force --no-interaction
     fi
+
+    # One-time bootstrap of initial administrator account
+    if [ "${BOOTSTRAP_ADMIN}" = "true" ]; then
+        echo "BOOTSTRAP_ADMIN=true detected. Executing administrator account bootstrap..."
+        if ! php artisan admin:bootstrap; then
+            echo "Administrator account bootstrap failed. Aborting container startup."
+            exit 1
+        fi
+    fi
 else
     echo "Database connectivity diagnostic check failed. Please verify database configuration."
     if [ "${RUN_MIGRATIONS}" = "true" ]; then
         echo "Aborting migrations due to database connectivity failure."
+        exit 1
+    fi
+    if [ "${BOOTSTRAP_ADMIN}" = "true" ]; then
+        echo "Aborting administrator bootstrap due to database connectivity failure."
         exit 1
     fi
 fi
