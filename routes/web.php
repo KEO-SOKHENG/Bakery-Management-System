@@ -28,8 +28,11 @@ Route::get('/healthz', function () {
     return response('OK', 200)->header('Content-Type', 'text/plain');
 });
 
-// Redirect root to Login Page
+// Redirect root and /home to Login Page
 Route::get('/', function () {
+    return redirect()->route('login');
+});
+Route::get('/home', function () {
     return redirect()->route('login');
 });
 

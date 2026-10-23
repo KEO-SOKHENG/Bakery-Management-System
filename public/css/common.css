@@ -173,34 +173,6 @@ body {
     border: 2px solid #ffffff;
 }
 
-/* Header Language Switcher */
-.header-lang-switcher {
-    display: flex;
-    gap: 0.25rem;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 0.25rem 0.5rem;
-    border-radius: 9999px;
-    border: 1px solid #e4e4e7;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
-}
-
-.header-lang-switcher .lang-btn {
-    padding: 0.25rem 0.6rem;
-    border-radius: 9999px;
-    font-weight: 700;
-    font-size: 0.8rem;
-    text-decoration: none;
-    color: #52525b;
-    background: transparent;
-    transition: all 0.2s ease;
-}
-
-.header-lang-switcher .lang-btn.active {
-    color: #ffffff !important;
-    background: #5D4037 !important;
-}
 
 /* ==========================================================================
    UNIFIED STAT & KPI CARDS SYSTEM (GLOBAL FOR ALL PAGES - EXACT DASHBOARD STYLE)

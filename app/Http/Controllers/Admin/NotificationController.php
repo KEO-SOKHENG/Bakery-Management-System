@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
+use App\Models\User;
 use App\Services\AuditLogService;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
@@ -25,6 +26,7 @@ class NotificationController extends Controller
      */
     public function index(Request $request)
     {
+        /** @var User|null $user */
         $user = Auth::user();
 
         // Throttled sync of live condition alerts
@@ -94,6 +96,7 @@ class NotificationController extends Controller
      */
     public function feed(): JsonResponse
     {
+        /** @var User|null $user */
         $user = Auth::user();
         if ($user) {
             $this->notificationService->syncThrottled($user);
@@ -269,8 +272,9 @@ class NotificationController extends Controller
      */
     public function sendPromotion(Request $request)
     {
+        /** @var User|null $user */
         $user = Auth::user();
-        if (!$user || (!$user->isAdmin() && !$user->hasPermission('notifications.promote'))) {
+        if (!$user instanceof User || (!$user->isAdmin() && !$user->hasPermission('notifications.promote'))) {
             abort(403, 'Unauthorized action. Only administrators can broadcast promotions.');
         }
 

@@ -211,4 +211,35 @@ class DatabaseConfigurationTest extends TestCase
             }
         }
     }
+
+    /**
+     * Test that admin:create command safely provisions an administrator account without leaking passwords.
+     */
+    public function test_admin_create_command_provisions_account_safely(): void
+    {
+        Artisan::call('migrate');
+
+        $exitCode = Artisan::call('admin:create', [
+            '--name'     => 'Production Admin',
+            '--username' => 'prod_admin',
+            '--email'    => 'prod_admin@bakery.com',
+            '--password' => 'SecurePass#2026',
+        ]);
+
+        $this->assertSame(0, $exitCode);
+        $output = Artisan::output();
+
+        $this->assertStringContainsString('Administrator Account Ready', $output);
+        $this->assertStringContainsString('prod_admin', $output);
+        $this->assertStringContainsString('prod_admin@bakery.com', $output);
+        $this->assertStringNotContainsString('SecurePass#2026', $output);
+
+        $this->assertDatabaseHas('users', [
+            'username' => 'prod_admin',
+            'email'    => 'prod_admin@bakery.com',
+            'role'     => 'admin',
+            'status'   => 'active',
+        ]);
+    }
 }
+

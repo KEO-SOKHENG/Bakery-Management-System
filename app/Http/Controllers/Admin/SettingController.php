@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Setting;
+use App\Models\User;
 use App\Services\AuditLogService;
 use App\Services\SettingsService;
 use Illuminate\Http\Request;
@@ -22,8 +23,9 @@ class SettingController extends Controller
      */
     public function index()
     {
+        /** @var User|null $user */
         $user = Auth::user();
-        if (!$user || !$user->hasPermission('settings.view')) {
+        if (!$user instanceof User || !$user->hasPermission('settings.view')) {
             abort(403, 'Unauthorized access to system settings.');
         }
 
@@ -61,8 +63,9 @@ class SettingController extends Controller
      */
     public function update(Request $request)
     {
+        /** @var User|null $user */
         $user = Auth::user();
-        if (!$user) {
+        if (!$user instanceof User) {
             abort(401);
         }
 
@@ -186,8 +189,9 @@ class SettingController extends Controller
      */
     public function createBackup(Request $request)
     {
+        /** @var User|null $user */
         $user = Auth::user();
-        if (!$user || !$user->isAdmin()) {
+        if (!$user instanceof User || !$user->isAdmin()) {
             abort(403, 'Unauthorized: Only system administrators can generate backups.');
         }
 
@@ -229,8 +233,9 @@ class SettingController extends Controller
      */
     public function restoreBackup(Request $request)
     {
+        /** @var User|null $user */
         $user = Auth::user();
-        if (!$user || !$user->isAdmin()) {
+        if (!$user instanceof User || !$user->isAdmin()) {
             abort(403, 'Unauthorized: Only system administrators can restore backups.');
         }
 

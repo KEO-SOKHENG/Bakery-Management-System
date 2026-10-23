@@ -252,6 +252,7 @@
                 <polyline points="20 6 9 17 4 12"/>
             </svg>
             <span id="btn_complete_sale_text" data-lang-key="complete_sale">Complete Sale</span>
+        </button>
     </div>
 </div>
 

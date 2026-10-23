@@ -284,10 +284,7 @@
 
                 <div class="header-actions">
                     <!-- Language Switcher -->
-                    <div class="header-lang-switcher">
-                        <a href="{{ route('lang.switch', 'en') }}" id="lang_switch_en" class="lang-btn {{ app()->getLocale() === 'en' ? 'active' : '' }}">EN</a>
-                        <a href="{{ route('lang.switch', 'km') }}" id="lang_switch_km" class="lang-btn {{ app()->getLocale() === 'km' ? 'active' : '' }}">KM</a>
-                    </div>
+                   
 
                     <!-- Live Search Input -->
                     <div class="header-search-box">

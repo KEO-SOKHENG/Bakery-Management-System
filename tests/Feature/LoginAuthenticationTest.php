@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Mockery;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class LoginAuthenticationTest extends TestCase
@@ -58,6 +59,15 @@ class LoginAuthenticationTest extends TestCase
         ]);
     }
 
+    protected function tearDown(): void
+    {
+        if (isset($this->app['auth'])) {
+            $this->app['auth']->forgetGuards();
+        }
+        Mockery::close();
+        parent::tearDown();
+    }
+
     /**
      * Test that the login page renders without the role selector tabs or hidden role input.
      */
@@ -97,7 +107,9 @@ class LoginAuthenticationTest extends TestCase
 
         $response->assertRedirect(route('admin.dashboard'));
         $this->assertAuthenticated();
-        $this->assertEquals('admin', auth()->user()->role);
+        $user = Auth::user();
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertEquals('admin', $user->role);
     }
 
     /**
@@ -112,7 +124,9 @@ class LoginAuthenticationTest extends TestCase
 
         $response->assertRedirect(route('manager.dashboard'));
         $this->assertAuthenticated();
-        $this->assertEquals('manager', auth()->user()->role);
+        $user = Auth::user();
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertEquals('manager', $user->role);
     }
 
     /**
@@ -127,7 +141,9 @@ class LoginAuthenticationTest extends TestCase
 
         $response->assertRedirect(route('admin.production'));
         $this->assertAuthenticated();
-        $this->assertEquals('baker', auth()->user()->role);
+        $user = Auth::user();
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertEquals('baker', $user->role);
     }
 
     /**
@@ -142,7 +158,9 @@ class LoginAuthenticationTest extends TestCase
 
         $response->assertRedirect(route('cashier.dashboard'));
         $this->assertAuthenticated();
-        $this->assertEquals('cashier', auth()->user()->role);
+        $user = Auth::user();
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertEquals('cashier', $user->role);
     }
 
     /**
@@ -161,7 +179,9 @@ class LoginAuthenticationTest extends TestCase
         // Must still redirect to cashier dashboard, NEVER admin dashboard
         $response->assertRedirect(route('cashier.dashboard'));
         $this->assertAuthenticated();
-        $this->assertEquals('cashier', auth()->user()->role);
+        $user = Auth::user();
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertEquals('cashier', $user->role);
 
         // Verify that cashier is denied access to admin-only dashboard and redirected to cashier dashboard
         $adminDashboardResponse = $this->get(route('admin.dashboard'));
@@ -188,19 +208,19 @@ class LoginAuthenticationTest extends TestCase
      */
     public function test_authenticated_user_redirected_from_login_page(): void
     {
-        $admin = User::where('username', 'test_admin')->first();
+        $admin = User::where('username', 'test_admin')->firstOrFail();
         $this->actingAs($admin);
         $this->get(route('login'))->assertRedirect(route('admin.dashboard'));
 
-        $manager = User::where('username', 'test_manager')->first();
+        $manager = User::where('username', 'test_manager')->firstOrFail();
         $this->actingAs($manager);
         $this->get(route('login'))->assertRedirect(route('manager.dashboard'));
 
-        $baker = User::where('username', 'test_baker')->first();
+        $baker = User::where('username', 'test_baker')->firstOrFail();
         $this->actingAs($baker);
         $this->get(route('login'))->assertRedirect(route('admin.production'));
 
-        $cashier = User::where('username', 'test_cashier')->first();
+        $cashier = User::where('username', 'test_cashier')->firstOrFail();
         $this->actingAs($cashier);
         $this->get(route('login'))->assertRedirect(route('cashier.dashboard'));
     }
@@ -210,12 +230,15 @@ class LoginAuthenticationTest extends TestCase
      */
     public function test_login_post_handles_service_exception_gracefully(): void
     {
+        /** @var StatefulGuard&MockInterface $guard */
         $guard = Mockery::mock(StatefulGuard::class);
         $guard->shouldReceive('check')->andReturn(false);
         $guard->shouldReceive('attempt')
             ->once()
             ->andThrow(new QueryException('pgsql', 'SELECT * FROM users', [], new Exception('Connection refused')));
-        Auth::swap($guard);
+
+        $this->app['auth']->extend('session', static fn () => $guard);
+        $this->app['auth']->forgetGuards();
 
         $response = $this->post(route('login.post'), [
             'username' => 'test_admin',
@@ -231,12 +254,15 @@ class LoginAuthenticationTest extends TestCase
      */
     public function test_login_get_handles_auth_exception_gracefully(): void
     {
+        /** @var StatefulGuard&MockInterface $guard */
         $guard = Mockery::mock(StatefulGuard::class);
         $guard->shouldReceive('check')
             ->once()
             ->andThrow(new QueryException('pgsql', 'SELECT * FROM users', [], new Exception('Connection refused')));
         $guard->shouldReceive('logout')->andReturnNull();
-        Auth::swap($guard);
+
+        $this->app['auth']->extend('session', static fn () => $guard);
+        $this->app['auth']->forgetGuards();
 
         $response = $this->get(route('login'));
 
