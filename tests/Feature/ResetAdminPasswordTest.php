@@ -398,4 +398,35 @@ class ResetAdminPasswordTest extends TestCase
 
         $this->assertStringNotContainsString($plainPassword, $output);
     }
+
+    /**
+     * Test reset succeeds when username and email differ only in casing (PostgreSQL case-insensitive compatibility).
+     */
+    public function test_reset_is_case_insensitive_for_username_and_email(): void
+    {
+        $admin = User::create([
+            'name'                 => 'Cased Admin',
+            'username'             => 'cased_admin',
+            'email'                => 'cased_admin@bakery.com',
+            'password'             => Hash::make('PriorSecret#000'),
+            'role'                 => 'admin',
+            'status'               => 'active',
+            'must_change_password' => false,
+        ]);
+
+        $this->setResetEnv([
+            'RESET_ADMIN_PASSWORD'              => 'true',
+            'RESET_ADMIN_USERNAME'              => 'CASED_ADMIN',
+            'RESET_ADMIN_EMAIL'                 => 'Cased_Admin@Bakery.com',
+            'RESET_ADMIN_NEW_PASSWORD'          => 'NewCasedPassword#2026',
+            'RESET_ADMIN_MUST_CHANGE_PASSWORD' => 'false',
+        ]);
+
+        $exitCode = Artisan::call('admin:reset-password');
+        $this->assertSame(0, $exitCode);
+
+        $reloaded = $admin->fresh();
+        $this->assertTrue(Hash::check('NewCasedPassword#2026', $reloaded->password));
+        $this->assertFalse($reloaded->must_change_password);
+    }
 }

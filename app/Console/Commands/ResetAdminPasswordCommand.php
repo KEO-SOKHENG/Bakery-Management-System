@@ -91,8 +91,8 @@ class ResetAdminPasswordCommand extends Command
         $databaseName = config("database.connections.{$connectionName}.database");
 
         try {
-            $userByUsername = User::where('username', $username)->first();
-            $userByEmail = User::where('email', $email)->first();
+            $userByUsername = User::whereRaw('LOWER(username) = ?', [strtolower($username)])->first();
+            $userByEmail = User::whereRaw('LOWER(email) = ?', [strtolower($email)])->first();
 
             // Safety Check 1: Account does not exist
             if (! $userByUsername && ! $userByEmail) {

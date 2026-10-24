@@ -69,8 +69,8 @@ class BootstrapAdminCommand extends Command
 
         try {
             // Check for existing accounts
-            $userByUsername = User::where('username', $username)->first();
-            $userByEmail = User::where('email', $email)->first();
+            $userByUsername = User::whereRaw('LOWER(username) = ?', [strtolower($username)])->first();
+            $userByEmail = User::whereRaw('LOWER(email) = ?', [strtolower($email)])->first();
 
             // Case 1: Exact bootstrap admin already exists (Idempotent success)
             if ($userByUsername && $userByEmail && $userByUsername->id === $userByEmail->id) {
