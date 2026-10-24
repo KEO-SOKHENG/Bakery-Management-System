@@ -19,61 +19,74 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Seed Users (password: pass123 for Playwright tests & local dev)
-        User::updateOrCreate(
-            ['username' => 'admin'],
-            [
-                'name' => 'System Admin',
-                'email' => 'admin@bakery.com',
-                'password' => Hash::make('pass123'),
-                'role' => 'admin',
-                'status' => 'active',
-            ]
-        );
+        $baker1 = null;
+        $baker2 = null;
 
-        User::updateOrCreate(
-            ['username' => 'manager'],
-            [
-                'name' => 'Bakery Manager',
-                'email' => 'manager@bakery.com',
-                'password' => Hash::make('pass123'),
-                'role' => 'manager',
-                'status' => 'active',
-            ]
-        );
+        // 1. Seed Users (In production, NEVER create default accounts with hardcoded passwords like 'pass123',
+        // even if no admin exists. Production accounts must be initialized via admin:bootstrap.)
+        if (app()->environment('production')) {
+            $this->command?->info('Production environment detected: Skipping default dev user accounts with hardcoded passwords.');
+        } else {
+            User::firstOrCreate(
+                ['username' => 'admin'],
+                [
+                    'name'                 => 'System Admin',
+                    'email'                => 'admin@bakery.com',
+                    'password'             => Hash::make('pass123'),
+                    'role'                 => 'admin',
+                    'status'               => 'active',
+                    'must_change_password' => false,
+                ]
+            );
 
-        User::updateOrCreate(
-            ['username' => 'cashier'],
-            [
-                'name' => 'Store Cashier',
-                'email' => 'cashier@bakery.com',
-                'password' => Hash::make('pass123'),
-                'role' => 'cashier',
-                'status' => 'active',
-            ]
-        );
+            User::firstOrCreate(
+                ['username' => 'manager'],
+                [
+                    'name'                 => 'Bakery Manager',
+                    'email'                => 'manager@bakery.com',
+                    'password'             => Hash::make('pass123'),
+                    'role'                 => 'manager',
+                    'status'               => 'active',
+                    'must_change_password' => false,
+                ]
+            );
 
-        $baker1 = User::updateOrCreate(
-            ['username' => 'baker'],
-            [
-                'name' => 'Pierre Dubois (Head Baker)',
-                'email' => 'baker@bakery.com',
-                'password' => Hash::make('pass123'),
-                'role' => 'baker',
-                'status' => 'active',
-            ]
-        );
+            User::firstOrCreate(
+                ['username' => 'cashier'],
+                [
+                    'name'                 => 'Store Cashier',
+                    'email'                => 'cashier@bakery.com',
+                    'password'             => Hash::make('pass123'),
+                    'role'                 => 'cashier',
+                    'status'               => 'active',
+                    'must_change_password' => false,
+                ]
+            );
 
-        $baker2 = User::updateOrCreate(
-            ['username' => 'baker2'],
-            [
-                'name' => 'Alice Smith (Pastry Baker)',
-                'email' => 'baker2@bakery.com',
-                'password' => Hash::make('pass123'),
-                'role' => 'baker',
-                'status' => 'active',
-            ]
-        );
+            $baker1 = User::firstOrCreate(
+                ['username' => 'baker'],
+                [
+                    'name'                 => 'Pierre Dubois (Head Baker)',
+                    'email'                => 'baker@bakery.com',
+                    'password'             => Hash::make('pass123'),
+                    'role'                 => 'baker',
+                    'status'               => 'active',
+                    'must_change_password' => false,
+                ]
+            );
+
+            $baker2 = User::firstOrCreate(
+                ['username' => 'baker2'],
+                [
+                    'name'                 => 'Alice Smith (Pastry Baker)',
+                    'email'                => 'baker2@bakery.com',
+                    'password'             => Hash::make('pass123'),
+                    'role'                 => 'baker',
+                    'status'               => 'active',
+                    'must_change_password' => false,
+                ]
+            );
+        }
 
         // 2. Seed Categories (using firstOrCreate to prevent duplicates)
         $cakes = Category::firstOrCreate(['name' => 'Cakes'], ['description' => 'Freshly baked cakes and pastries', 'status' => 'active']);
@@ -351,6 +364,11 @@ class DatabaseSeeder extends Seeder
         );
 
         // 9. Seed Initial Production Batches
+        $adminUserId   = User::where('role', 'admin')->value('id');
+        $managerUserId = User::where('role', 'manager')->value('id') ?? $adminUserId;
+        $baker1Id      = $baker1?->id ?? User::where('role', 'baker')->value('id') ?? $adminUserId;
+        $baker2Id      = $baker2?->id ?? User::where('role', 'baker')->skip(1)->value('id') ?? $baker1Id;
+
         Production::create([
             'batch_number'    => 'BATCH-' . date('Ymd') . '-0001',
             'recipe_id'       => $r1->id,
@@ -362,8 +380,8 @@ class DatabaseSeeder extends Seeder
             'completed_at'    => now()->subDay()->addHours(3),
             'status'          => 'completed',
             'notes'           => 'Morning chocolate cake batch. Baked to perfection.',
-            'user_id'         => 1, // Admin
-            'baker_id'        => $baker1->id,
+            'user_id'         => $adminUserId,
+            'baker_id'        => $baker1Id,
         ]);
 
         Production::create([
@@ -377,8 +395,8 @@ class DatabaseSeeder extends Seeder
             'completed_at'    => null,
             'status'          => 'in_progress',
             'notes'           => 'Fresh breakfast butter croissants currently in proofing/oven.',
-            'user_id'         => 2, // Manager
-            'baker_id'        => $baker1->id,
+            'user_id'         => $managerUserId,
+            'baker_id'        => $baker1Id,
         ]);
 
         Production::create([
@@ -392,8 +410,8 @@ class DatabaseSeeder extends Seeder
             'completed_at'    => null,
             'status'          => 'scheduled',
             'notes'           => 'Afternoon vanilla sponge cakes for showcase display.',
-            'user_id'         => 1, // Admin
-            'baker_id'        => $baker2->id,
+            'user_id'         => $adminUserId,
+            'baker_id'        => $baker2Id,
         ]);
 
         // 13. Seed Purchase Orders & Stock Movements

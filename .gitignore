@@ -33,3 +33,8 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Local Scratch, Uploads, and Schema Dumps
+/scratch/
+/public/uploads/
+bakery_schema.sql

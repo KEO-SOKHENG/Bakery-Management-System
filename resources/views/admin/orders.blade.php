@@ -1,1 +1,0 @@
-@include('admin.orders.index')

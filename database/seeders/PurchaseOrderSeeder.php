@@ -15,7 +15,7 @@ class PurchaseOrderSeeder extends Seeder
     public function run(): void
     {
         $admin = User::where('role', 'admin')->first();
-        $adminId = $admin ? $admin->id : 1;
+        $adminId = $admin ? $admin->id : null;
 
         // Ensure realistic suppliers exist
         $supplier1 = Supplier::firstOrCreate(

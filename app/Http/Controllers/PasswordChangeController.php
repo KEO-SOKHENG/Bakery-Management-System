@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +15,7 @@ class PasswordChangeController extends Controller
      */
     public function show()
     {
+        /** @var User|null $user */
         $user = Auth::user();
         return view('auth.change-password', compact('user'));
     }
@@ -23,6 +25,7 @@ class PasswordChangeController extends Controller
      */
     public function update(Request $request)
     {
+        /** @var User $user */
         $user = Auth::user();
 
         $request->validate([

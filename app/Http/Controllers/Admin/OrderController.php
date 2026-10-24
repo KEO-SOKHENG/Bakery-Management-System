@@ -10,6 +10,7 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\Setting;
+use App\Models\User;
 use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -688,6 +689,7 @@ class OrderController extends Controller
      */
     public function purgePreview(Request $request)
     {
+        /** @var User|null $user */
         $user = Auth::user();
         if (!$user || !$user->isAdmin()) {
             return response()->json(['error' => 'Unauthorized'], 403);
@@ -730,6 +732,7 @@ class OrderController extends Controller
      */
     public function purgeOld(Request $request)
     {
+        /** @var User|null $user */
         $user = Auth::user();
         if (!$user || !$user->isAdmin()) {
             abort(403, 'Unauthorized. Only administrators can purge order records.');
