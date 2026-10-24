@@ -26,13 +26,6 @@
             <a href="{{ route('admin.dashboard', ['period' => '30days']) }}" class="period-pill {{ $period === '30days' ? 'active' : '' }}" data-lang-key="last_30_days">{{ __('messages.last_30_days') }}</a>
             <a href="{{ route('admin.dashboard', ['period' => 'this_month']) }}" class="period-pill {{ $period === 'this_month' ? 'active' : '' }}" data-lang-key="this_month">{{ __('messages.this_month') }}</a>
         </div>
-        <div class="custom-date-group">
-            <input type="hidden" name="period" value="custom">
-            <input type="date" name="start_date" class="custom-date-input" value="{{ request('start_date', $startDate ? $startDate->format('Y-m-d') : '') }}" aria-label="Start Date">
-            <span style="color: var(--text-muted);">&mdash;</span>
-            <input type="date" name="end_date" class="custom-date-input" value="{{ request('end_date', $endDate ? $endDate->format('Y-m-d') : '') }}" aria-label="End Date">
-            <button type="submit" class="btn-filter-apply" data-lang-key="apply">{{ __('messages.apply') }}</button>
-        </div>
     </form>
 </div>
 
