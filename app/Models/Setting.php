@@ -14,12 +14,12 @@ class Setting extends Model
         'value',
     ];
 
-    public static function get(string $key, $default = null)
+    public static function get(string $key, mixed $default = null): mixed
     {
         return \App\Services\SettingsService::get($key, $default);
     }
 
-    public static function set(string $key, $value)
+    public static function set(string $key, mixed $value): mixed
     {
         return \App\Services\SettingsService::set($key, $value);
     }

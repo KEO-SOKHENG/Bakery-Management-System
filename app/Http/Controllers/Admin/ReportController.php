@@ -205,7 +205,11 @@ class ReportController extends Controller
         ]);
     }
 
-    protected function writeSalesCsv($handle, array $data): void
+    /**
+     * @param resource $handle
+     * @param array<string, mixed> $data
+     */
+    protected function writeSalesCsv(mixed $handle, array $data): void
     {
         fputcsv($handle, ['Sale ID', 'Date', 'Order #', 'Customer', 'Items Count', 'Subtotal', 'Discount', 'Tax', 'Total', 'Payment Method', 'Payment Status']);
         foreach ($data['records'] as $sale) {
@@ -228,7 +232,11 @@ class ReportController extends Controller
         fputcsv($handle, ['SUMMARY TOTALS', '', '', '', $data['totalSalesCount'], number_format($data['netSales'], 2, '.', ''), number_format($data['totalDiscount'], 2, '.', ''), number_format($data['totalTax'], 2, '.', ''), number_format($data['totalSalesRevenue'], 2, '.', ''), '', '']);
     }
 
-    protected function writeRevenueCsv($handle, array $data): void
+    /**
+     * @param resource $handle
+     * @param array<string, mixed> $data
+     */
+    protected function writeRevenueCsv(mixed $handle, array $data): void
     {
         fputcsv($handle, ['Date', 'Day', 'Order Count', 'Total Revenue', 'Average Order Value']);
         foreach ($data['dailyRecords'] as $row) {
@@ -247,7 +255,11 @@ class ReportController extends Controller
         fputcsv($handle, ['KHQR / Digital Revenue', number_format((float) $data['qrRevenue'], 2, '.', '')]);
     }
 
-    protected function writeOrdersCsv($handle, array $data): void
+    /**
+     * @param resource $handle
+     * @param array<string, mixed> $data
+     */
+    protected function writeOrdersCsv(mixed $handle, array $data): void
     {
         fputcsv($handle, ['Order #', 'Date', 'Customer', 'Type', 'Subtotal', 'Discount', 'Tax', 'Total', 'Payment Method', 'Payment Status', 'Order Status']);
         foreach ($data['records'] as $order) {
@@ -269,7 +281,11 @@ class ReportController extends Controller
         fputcsv($handle, ['TOTAL ORDERS', $data['totalOrders'], 'COMPLETED', $data['completedOrders'], 'CANCELLED', $data['cancelledOrders'], 'TOTAL AMOUNT', number_format((float) $data['totalOrderAmount'], 2, '.', '')]);
     }
 
-    protected function writeProductsCsv($handle, array $data): void
+    /**
+     * @param resource $handle
+     * @param array<string, mixed> $data
+     */
+    protected function writeProductsCsv(mixed $handle, array $data): void
     {
         fputcsv($handle, ['Product Name', 'Category', 'SKU', 'Unit Price', 'Unit Cost', 'Units Sold', 'Total Revenue', 'Order Count']);
         foreach ($data['records'] as $prod) {
@@ -288,7 +304,11 @@ class ReportController extends Controller
         fputcsv($handle, ['TOTALS', '', '', '', '', $data['totalUnitsSold'], number_format((float) $data['totalRevenue'], 2, '.', ''), '']);
     }
 
-    protected function writeInventoryCsv($handle, array $data): void
+    /**
+     * @param resource $handle
+     * @param array<string, mixed> $data
+     */
+    protected function writeInventoryCsv(mixed $handle, array $data): void
     {
         fputcsv($handle, ['Ingredient', 'Supplier', 'Current Stock', 'Unit', 'Reorder Level', 'Purchase Price', 'Inventory Value', 'Expiry Date', 'Status']);
         foreach ($data['records'] as $item) {
@@ -309,7 +329,11 @@ class ReportController extends Controller
         fputcsv($handle, ['TOTALS', 'Total Items: ' . $data['totalIngredients'], 'Low Stock: ' . $data['lowStockCount'], 'Out of Stock: ' . $data['outOfStockCount'], 'Expired: ' . $data['expiredCount'], '', 'Total Valuation: ' . number_format((float) $data['totalInventoryValue'], 2, '.', '')]);
     }
 
-    protected function writeLowStockCsv($handle, array $data): void
+    /**
+     * @param resource $handle
+     * @param array<string, mixed> $data
+     */
+    protected function writeLowStockCsv(mixed $handle, array $data): void
     {
         fputcsv($handle, ['Ingredient', 'Supplier', 'Current Stock', 'Unit', 'Reorder Level', 'Shortage Deficit', 'Unit Cost', 'Est. Restock Cost', 'Status']);
         foreach ($data['records'] as $item) {
@@ -332,7 +356,11 @@ class ReportController extends Controller
         fputcsv($handle, ['TOTAL DEFICIT ITEMS', $data['totalNeedingReorder'], 'OUT OF STOCK', $data['outOfStockCount'], 'LOW STOCK', $data['lowStockCount'], 'EST. TOTAL RESTOCK COST', number_format((float) $data['estimatedRestockCost'], 2, '.', '')]);
     }
 
-    protected function writeProductionCsv($handle, array $data): void
+    /**
+     * @param resource $handle
+     * @param array<string, mixed> $data
+     */
+    protected function writeProductionCsv(mixed $handle, array $data): void
     {
         fputcsv($handle, ['Batch #', 'Product', 'Recipe', 'Baker', 'Production Date', 'Quantity', 'Status', 'Started At', 'Completed At', 'Duration']);
         foreach ($data['records'] as $batch) {
@@ -353,7 +381,11 @@ class ReportController extends Controller
         fputcsv($handle, ['TOTAL BATCHES', $data['totalBatches'], 'COMPLETED', $data['completedBatches'], 'TOTAL UNITS PRODUCED', $data['totalUnitsProduced'], 'COMPLETION RATE', $data['completionRate'] . '%']);
     }
 
-    protected function writeCustomersCsv($handle, array $data): void
+    /**
+     * @param resource $handle
+     * @param array<string, mixed> $data
+     */
+    protected function writeCustomersCsv(mixed $handle, array $data): void
     {
         fputcsv($handle, ['Customer Name', 'Phone', 'Email', 'Completed Orders', 'Total Spent', 'Avg Order Spend', 'Loyalty Points', 'Loyalty Tier', 'Status']);
         foreach ($data['records'] as $cust) {
@@ -376,7 +408,11 @@ class ReportController extends Controller
         fputcsv($handle, ['TOTAL REGISTERED CUSTOMERS', $data['totalCustomers'], 'ACTIVE WITH ORDERS', $data['activeCustomersCount'], 'TOTAL CUSTOMER SPEND', number_format((float) $data['totalCustomerSpend'], 2, '.', '')]);
     }
 
-    protected function writePurchasesCsv($handle, array $data): void
+    /**
+     * @param resource $handle
+     * @param array<string, mixed> $data
+     */
+    protected function writePurchasesCsv(mixed $handle, array $data): void
     {
         fputcsv($handle, ['PO #', 'Supplier', 'Order Date', 'Expected Date', 'Received Date', 'Status', 'Total Cost', 'Created By']);
         foreach ($data['records'] as $po) {
@@ -395,7 +431,11 @@ class ReportController extends Controller
         fputcsv($handle, ['TOTAL PURCHASE ORDERS', $data['totalPos'], 'RECEIVED ORDERS', $data['receivedPos'], 'TOTAL PROCUREMENT SPEND (RECEIVED ONLY)', number_format((float) $data['totalPurchaseSpend'], 2, '.', '')]);
     }
 
-    protected function writeProfitLossCsv($handle, array $data): void
+    /**
+     * @param resource $handle
+     * @param array<string, mixed> $data
+     */
+    protected function writeProfitLossCsv(mixed $handle, array $data): void
     {
         fputcsv($handle, ['Financial Metric', 'Amount / Value', 'Calculation Formula & Scope']);
         fputcsv($handle, ['Total Sales Revenue', number_format((float) $data['salesRevenue'], 2, '.', ''), 'Sum of all completed orders in period']);

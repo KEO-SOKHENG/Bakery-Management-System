@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -39,17 +40,17 @@ class AuditLog extends Model
         return $this->morphTo();
     }
 
-    public function scopeForTarget($query, string $type, int $id)
+    public function scopeForTarget(Builder $query, string $type, int $id): Builder
     {
         return $query->where('target_type', $type)->where('target_id', $id);
     }
 
-    public function scopeByAction($query, string $action)
+    public function scopeByAction(Builder $query, string $action): Builder
     {
         return $query->where('action', $action);
     }
 
-    public function scopeRecent($query, int $limit = 50)
+    public function scopeRecent(Builder $query, int $limit = 50): Builder
     {
         return $query->orderBy('created_at', 'desc')->limit($limit);
     }

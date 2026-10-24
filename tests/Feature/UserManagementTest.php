@@ -271,6 +271,7 @@ class UserManagementTest extends TestCase
     /** 11. Temporary password forces password change on next login. */
     public function test_temporary_password_forces_password_change(): void
     {
+        /** @var User $user */
         $user = User::factory()->create([
             'username' => 'tempuser',
             'password' => Hash::make('temp123'),
