@@ -35,6 +35,15 @@ if php artisan db:diagnostic; then
             exit 1
         fi
     fi
+
+    # One-time secure administrator password reset
+    if [ "${RESET_ADMIN_PASSWORD}" = "true" ]; then
+        echo "RESET_ADMIN_PASSWORD=true detected. Executing administrator password reset..."
+        if ! php artisan admin:reset-password; then
+            echo "Administrator password reset failed. Aborting container startup."
+            exit 1
+        fi
+    fi
 else
     echo "Database connectivity diagnostic check failed. Please verify database configuration."
     if [ "${RUN_MIGRATIONS}" = "true" ]; then
@@ -43,6 +52,10 @@ else
     fi
     if [ "${BOOTSTRAP_ADMIN}" = "true" ]; then
         echo "Aborting administrator bootstrap due to database connectivity failure."
+        exit 1
+    fi
+    if [ "${RESET_ADMIN_PASSWORD}" = "true" ]; then
+        echo "Aborting administrator password reset due to database connectivity failure."
         exit 1
     fi
 fi
