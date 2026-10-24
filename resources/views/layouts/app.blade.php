@@ -272,7 +272,7 @@
         <div class="bakery-main-content">
             <!-- Header Bar -->
             <header class="top-header-bar">
-                <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
                     <button type="button" class="mobile-sidebar-toggle-btn" id="sidebar_toggle_btn" title="Toggle Navigation Drawer" aria-label="Toggle Navigation Drawer">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -280,6 +280,9 @@
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
                     </button>
+                    <div class="mobile-header-brand" style="display: none;">
+                        <span class="mobile-header-title">{{ \App\Models\Setting::get('shop_name', 'Moon Cake') }}</span>
+                    </div>
                 </div>
 
                 <div class="header-actions">

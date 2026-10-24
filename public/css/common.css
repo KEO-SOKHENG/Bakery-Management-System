@@ -25,6 +25,13 @@
     --radius-lg: 18px;
     --radius-xl: 24px;
     --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --app-header-height: 60px;
+}
+
+@media (max-width: 767px) {
+    :root {
+        --app-header-height: 115px;
+    }
 }
 
 *, input, button, select, textarea {
@@ -1615,7 +1622,6 @@ input[type="file"]::file-selector-button:hover,
 [data-theme="dark"] .table-card,
 [data-theme="dark"] .table-container,
 [data-theme="dark"] .chart-card,
-[data-theme="dark"] .dash-filter-bar,
 [data-theme="dark"] .filter-bar,
 [data-theme="dark"] .orders-card,
 [data-theme="dark"] .detail-card,
@@ -2025,7 +2031,6 @@ input[type="file"]::file-selector-button:hover,
 [data-theme="glass"] .table-card,
 [data-theme="glass"] .table-container,
 [data-theme="glass"] .chart-card,
-[data-theme="glass"] .dash-filter-bar,
 [data-theme="glass"] .filter-bar,
 [data-theme="glass"] .orders-card,
 [data-theme="glass"] .detail-card,
@@ -2896,8 +2901,61 @@ input[type="file"]::file-selector-button:hover,
 }
 
 /* ==========================================================================
-   Global Filter Toolbar & Period Controls (.dash-filter-bar)
+   Universal Sticky Page Menu-Bars & Toolbars
+   Always sticky when scrolling up or down across all pages
    ========================================================================== */
+.dash-filter-bar,
+.orders-header,
+.orders-filter-bar:not(.pos-category-tabs),
+.hr-nav-tabs,
+.user-toolbar,
+.customer-toolbar,
+.pos-toolbar,
+.prod-toolbar-card {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 850 !important;
+}
+
+/* Stacking for Reports Page where both filter bar and nav tabs exist */
+.reports-nav-container {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: calc(var(--app-header-height, 52px) + 4.35rem) !important;
+    z-index: 840 !important;
+}
+
+@media (max-width: 767px) {
+    .reports-nav-container {
+        position: static !important;
+        top: auto !important;
+    }
+}
+
+/* Orders Header: No Background Underneath */
+.orders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    padding: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.orders-header .orders-filter-bar {
+    position: static !important;
+    top: auto !important;
+}
+
+/* Global Filter Toolbar & Period Controls (.dash-filter-bar) */
 .dash-filter-bar {
     display: flex;
     justify-content: space-between;
@@ -2905,23 +2963,15 @@ input[type="file"]::file-selector-button:hover,
     gap: 1.25rem;
     flex-wrap: wrap;
     margin-bottom: 1.5rem;
-    padding: 0.85rem 1.35rem;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 24px;
-    border: 1px solid rgba(238, 233, 224, 0.85);
-    box-shadow: 0 4px 16px rgba(86, 48, 32, 0.03);
+    padding: 0.65rem 0 !important;
+    background: var(--bg-main, #f5f0eb) !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
-.filter-bar-title {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--text-title, #29150d);
-}
+
 
 .filter-date-badge {
     background: rgba(86, 48, 32, 0.08);
@@ -3396,15 +3446,41 @@ body.dark-mode .has-liquid-pill .pos-pay-btn.pill-highlighted svg {
     box-shadow: 0 4px 10px rgba(86, 48, 32, 0.25);
 }
 
-/* Dark Mode Overrides for Global Filter Bar */
-[data-theme="dark"] .dash-filter-bar {
-    background: #0f0f0f !important;
-    border-color: #242424 !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+/* Dark Mode Overrides for Sticky Toolbars & Menu Bars */
+[data-theme="dark"] .dash-filter-bar,
+body.dark-mode .dash-filter-bar {
+    background: #000000 !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
-[data-theme="dark"] .filter-bar-title {
-    color: #ffffff !important;
+[data-theme="dark"] .orders-header,
+body.dark-mode .orders-header {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+[data-theme="dark"] .orders-filter-bar:not(.pos-category-tabs),
+body.dark-mode .orders-filter-bar:not(.pos-category-tabs),
+[data-theme="dark"] .hr-nav-tabs,
+body.dark-mode .hr-nav-tabs,
+[data-theme="dark"] .user-toolbar,
+body.dark-mode .user-toolbar,
+[data-theme="dark"] .customer-toolbar,
+body.dark-mode .customer-toolbar,
+[data-theme="dark"] .pos-toolbar,
+body.dark-mode .pos-toolbar,
+[data-theme="dark"] .prod-toolbar-card,
+body.dark-mode .prod-toolbar-card {
+    background: rgba(18, 18, 22, 0.96) !important;
+    border-color: #28282e !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.75) !important;
 }
 
 [data-theme="dark"] .filter-date-badge {
@@ -3488,15 +3564,35 @@ body.dark-mode .orders-filter-bar:not(.has-liquid-pill) .filter-btn.active {
     box-shadow: 0 4px 12px rgba(217, 119, 54, 0.4) !important;
 }
 
-/* Glass Mode Overrides for Global Filter Bar */
+/* Glass Mode Overrides for Global Filter Bar & Sticky Menu-Bars */
 [data-theme="glass"] .dash-filter-bar {
-    background: rgba(255, 255, 255, 0.07) !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-    backdrop-filter: blur(14px) !important;
+    background: #0b0818 !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
-[data-theme="glass"] .filter-bar-title {
-    color: #ffffff !important;
+[data-theme="glass"] .orders-header {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+[data-theme="glass"] .orders-filter-bar:not(.pos-category-tabs),
+[data-theme="glass"] .hr-nav-tabs,
+[data-theme="glass"] .user-toolbar,
+[data-theme="glass"] .customer-toolbar,
+[data-theme="glass"] .pos-toolbar,
+[data-theme="glass"] .prod-toolbar-card {
+    background: rgba(22, 22, 34, 0.82) !important;
+    border-color: rgba(255, 255, 255, 0.16) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
 }
 
 [data-theme="glass"] .filter-date-badge {
@@ -4069,6 +4165,20 @@ body.dark-mode .confirm-modal-btn.cancel-btn:hover {
 .confirm-modal-btn:active {
     transform: scale(0.96) !important;
 }
+
+@media (max-height: 520px) {
+    .dash-filter-bar,
+    .orders-filter-bar,
+    .orders-header,
+    .hr-nav-tabs,
+    .user-toolbar,
+    .customer-toolbar,
+    .pos-toolbar,
+    .prod-toolbar-card {
+        position: static !important;
+    }
+}
+
 
 
 

@@ -428,38 +428,70 @@ html.sidebar-initially-closed .bakery-main-content {
     }
 }
 
-/* Top Header Bar - Fixed/Sticky at Top Right (Transparent Background, Locked in View) */
+/* Top Header Bar - Natural Flow at Top of Main Content */
 .top-header-bar {
-    position: sticky !important;
-    top: 0.75rem !important;
+    position: static !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    pointer-events: auto !important;
+    padding: 0 !important;
+    margin: 0 0 1.25rem 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
     background: transparent !important;
     background-color: transparent !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    box-shadow: none !important;
     border: none !important;
-    z-index: 1000 !important;
-    padding: 0 !important;
-    margin-bottom: 1rem !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    pointer-events: none !important;
+    box-shadow: none !important;
 }
 
-.top-header-bar .header-actions,
-.top-header-bar .mobile-sidebar-toggle-btn {
-    pointer-events: auto !important;
+body.sidebar-is-closed .top-header-bar {
+    padding: 0 !important;
+    margin: 0 0 1rem 0 !important;
+    width: 100% !important;
+}
+
+@media (max-width: 1199px) and (min-width: 768px) {
+    .top-header-bar {
+        padding: 0 !important;
+        margin: 0 0 1rem 0 !important;
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .top-header-bar {
+        padding: 0 !important;
+        margin: 0 0 1rem 0 !important;
+        width: 100% !important;
+    }
+    body.sidebar-is-closed .top-header-bar {
+        padding: 0 !important;
+        margin: 0 0 1rem 0 !important;
+        width: 100% !important;
+    }
 }
 
 .top-header-bar .header-actions {
     margin-left: auto !important;
+    pointer-events: auto !important;
+}
+
+.top-header-bar .mobile-sidebar-toggle-btn {
+    pointer-events: auto !important;
 }
 
 [data-theme="dark"] .top-header-bar,
+body.dark-mode .top-header-bar,
 [data-theme="glass"] .top-header-bar {
     background: transparent !important;
     background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 /* Mobile / Tablet Backdrop Blur */

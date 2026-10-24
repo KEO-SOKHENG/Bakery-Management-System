@@ -853,53 +853,84 @@
     }
 
     /* -------------------------------------------------------------------------
-       2. Top Header Bar (Adaptive 2-Row Layout)
+       2. Top Header Bar (Adaptive 2-Row Mobile App Layout)
        ------------------------------------------------------------------------- */
     .top-header-bar {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 0.65rem !important;
-        margin-bottom: 1.15rem !important;
-        width: 100% !important;
-        padding: 0.5rem 0 !important;
-    }
-
-    .header-greeting h1 {
-        font-size: 1.25rem !important;
-        line-height: 1.3 !important;
-        letter-spacing: -0.01em !important;
-    }
-
-    .header-greeting p {
-        font-size: 0.78rem !important;
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .header-actions {
-        display: flex !important;
-        flex-wrap: wrap !important;
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        grid-template-areas: 
+            "burger notif"
+            "search search" !important;
         align-items: center !important;
-        justify-content: space-between !important;
-        gap: 0.5rem !important;
+        gap: 0.65rem 0.5rem !important;
+        margin: 0 0 1rem 0 !important;
         width: 100% !important;
+        padding: 0 !important;
+        position: static !important;
+        pointer-events: auto !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
     }
 
-    .header-search-box {
+    .top-header-bar > div:first-child {
+        grid-area: burger !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        min-width: 0 !important;
+    }
+
+    .top-header-bar .mobile-header-brand {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        min-width: 0 !important;
+    }
+
+    .top-header-bar .mobile-header-title {
+        font-size: 1.05rem !important;
+        font-weight: 800 !important;
+        color: var(--text-title, #29150d) !important;
+        letter-spacing: -0.01em !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .top-header-bar .header-actions {
+        display: contents !important;
+    }
+
+    .top-header-bar .header-notification-wrapper {
+        grid-area: notif !important;
+        justify-self: end !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .top-header-bar .icon-bell-btn {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 12px !important;
+    }
+
+    .top-header-bar .header-search-box {
+        grid-area: search !important;
         width: 100% !important;
         max-width: 100% !important;
-        order: 10 !important;
-        margin-top: 0.2rem !important;
+        margin: 0 !important;
     }
 
     .header-search-input {
         width: 100% !important;
-        height: 40px !important;
+        height: 42px !important;
         font-size: 0.85rem !important;
-        padding: 0.5rem 0.75rem 0.5rem 2.3rem !important;
+        padding: 0.5rem 0.75rem 0.5rem 2.4rem !important;
+        border-radius: 9999px !important;
     }
 
     .user-profile-pill {
@@ -929,10 +960,13 @@
     }
 
     /* -------------------------------------------------------------------------
-       3. Dashboard (2-Column Stat Cards, 1-Col Actions, Responsive SVG Chart)
+       3. Dashboard & KPI Cards (Unified 2-Column Grid on Mobile)
        ------------------------------------------------------------------------- */
     body.sidebar-is-closed .dash-stat-row,
-    .dash-stat-row {
+    .dash-stat-row,
+    .stats-grid,
+    .user-stats-grid,
+    .notif-stats-grid {
         display: grid !important;
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         gap: 0.65rem !important;
@@ -1004,13 +1038,21 @@
     }
 
     .dash-filter-bar {
-        padding: 0.85rem !important;
-        border-radius: var(--radius-md) !important;
+        padding: 0.5rem 0 !important;
+        background: var(--bg-main, #f5f0eb) !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
         flex-direction: column !important;
         align-items: stretch !important;
         gap: 0.75rem !important;
         width: 100% !important;
         box-sizing: border-box !important;
+    }
+
+    [data-theme="dark"] .dash-filter-bar {
+        background: #000000 !important;
     }
 
     .filter-form {
@@ -1275,6 +1317,18 @@
     div[style*="grid-template-columns: repeat(2, 1fr)"] {
         grid-template-columns: 1fr !important;
         gap: 0.75rem !important;
+    }
+
+    .orders-container form {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+        gap: 0.65rem !important;
+    }
+
+    .orders-container form > div {
+        width: 100% !important;
+        min-width: 100% !important;
     }
 
     .ios-input-field,

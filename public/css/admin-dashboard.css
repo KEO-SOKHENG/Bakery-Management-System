@@ -666,29 +666,25 @@
    Dashboard Date Filter Toolbar & Analytics Controls
    ========================================================================== */
 .dash-filter-bar {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 850 !important;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 1.25rem;
     flex-wrap: wrap;
     margin-bottom: 1.85rem;
-    padding: 0.85rem 1.35rem;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 24px;
-    border: 1px solid rgba(238, 233, 224, 0.85);
-    box-shadow: 0 4px 16px rgba(86, 48, 32, 0.03);
+    padding: 0.65rem 0 !important;
+    background: var(--bg-main, #f5f0eb) !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
-.filter-bar-title {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--text-title, #29150d);
-}
+
 
 .filter-date-badge {
     background: rgba(86, 48, 32, 0.08);
@@ -978,7 +974,14 @@
 /* ==========================================================================
    Dark & Glass Theme Overrides
    ========================================================================== */
-[data-theme="dark"] .dash-filter-bar,
+[data-theme="dark"] .dash-filter-bar {
+    background: #000000 !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
 [data-theme="dark"] .chart-card {
     background: #121212 !important;
     border-color: #242424 !important;
@@ -1036,7 +1039,14 @@
     border-color: rgba(255, 255, 255, 0.08);
 }
 
-[data-theme="glass"] .dash-filter-bar,
+[data-theme="glass"] .dash-filter-bar {
+    background: #0b0818 !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
 [data-theme="glass"] .chart-card {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(24px);
