@@ -968,6 +968,25 @@
                     closeLogoutModal();
                 }
             });
+
+            // =========================================================
+            // Dynamic Sticky Header Height Synchronizer
+            // =========================================================
+            const updateAppHeaderHeight = () => {
+                const header = document.querySelector('.top-header-bar');
+                if (header) {
+                    const height = header.offsetHeight;
+                    if (height > 0) {
+                        document.documentElement.style.setProperty('--app-header-height', `${height}px`);
+                    }
+                }
+            };
+            updateAppHeaderHeight();
+            window.addEventListener('resize', updateAppHeaderHeight, { passive: true });
+            const topHeaderEl = document.querySelector('.top-header-bar');
+            if (topHeaderEl && window.ResizeObserver) {
+                new ResizeObserver(updateAppHeaderHeight).observe(topHeaderEl);
+            }
         });
     </script>
 </body>

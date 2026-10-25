@@ -27,18 +27,8 @@
     </div>
 @endsection
 
-@section('header_sub_action')
-    <a href="{{ route('admin.purchase-orders.create') }}" class="btn btn-secondary sticky-add-product-btn" style="margin-right: 0.5rem;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-        <span>Purchase Order</span>
-    </a>
-    <button type="button" class="btn btn-primary sticky-add-product-btn" id="btn_open_ingredient_modal">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span>Add Ingredient</span>
-    </button>
-@endsection
-
 @section('content')
+<div class="orders-container">
 
 <!-- KPI Metrics Grid (Exact Orders / Dashboard Page Style) -->
 <div class="dash-stat-row">
@@ -99,35 +89,43 @@
     </div>
 </div>
 
-<!-- Filter Bar (Orders Page Filter Style) -->
-<div class="orders-search-filter-card" style="margin-bottom: 1rem; border-radius: 50px; padding: 0.5rem 0.85rem;">
-    <form method="GET" action="{{ route('admin.ingredients') }}" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; width: 100%;">
-        <div class="orders-search-box" style="flex: 1; min-width: 220px; position: relative;">
-            <svg style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #71717a;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search ingredient name..." style="height: 38px; border-radius: 50px; padding-left: 2.5rem; width: 100%; border: 1px solid var(--border-color, #262626); background: var(--bg-card, #121212); color: inherit;">
-        </div>
-
-        <div class="orders-select-wrapper" style="min-width: 160px;">
-            <select name="supplier_id" onchange="this.form.submit()" style="height: 38px; border-radius: 50px; padding: 0 1.25rem; width: 100%; border: 1px solid var(--border-color, #262626); background: var(--bg-card, #121212); color: inherit; cursor: pointer;">
+<!-- Filter & Action Toolbar (Exact Orders Toolbar / Header Style) -->
+<div class="ingredients-toolbar-row" id="ingredients_sticky_toolbar" style="margin-bottom: 0.75rem; flex-shrink: 0;">
+    <!-- Left: Supplier Filter Pill Card -->
+    <form method="GET" action="{{ route('admin.ingredients') }}" id="ingredients_filter_form" style="display: inline-flex; align-items: center; margin: 0;">
+        @if(request('stock_status'))
+            <input type="hidden" name="stock_status" value="{{ request('stock_status') }}">
+        @endif
+        <div class="supplier-filter-pill-card">
+            <select name="supplier_id" id="supplier_select">
                 <option value="all">All Suppliers</option>
                 @foreach($suppliers as $supplier)
                     <option value="{{ $supplier->id }}" {{ request('supplier_id') == $supplier->id ? 'selected' : '' }}>{{ $supplier->name }}</option>
                 @endforeach
             </select>
-        </div>
-
-        <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <button type="submit" class="btn btn-primary" style="height: 38px;">Filter</button>
-            @if(request()->hasAny(['search', 'supplier_id', 'stock_status']))
-                <a href="{{ route('admin.ingredients') }}" class="btn btn-secondary" style="height: 38px;">Clear</a>
+            <button type="submit" class="btn" style="border-radius: 50px; padding: 0.45rem 1.35rem; font-weight: 700; height: 34px; display: inline-flex; align-items: center; justify-content: center; background: #ea580c; border: 1px solid #ea580c; color: #ffffff; cursor: pointer; font-size: 0.875rem;">Filter</button>
+            @if(request()->filled('supplier_id') && request('supplier_id') !== 'all')
+                <a href="{{ route('admin.ingredients', request('stock_status') ? ['stock_status' => request('stock_status')] : []) }}" class="btn btn-secondary" style="border-radius: 50px; padding: 0.45rem 0.9rem; font-weight: 600; height: 34px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.825rem;">Clear</a>
             @endif
         </div>
     </form>
+
+    <!-- Right: Action Buttons (Purchase Order & Add Ingredient) -->
+    <div class="ingredients-action-group" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+        <a href="{{ route('admin.purchase-orders.create') }}" class="btn" id="btn_create_po" style="border-radius: 50px; height: 38px; padding: 0 1.25rem; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700; background: #d97706; border: 1px solid #d97706; color: #ffffff; text-decoration: none; font-size: 0.875rem; box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            <span>Purchase Order</span>
+        </a>
+        <button type="button" class="btn" id="btn_open_ingredient_modal" style="border-radius: 50px; height: 38px; padding: 0 1.25rem; display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; background: #f59e0b; border: 1px solid #f59e0b; color: #ffffff; cursor: pointer; font-size: 0.875rem; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Add Ingredient</span>
+        </button>
+    </div>
 </div>
 
-<!-- Ingredients Table Card (Orders Page Card & Table Style) -->
-<div class="orders-card" style="padding: 1.25rem;">
-    <div class="table-responsive-wrapper" style="margin-bottom: 0;">
+<!-- Ingredients Table Card (Full Screen with internal scrolling - Exact Orders Page Style) -->
+<div class="orders-card" id="ingredients_table_card">
+    <div class="orders-table-wrapper" id="ingredients_table_wrapper">
         <table class="orders-table" id="ingredients_table">
             <thead>
                 <tr>
@@ -242,10 +240,11 @@
     </div>
 
     @if($ingredients->hasPages())
-        <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color, #e2e8f0);">
+        <div class="orders-pagination-wrapper">
             {{ $ingredients->links() }}
         </div>
     @endif
+</div>
 </div>
 
 <!-- ADD INGREDIENT MODAL -->
@@ -387,6 +386,19 @@
                 document.body.style.overflow = 'hidden';
             });
         });
+
+        // Real-time instant search filtering for ingredients table
+        const searchInput = document.getElementById('ingredient_search_input');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                const rows = document.querySelectorAll('#ingredients_table tbody tr');
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(query) ? '' : 'none';
+                });
+            });
+        }
     });
 </script>
 @endpush
