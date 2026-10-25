@@ -43,14 +43,6 @@
         <aside class="bakery-sidebar" id="sidebar_nav">
             <!-- Brand / Logo Area -->
             <div class="bakery-logo-area">
-                <div class="bakery-brand-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 12C2 7.5 5.5 4 12 4s10 3.5 10 8c0 4-3 7-10 7S2 16 2 12Z"/>
-                        <path d="M7 11c1 1.5 2 2.5 3 2.5"/>
-                        <path d="M12 10c1 1.5 2 2.5 2.5 2.5"/>
-                        <path d="M16 11c.5 1 1 2 1.5 2.5"/>
-                    </svg>
-                </div>
                 <div class="bakery-logo-text">
                     <div class="bakery-logo-title">Bakery</div>
                     <div class="bakery-logo-subtitle">Management System</div>
@@ -272,7 +264,7 @@
         <div class="bakery-main-content">
             <!-- Header Bar -->
             <header class="top-header-bar">
-                <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="mobile-nav-toggle-wrap">
                     <button type="button" class="mobile-sidebar-toggle-btn" id="sidebar_toggle_btn" title="Toggle Navigation Drawer" aria-label="Toggle Navigation Drawer">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -285,6 +277,12 @@
                     </div>
                 </div>
 
+                @hasSection('header_toolbar')
+                    <div class="header-toolbar-slot">
+                        @yield('header_toolbar')
+                    </div>
+                @endif
+
                 <div class="header-actions">
                     <!-- Language Switcher -->
                    
@@ -292,7 +290,13 @@
                     <!-- Live Search Input -->
                     <div class="header-search-box">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <input type="text" class="header-search-input" id="global_header_search" placeholder="Search page items...">
+                        <input
+                            type="text"
+                            class="header-search-input"
+                            id="{{ request()->is('pos*') || request()->is('cashier*') ? 'pos_search_input' : (request()->is('admin/orders*') ? 'order_search_input' : 'global_header_search') }}"
+                            placeholder="Search page items..."
+                            autocomplete="off"
+                        >
                     </div>
 
                     <!-- Notification Bell & Popover -->
@@ -388,12 +392,14 @@
             </header>
 
             <!-- Page Specific Content -->
-            @yield('content')
+            <main id="main_content" class="main-content-body">
+                @yield('content')
+            </main>
         </div>
     </div>
 
     <!-- Logout Confirmation Modal Card -->
-    <div id="logout_confirm_modal" class="logout-modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="logout_modal_title">
+    <div id="logout_confirm_modal" class="logout-modal-backdrop" aria-hidden="true" inert role="dialog" aria-modal="true" aria-labelledby="logout_modal_title">
         <div class="logout-modal-card">
             <div class="logout-modal-icon-chamber">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -425,7 +431,7 @@
     </div>
 
     <!-- Global Action / Deletion Confirmation Modal Card -->
-    <div id="global_confirm_modal" class="confirm-modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="global_confirm_title">
+    <div id="global_confirm_modal" class="confirm-modal-backdrop" aria-hidden="true" inert role="dialog" aria-modal="true" aria-labelledby="global_confirm_title">
         <div class="confirm-modal-card">
             <div class="confirm-modal-icon-chamber danger" id="global_confirm_icon_chamber">
                 <svg id="global_confirm_icon_trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -783,7 +789,7 @@
             });
 
             // Header Global Search Filter for Page Tables & Lists
-            const searchInput = document.getElementById('global_header_search');
+            const searchInput = document.getElementById('global_header_search') || document.getElementById('order_search_input');
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
                     const query = this.value.toLowerCase().trim();
@@ -893,15 +899,23 @@
             // =========================================================
             const logoutModal = document.getElementById('logout_confirm_modal');
             const cancelLogoutBtn = document.getElementById('btn_cancel_logout');
+            let logoutTriggerEl = null;
 
             function openLogoutModal(e) {
                 if (e) {
                     e.preventDefault();
                     e.stopPropagation();
+                    logoutTriggerEl = e.currentTarget || document.activeElement;
+                } else {
+                    logoutTriggerEl = document.activeElement;
                 }
                 if (logoutModal) {
                     logoutModal.classList.add('is-active');
-                    logoutModal.setAttribute('aria-hidden', 'false');
+                    logoutModal.removeAttribute('aria-hidden');
+                    logoutModal.removeAttribute('inert');
+                    if (cancelLogoutBtn) {
+                        cancelLogoutBtn.focus();
+                    }
                 }
             }
 
@@ -909,6 +923,15 @@
                 if (logoutModal) {
                     logoutModal.classList.remove('is-active');
                     logoutModal.setAttribute('aria-hidden', 'true');
+                    logoutModal.setAttribute('inert', '');
+                    if (logoutTriggerEl && typeof logoutTriggerEl.focus === 'function') {
+                        try {
+                            logoutTriggerEl.focus();
+                        } catch (err) {
+                            // Ignore focus errors
+                        }
+                        logoutTriggerEl = null;
+                    }
                 }
             }
 

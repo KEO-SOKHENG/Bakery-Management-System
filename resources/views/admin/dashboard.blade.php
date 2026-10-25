@@ -6,19 +6,8 @@
     <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}?v={{ @filemtime(public_path('css/admin-dashboard.css')) ?: '1.0' }}">
 @endpush
 
-@section('content')
-<!-- Analytics Date Range Filter Toolbar -->
-<div class="dash-filter-bar">
-    <div class="filter-bar-title">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 4h18v2.586a1 1 0 0 1-.293.707l-6.414 6.414a1 1 0 0 0-.293.707V19l-4 2v-6.586a1 1 0 0 0-.293-.707L3.293 7.293A1 1 0 0 1 3 6.586V4z"/>
-        </svg>
-        <span data-lang-key="analytics_timeframe">{{ __('messages.analytics_timeframe') }}</span>
-        @if($startDate && $endDate)
-            <span class="filter-date-badge">{{ $startDate->format('M d, Y') }} &mdash; {{ $endDate->format('M d, Y') }}</span>
-        @endif
-    </div>
-    <form method="GET" action="{{ route('admin.dashboard') }}" class="filter-form">
+@section('header_toolbar')
+    <form method="GET" action="{{ route('admin.dashboard') }}" class="header-filter-form">
         <div class="period-pill-group">
             <a href="{{ route('admin.dashboard', ['period' => 'today']) }}" class="period-pill {{ $period === 'today' ? 'active' : '' }}" data-lang-key="today">{{ __('messages.today') }}</a>
             <a href="{{ route('admin.dashboard', ['period' => 'yesterday']) }}" class="period-pill {{ $period === 'yesterday' ? 'active' : '' }}" data-lang-key="yesterday">{{ __('messages.yesterday') }}</a>
@@ -27,8 +16,9 @@
             <a href="{{ route('admin.dashboard', ['period' => 'this_month']) }}" class="period-pill {{ $period === 'this_month' ? 'active' : '' }}" data-lang-key="this_month">{{ __('messages.this_month') }}</a>
         </div>
     </form>
-</div>
+@endsection
 
+@section('content')
 <!-- 8 Core KPI Stat Cards Grid (Real Database Metrics Only) -->
 <div class="dash-stat-row">
     <!-- 1. Today's Orders (Primary Card 0) -->

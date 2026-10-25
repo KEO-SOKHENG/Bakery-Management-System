@@ -6,41 +6,41 @@
     <link rel="stylesheet" href="{{ asset('css/pos.css') }}?v={{ @filemtime(public_path('css/pos.css')) ?: '1.0' }}">
 @endpush
 
+@section('header_toolbar')
+    <div class="period-pill-group" id="pos_date_tabs">
+        <a href="{{ route('pos', array_merge(request()->except('date'), ['date' => ''])) }}"
+           class="period-pill {{ (!request('date') || request('date') === 'all') ? 'active' : '' }}">All Dates</a>
+        <a href="{{ route('pos', array_merge(request()->except('date'), ['date' => 'today'])) }}"
+           class="period-pill {{ request('date') === 'today' ? 'active' : '' }}">Today</a>
+        <a href="{{ route('pos', array_merge(request()->except('date'), ['date' => 'yesterday'])) }}"
+           class="period-pill {{ request('date') === 'yesterday' ? 'active' : '' }}">Yesterday</a>
+        <a href="{{ route('pos', array_merge(request()->except('date'), ['date' => 'this_week'])) }}"
+           class="period-pill {{ request('date') === 'this_week' ? 'active' : '' }}">This Week</a>
+        <a href="{{ route('pos', array_merge(request()->except('date'), ['date' => 'this_month'])) }}"
+           class="period-pill {{ request('date') === 'this_month' ? 'active' : '' }}">This Month</a>
+    </div>
+@endsection
+
 @section('content')
 <div class="pos-screen-layout">
     <!-- ======================================================================
-         LEFT: CATALOG PANEL (Search, Categories, Product Cards)
+         LEFT: CATALOG PANEL (Product Cards Grid)
          ====================================================================== -->
     <div class="pos-catalog-panel">
-        <!-- Toolbar: Search & Category Pills -->
-        <div class="pos-toolbar">
-            <div class="pos-search-wrapper">
-                <span class="pos-search-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <circle cx="11" cy="11" r="8" stroke-width="2"/>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="2"/>
-                    </svg>
-                </span>
-                <input
-                    type="text"
-                    id="pos_search_input"
-                    class="pos-search-input"
-                    placeholder="Search bakery items by name, SKU, or code..."
-                    autocomplete="off"
-                    data-lang-key="search_products"
-                >
-            </div>
 
-            <div class="orders-filter-bar pos-category-tabs" id="pos_category_tabs">
-                <button type="button" class="filter-btn pos-cat-pill active" data-category-id="all">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle;"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-                    <span data-lang-key="all_categories">All Items</span>
-                </button>
-                @foreach($categories as $category)
-                    <button type="button" class="filter-btn pos-cat-pill" data-category-id="{{ $category->id }}">
-                        {!! $category->getIconSvg(18) !!} <span>{{ $category->name }}</span>
+        <!-- Category Filter Tabs (Always Sticky, matching Order page style & size) -->
+        <div class="pos-category-sticky-bar" id="pos_category_sticky_bar">
+            <div class="pos-category-scroll">
+                <div class="orders-filter-bar pos-category-tabs" id="pos_category_tabs">
+                    <button type="button" class="filter-btn pos-cat-pill active" data-category-id="all">
+                        <span data-lang-key="all_categories">All Items</span>
                     </button>
-                @endforeach
+                    @foreach($categories as $category)
+                        <button type="button" class="filter-btn pos-cat-pill" data-category-id="{{ $category->id }}">
+                            <span>{{ $category->name }}</span>
+                        </button>
+                    @endforeach
+                </div>
             </div>
         </div>
 
@@ -118,58 +118,9 @@
             </button>
         </div>
 
-        <!-- Customer Selection & Loyalty Area -->
-        <div class="pos-cart-form-group" id="pos_customer_section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-                <label class="pos-cart-label" for="pos_customer_search" style="margin-bottom: 0;" data-lang-key="customer">Customer</label>
-                <button type="button" class="btn-quick-add-cust" id="btn_open_quick_cust_modal" title="Quick Register Customer" style="background: none; border: none; font-size: 0.775rem; font-weight: 800; color: #563020; cursor: pointer; display: flex; align-items: center; gap: 3px;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    <span data-lang-key="quick_add_customer">+ New</span>
-                </button>
-            </div>
-
-            <!-- Search Box (Active when no customer selected) -->
-            <div class="pos-cust-search-container" id="pos_cust_search_container" style="position: relative;">
-                <input
-                    type="text"
-                    id="pos_customer_search"
-                    class="pos-cart-input"
-                    placeholder="Search name / phone (or Walk-in)..."
-                    autocomplete="off"
-                    data-lang-key="search_customer"
-                >
-                <!-- Live Search Dropdown -->
-                <div class="pos-cust-dropdown" id="pos_cust_dropdown" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #e2e8f0); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 220px; overflow-y: auto; z-index: 1000; padding: 4px;">
-                </div>
-            </div>
-
-            <!-- Selected Customer Card (Active when customer is selected) -->
-            <div class="pos-selected-cust-card" id="pos_selected_cust_card" style="display: none; background: rgba(86, 48, 32, 0.06); border: 1px solid rgba(86, 48, 32, 0.18); border-radius: 12px; padding: 0.55rem 0.85rem; align-items: center; justify-content: space-between; gap: 0.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.65rem; min-width: 0;">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #563020; color: #ffffff; font-weight: 800; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" id="pos_cust_initials">
-                        CU
-                    </div>
-                    <div style="min-width: 0;">
-                        <div style="font-weight: 800; font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-title, #29150d);" id="pos_cust_selected_name">
-                            Customer Name
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted, #71717a);">
-                            <span id="pos_cust_selected_phone">000-000</span>
-                            <span class="pos-cust-tier-badge" id="pos_cust_selected_tier" style="font-weight: 800; color: #d97706; background: rgba(217, 119, 6, 0.12); padding: 1px 6px; border-radius: 9999px;">
-                                ⭐ 0 pts
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" class="btn-remove-cust" id="btn_remove_selected_cust" title="Remove Customer (Revert to Walk-in)" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;" data-lang-key="remove_customer">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-            </div>
-
-            <!-- Hidden Inputs for Form Reading & Backward Compatibility -->
-            <input type="hidden" id="pos_customer_id" value="">
-            <input type="hidden" id="pos_customer_name" value="Walk-in Customer">
-        </div>
+        <!-- Hidden Inputs for Form Reading & Backward Compatibility -->
+        <input type="hidden" id="pos_customer_id" value="">
+        <input type="hidden" id="pos_customer_name" value="Walk-in Customer">
 
         <!-- Cart Items Scroll List -->
         <div class="pos-cart-items-container" id="pos_cart_items_container">
@@ -436,7 +387,7 @@
     let selectedCustomer = null;
 
     // DOM Elements
-    const searchInput = document.getElementById('pos_search_input');
+    const searchInput = document.getElementById('pos_search_input') || document.getElementById('global_header_search');
     const categoryTabs = document.getElementById('pos_category_tabs');
     const productGrid = document.getElementById('pos_product_grid');
     const cartContainer = document.getElementById('pos_cart_items_container');
@@ -523,9 +474,24 @@
         });
     }
 
+    const searchClearBtn = document.getElementById('pos_search_clear');
+
     if (searchInput) {
         searchInput.addEventListener('input', function(e) {
             searchQuery = e.target.value;
+            if (searchClearBtn) {
+                searchClearBtn.style.display = searchQuery.trim() ? 'flex' : 'none';
+            }
+            filterProducts();
+        });
+    }
+
+    if (searchClearBtn && searchInput) {
+        searchClearBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            searchQuery = '';
+            searchClearBtn.style.display = 'none';
+            searchInput.focus();
             filterProducts();
         });
     }
@@ -540,6 +506,26 @@
 
             activeCategory = pill.getAttribute('data-category-id');
             filterProducts();
+
+            if (typeof window.menuBarsPillRefresh === 'function') {
+                window.menuBarsPillRefresh();
+            }
+        });
+    }
+
+    const posDateTabs = document.getElementById('pos_date_tabs');
+    if (posDateTabs) {
+        posDateTabs.addEventListener('click', function(e) {
+            const pill = e.target.closest('.period-pill');
+            if (!pill) return;
+            e.preventDefault();
+            posDateTabs.querySelectorAll('.period-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+
+            const href = pill.getAttribute('href');
+            if (href && window.history && window.history.pushState) {
+                window.history.pushState({}, '', href);
+            }
         });
     }
 
@@ -793,84 +779,92 @@
 
     function clearCustomer() {
         selectedCustomer = null;
-        customerIdInput.value = '';
-        customerInput.value = 'Walk-in Customer';
-        customerSearchInput.value = '';
+        if (customerIdInput) customerIdInput.value = '';
+        if (customerInput) customerInput.value = 'Walk-in Customer';
+        if (customerSearchInput) customerSearchInput.value = '';
 
-        selectedCustCard.style.display = 'none';
-        customerSearchContainer.style.display = 'block';
-        customerDropdown.style.display = 'none';
-        customerDropdown.innerHTML = '';
+        if (selectedCustCard) selectedCustCard.style.display = 'none';
+        if (customerSearchContainer) customerSearchContainer.style.display = 'block';
+        if (customerDropdown) {
+            customerDropdown.style.display = 'none';
+            customerDropdown.innerHTML = '';
+        }
     }
 
     let searchCustTimeout = null;
-    customerSearchInput.addEventListener('input', function(e) {
-        const query = e.target.value.trim();
-        clearTimeout(searchCustTimeout);
+    if (customerSearchInput) {
+        customerSearchInput.addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+            clearTimeout(searchCustTimeout);
 
-        if (query.length === 0) {
-            customerDropdown.style.display = 'none';
-            customerDropdown.innerHTML = '';
-            customerInput.value = 'Walk-in Customer';
-            return;
-        }
-
-        // If user typed a manual customer name, set it
-        customerInput.value = query;
-
-        searchCustTimeout = setTimeout(async () => {
-            try {
-                const res = await fetch(`${CUSTOMER_SEARCH_URL}?q=${encodeURIComponent(query)}`, {
-                    headers: { 'Accept': 'application/json' }
-                });
-                const data = await res.json();
-
-                customerDropdown.innerHTML = '';
-                if (data.customers && data.customers.length > 0) {
-                    data.customers.forEach(cust => {
-                        const item = document.createElement('div');
-                        item.className = 'pos-cust-dropdown-item';
-                        item.style.cssText = 'padding: 0.65rem 0.85rem; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color, #f1f5f9); transition: background 0.15s ease;';
-                        item.innerHTML = `
-                            <div>
-                                <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-title, #29150d);">${cust.name}</div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted, #71717a);">${cust.phone || cust.email || 'No phone'}</div>
-                            </div>
-                            <span style="font-size: 0.75rem; font-weight: 800; color: #d97706; background: rgba(217, 119, 6, 0.1); padding: 2px 7px; border-radius: 9999px;">
-                                ⭐ ${cust.loyalty_points} pts
-                            </span>
-                        `;
-                        item.addEventListener('mouseenter', () => item.style.background = 'rgba(86, 48, 32, 0.06)');
-                        item.addEventListener('mouseleave', () => item.style.background = 'transparent');
-                        item.addEventListener('click', () => selectCustomer(cust));
-                        customerDropdown.appendChild(item);
-                    });
-                    customerDropdown.style.display = 'block';
-                } else {
-                    customerDropdown.innerHTML = `
-                        <div style="padding: 0.75rem; text-align: center; color: var(--text-muted, #71717a); font-size: 0.8rem;">
-                            No customers found. Click <strong>+ New</strong> to register.
-                        </div>
-                    `;
-                    customerDropdown.style.display = 'block';
+            if (query.length === 0) {
+                if (customerDropdown) {
+                    customerDropdown.style.display = 'none';
+                    customerDropdown.innerHTML = '';
                 }
-            } catch (err) {
-                console.error('Customer search error:', err);
+                if (customerInput) customerInput.value = 'Walk-in Customer';
+                return;
             }
-        }, 200);
-    });
+
+            if (customerInput) customerInput.value = query;
+
+            searchCustTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`${CUSTOMER_SEARCH_URL}?q=${encodeURIComponent(query)}`, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await res.json();
+
+                    if (!customerDropdown) return;
+                    customerDropdown.innerHTML = '';
+                    if (data.customers && data.customers.length > 0) {
+                        data.customers.forEach(cust => {
+                            const item = document.createElement('div');
+                            item.className = 'pos-cust-dropdown-item';
+                            item.style.cssText = 'padding: 0.65rem 0.85rem; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color, #f1f5f9); transition: background 0.15s ease;';
+                            item.innerHTML = `
+                                <div>
+                                    <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-title, #29150d);">${cust.name}</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted, #71717a);">${cust.phone || cust.email || 'No phone'}</div>
+                                </div>
+                                <span style="font-size: 0.75rem; font-weight: 800; color: #d97706; background: rgba(217, 119, 6, 0.1); padding: 2px 7px; border-radius: 9999px;">
+                                    ⭐ ${cust.loyalty_points} pts
+                                </span>
+                            `;
+                            item.addEventListener('mouseenter', () => item.style.background = 'rgba(86, 48, 32, 0.06)');
+                            item.addEventListener('mouseleave', () => item.style.background = 'transparent');
+                            item.addEventListener('click', () => selectCustomer(cust));
+                            customerDropdown.appendChild(item);
+                        });
+                        customerDropdown.style.display = 'block';
+                    } else {
+                        customerDropdown.innerHTML = `
+                            <div style="padding: 0.75rem; text-align: center; color: var(--text-muted, #71717a); font-size: 0.8rem;">
+                                No customers found. Click <strong>+ New</strong> to register.
+                            </div>
+                        `;
+                        customerDropdown.style.display = 'block';
+                    }
+                } catch (err) {
+                    console.error('Customer search error:', err);
+                }
+            }, 200);
+        });
+    }
 
     // Close dropdown on click outside
     document.addEventListener('click', function(e) {
-        if (!customerSearchContainer.contains(e.target)) {
-            customerDropdown.style.display = 'none';
+        if (customerSearchContainer && !customerSearchContainer.contains(e.target)) {
+            if (customerDropdown) customerDropdown.style.display = 'none';
         }
     });
 
     // Remove customer
-    btnRemoveCust.addEventListener('click', function() {
-        clearCustomer();
-    });
+    if (btnRemoveCust) {
+        btnRemoveCust.addEventListener('click', function() {
+            clearCustomer();
+        });
+    }
 
     // Quick Add Customer modal handlers
     if (btnOpenQuickCust) {

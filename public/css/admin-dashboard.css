@@ -695,12 +695,17 @@
     border-radius: 50px;
 }
 
-.filter-form {
+.filter-form,
+.header-filter-form {
     display: flex;
     align-items: center;
     gap: 0.85rem;
     flex-wrap: wrap;
     margin: 0;
+}
+
+.header-toolbar-slot .header-filter-form {
+    flex-wrap: nowrap;
 }
 
 .period-pill-group {
@@ -713,6 +718,12 @@
     border: 1px solid rgba(238, 233, 224, 0.8);
 }
 
+.header-toolbar-slot .period-pill-group {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    margin: 0;
+}
+
 .period-pill {
     padding: 0.45rem 1rem !important;
     font-size: 0.8rem !important;
@@ -720,7 +731,7 @@
     border-radius: 50px !important;
     border: 1px solid transparent !important;
     background: transparent !important;
-    color: #64748b !important;
+    color: #475569 !important;
     text-decoration: none !important;
     cursor: pointer !important;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -872,7 +883,7 @@
 .status-dist-label {
     font-size: 0.725rem;
     font-weight: 700;
-    color: #64748b;
+    color: #475569;
     text-transform: uppercase;
 }
 
@@ -1236,7 +1247,7 @@
     padding: 0.2rem 0.55rem;
     border-radius: 9999px;
     background: rgba(16, 185, 129, 0.12);
-    color: #059669;
+    color: #047857;
     font-size: 0.675rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -1292,7 +1303,7 @@
 
 .dash-period-btn.active {
     background: #ffffff;
-    color: #d97706;
+    color: #b45309;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     font-weight: 800;
 }
@@ -1382,7 +1393,7 @@
 }
 
 .val-green {
-    color: #10b981;
+    color: #047857;
 }
 
 .val-neutral {
@@ -1390,7 +1401,7 @@
 }
 
 .val-amber {
-    color: #d97706;
+    color: #b45309;
 }
 
 /* SVG Chart Engine & Interactive Tooltip */

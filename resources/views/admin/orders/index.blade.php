@@ -8,6 +8,21 @@
     <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
 @endpush
 
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <a href="{{ route('admin.orders', array_merge(request()->except('date', 'page'), ['date' => ''])) }}"
+           class="period-pill {{ !request('date') ? 'active' : '' }}">All Dates</a>
+        <a href="{{ route('admin.orders', array_merge(request()->except('date', 'page'), ['date' => 'today'])) }}"
+           class="period-pill {{ request('date') === 'today' ? 'active' : '' }}">Today</a>
+        <a href="{{ route('admin.orders', array_merge(request()->except('date', 'page'), ['date' => 'yesterday'])) }}"
+           class="period-pill {{ request('date') === 'yesterday' ? 'active' : '' }}">Yesterday</a>
+        <a href="{{ route('admin.orders', array_merge(request()->except('date', 'page'), ['date' => 'this_week'])) }}"
+           class="period-pill {{ request('date') === 'this_week' ? 'active' : '' }}">This Week</a>
+        <a href="{{ route('admin.orders', array_merge(request()->except('date', 'page'), ['date' => 'this_month'])) }}"
+           class="period-pill {{ request('date') === 'this_month' ? 'active' : '' }}">This Month</a>
+    </div>
+@endsection
+
 @section('content')
 <div class="orders-container">
 
@@ -19,8 +34,8 @@
         <x-alert type="danger" :message="session('error')" />
     @endif
 
-    <!-- KPI Summary Metrics Grid -->
-    <div class="stats-grid">
+    <!-- 4 Core KPI Stat Cards Grid (Exact Dashboard Page Style, Size, and Font) -->
+    <div class="dash-stat-row">
         <div class="stat-card">
             <div class="stat-icon-box orange">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -28,6 +43,10 @@
             <div class="stat-info">
                 <span class="stat-label">Total Orders</span>
                 <div class="stat-value" id="kpi_total_orders">{{ number_format($totalOrdersCount) }}</div>
+                <span class="stat-trend up">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                    Live Sync
+                </span>
             </div>
         </div>
 
@@ -38,6 +57,10 @@
             <div class="stat-info">
                 <span class="stat-label">Pending / Baking</span>
                 <div class="stat-value" id="kpi_pending_orders">{{ number_format($pendingCount + $preparingCount) }}</div>
+                <span class="stat-trend {{ ($pendingCount + $preparingCount) > 0 ? 'warning' : 'up' }}">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                    {{ ($pendingCount + $preparingCount) > 0 ? 'In Kitchen' : 'All clear' }}
+                </span>
             </div>
         </div>
 
@@ -48,6 +71,10 @@
             <div class="stat-info">
                 <span class="stat-label">Ready for Pickup</span>
                 <div class="stat-value" id="kpi_ready_orders">{{ number_format($readyCount) }}</div>
+                <span class="stat-trend {{ $readyCount > 0 ? 'up' : 'neutral' }}">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                    {{ $readyCount > 0 ? 'Ready to Serve' : 'Queue Empty' }}
+                </span>
             </div>
         </div>
 
@@ -58,123 +85,50 @@
             <div class="stat-info">
                 <span class="stat-label">Completed Sales</span>
                 <div class="stat-value" id="kpi_total_revenue">{{ $currency }}{{ number_format($totalRevenue, 2) }}</div>
+                <span class="stat-trend up">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                    Live Sales
+                </span>
             </div>
         </div>
     </div>
 
-    <!-- Header Actions & Search / Filter Controls -->
-    <div class="orders-header">
-        <!-- Status Filter Tabs -->
-        <div class="orders-filter-bar" id="order_status_tabs">
-            <a href="{{ route('admin.orders', array_merge(request()->except('status', 'page'), ['status' => 'all'])) }}"
-               class="filter-btn {{ (!request()->filled('status') || request('status') === 'all') ? 'active' : '' }}">
-                All Orders ({{ $totalOrdersCount }})
-            </a>
-            <a href="{{ route('admin.orders', array_merge(request()->except('status', 'page'), ['status' => 'pending'])) }}"
-               class="filter-btn {{ request('status') === 'pending' ? 'active' : '' }}">
-                Pending ({{ $pendingCount }})
-            </a>
-            <a href="{{ route('admin.orders', array_merge(request()->except('status', 'page'), ['status' => 'preparing'])) }}"
-               class="filter-btn {{ request('status') === 'preparing' ? 'active' : '' }}">
-                Preparing ({{ $preparingCount }})
-            </a>
-            <a href="{{ route('admin.orders', array_merge(request()->except('status', 'page'), ['status' => 'ready_for_pickup'])) }}"
-               class="filter-btn {{ request('status') === 'ready_for_pickup' ? 'active' : '' }}">
-                Ready for Pickup ({{ $readyCount }})
-            </a>
-            <a href="{{ route('admin.orders', array_merge(request()->except('status', 'page'), ['status' => 'completed'])) }}"
-               class="filter-btn {{ request('status') === 'completed' ? 'active' : '' }}">
-                Completed ({{ $completedCount }})
-            </a>
-            <a href="{{ route('admin.orders', array_merge(request()->except('status', 'page'), ['status' => 'cancelled'])) }}"
-               class="filter-btn {{ request('status') === 'cancelled' ? 'active' : '' }}">
-                Cancelled ({{ $cancelledCount }})
-            </a>
-        </div>
-
+    <!-- Header Actions -->
+    <div class="orders-header" style="justify-content: flex-end;">
         <!-- Action Buttons -->
         <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
             @if(Auth::user() && Auth::user()->isAdmin())
-                <x-button variant="outline-danger" id="btn_open_purge_modal" onclick="openPurgeModal()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                <button type="button" class="btn btn-purge-orders" id="btn_open_purge_modal" onclick="openPurgeModal()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                     <span>Clear All Orders</span>
-                </x-button>
+                </button>
             @endif
 
             <!-- Create Order Button -->
-            <x-button variant="primary" :href="route('admin.orders.create')" id="btn_create_order">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            <a href="{{ route('admin.orders.create') }}" class="btn btn-create-order" id="btn_create_order">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
                 <span>Create Order</span>
-            </x-button>
+            </a>
         </div>
     </div>
 
-    <!-- Live Search & Detailed Filters Form -->
-    <form action="{{ route('admin.orders') }}" method="GET" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: center;">
-        @if(request('status') && request('status') !== 'all')
-            <input type="hidden" name="status" value="{{ request('status') }}">
-        @endif
 
-        <div style="flex: 1; min-width: 260px; position: relative;">
-            <input type="text" name="search" id="order_search_input" value="{{ request('search') }}"
-                   placeholder="Search by order #, customer name, or phone..."
-                   class="form-control-input" style="padding-left: 2.6rem;">
-            <svg style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </div>
-
-        <div style="min-width: 150px;">
-            <select name="type" class="form-control-select" onchange="this.form.submit()">
-                <option value="all" {{ request('type') == 'all' ? 'selected' : '' }}>All Order Types</option>
-                <option value="pos" {{ request('type') == 'pos' ? 'selected' : '' }}>Store POS</option>
-                <option value="custom" {{ request('type') == 'custom' ? 'selected' : '' }}>Custom Cake ({{ $customOrdersCount }})</option>
-            </select>
-        </div>
-
-        <div style="min-width: 140px;">
-            <select name="payment_method" class="form-control-select" onchange="this.form.submit()">
-                <option value="all" {{ request('payment_method') == 'all' ? 'selected' : '' }}>All Payments</option>
-                <option value="cash" {{ request('payment_method') == 'cash' ? 'selected' : '' }}>Cash</option>
-                <option value="qr_code" {{ request('payment_method') == 'qr_code' ? 'selected' : '' }}>KHQR</option>
-                <option value="card" {{ request('payment_method') == 'card' ? 'selected' : '' }}>Card</option>
-            </select>
-        </div>
-
-        <div style="min-width: 140px;">
-            <select name="date" class="form-control-select" onchange="this.form.submit()">
-                <option value="" {{ !request('date') ? 'selected' : '' }}>All Dates</option>
-                <option value="today" {{ request('date') == 'today' ? 'selected' : '' }}>Today</option>
-                <option value="yesterday" {{ request('date') == 'yesterday' ? 'selected' : '' }}>Yesterday</option>
-                <option value="this_week" {{ request('date') == 'this_week' ? 'selected' : '' }}>This Week</option>
-                <option value="this_month" {{ request('date') == 'this_month' ? 'selected' : '' }}>This Month</option>
-            </select>
-        </div>
-
-        <button type="submit" class="btn btn-secondary" style="border-radius: 14px; padding: 0.75rem 1.25rem; font-weight: 700; cursor: pointer;">
-            Filter
-        </button>
-
-        @if(request()->anyFilled(['search', 'status', 'type', 'payment_method', 'date']))
-            <a href="{{ route('admin.orders') }}" class="btn btn-outline" style="border-radius: 14px; padding: 0.75rem 1rem; color: #ef4444; border: 1px solid #ef4444; text-decoration: none; font-weight: 700;">
-                Reset
-            </a>
-        @endif
-    </form>
-
-    <!-- Orders Table Card -->
-    <x-card class="orders-card">
-        <table class="orders-table">
-            <thead>
-                <tr>
-                    <th style="width: 14%;">Order #</th>
-                    <th style="width: 18%;">Customer</th>
-                    <th style="width: 25%;">Items</th>
-                    <th style="width: 15%;">Total & Payment</th>
-                    <th style="width: 13%;">Status</th>
-                    <th style="width: 11%;" class="col-date">Date</th>
-                    <th style="width: 4%; min-width: 48px; text-align: center;">View</th>
-                </tr>
-            </thead>
-            <tbody>
+    <!-- Orders Table Card (Full Screen with internal scrolling) -->
+    <div class="orders-card">
+        <div class="orders-table-wrapper" id="orders_table_wrapper">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">Order #</th>
+                        <th style="width: 18%;">Customer</th>
+                        <th style="width: 23%;">Items</th>
+                        <th style="width: 15%;">Total & Payment</th>
+                        <th style="width: 13%;">Status</th>
+                        <th style="width: 9%;" class="col-date">Date</th>
+                        <th style="width: 7%; min-width: 64px; text-align: center; padding: 0.85rem 0.25rem;">View</th>
+                    </tr>
+                </thead>
+                <tbody>
                 @forelse($orders as $order)
                     @php
                         $normStatus = $order->normalized_status;
@@ -256,6 +210,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
 
         <!-- Pagination -->
         @if($orders->hasPages())
@@ -263,7 +218,7 @@
                 {{ $orders->links() }}
             </div>
         @endif
-    </x-card>
+    </div>
 
     <!-- Easy 1-Click Delete / Clear Orders Modal (Admin Only) -->
     @if(Auth::user() && Auth::user()->isAdmin())

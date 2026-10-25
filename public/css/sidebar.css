@@ -27,7 +27,7 @@ html.sidebar-initially-closed .bakery-main-content {
     width: 240px;
     background-color: var(--sidebar-bg, #ffffff);
     border-right: 1px solid var(--border-color, #eee9e0);
-    border-left: 3.5px solid #d97706;
+    border-left: none !important;
     display: flex;
     flex-direction: column;
     padding: 0.85rem 0.75rem;
@@ -48,7 +48,7 @@ html.sidebar-initially-closed .bakery-main-content {
     background: linear-gradient(180deg, #18181c 0%, #131316 100%) !important;
     background-color: #141417 !important;
     border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
-    border-left: 3.5px solid #f59e0b !important;
+    border-left: none !important;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.45) !important;
 }
 
@@ -63,7 +63,7 @@ html.sidebar-initially-closed .bakery-main-content {
     backdrop-filter: blur(28px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
     border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
-    border-left: 3.5px solid rgba(245, 158, 11, 0.8) !important;
+    border-left: none !important;
     box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45) !important;
 }
 
@@ -213,41 +213,6 @@ html.sidebar-initially-closed .bakery-main-content {
     flex-shrink: 0;
     width: 100%;
     box-sizing: border-box;
-}
-
-.bakery-brand-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 11px;
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(217, 119, 6, 0.26));
-    border: 1px solid rgba(245, 158, 11, 0.35);
-    color: #f59e0b;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.16);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-[data-theme="dark"] .bakery-brand-icon,
-[data-theme="glass"] .bakery-brand-icon {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.35));
-    border-color: rgba(245, 158, 11, 0.45);
-    color: #fbbf24;
-    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
-}
-
-.bakery-brand-icon svg {
-    width: 21px;
-    height: 21px;
-    stroke-width: 2.2;
-}
-
-.bakery-logo-text {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
 }
 
 /* =========================================================
@@ -428,34 +393,77 @@ html.sidebar-initially-closed .bakery-main-content {
     }
 }
 
-/* Top Header Bar - Natural Flow at Top of Main Content */
+/* Top Header Bar - Fixed/Sticky at Top of Main Content */
 .top-header-bar {
-    position: static !important;
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 850 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
     pointer-events: auto !important;
-    padding: 0 !important;
+    padding: 0.65rem 0 !important;
     margin: 0 0 1.25rem 0 !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+    background: var(--bg-main, #f5f0eb) !important;
+    background-color: var(--bg-main, #f5f0eb) !important;
     border: none !important;
     box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    gap: 1rem !important;
+}
+
+@media (min-width: 768px) {
+    .top-header-bar {
+        flex-wrap: nowrap !important;
+    }
+}
+
+.mobile-nav-toggle-wrap {
+    display: none !important;
+}
+
+@media (max-width: 767px) {
+    .mobile-nav-toggle-wrap {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+}
+
+/* Header Toolbar Slot: Period Filters, Quick Actions */
+.header-toolbar-slot {
+    display: flex !important;
+    align-items: center !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+
+.header-toolbar-slot .header-filter-form,
+.header-toolbar-slot .filter-form {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+}
+
+.header-toolbar-slot .period-pill-group {
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
 }
 
 body.sidebar-is-closed .top-header-bar {
-    padding: 0 !important;
+    padding: 0.65rem 0 !important;
     margin: 0 0 1rem 0 !important;
     width: 100% !important;
 }
 
 @media (max-width: 1199px) and (min-width: 768px) {
     .top-header-bar {
-        padding: 0 !important;
+        padding: 0.65rem 0 !important;
         margin: 0 0 1rem 0 !important;
         width: 100% !important;
     }
@@ -463,12 +471,12 @@ body.sidebar-is-closed .top-header-bar {
 
 @media (max-width: 767px) {
     .top-header-bar {
-        padding: 0 !important;
+        padding: 0.5rem 0 !important;
         margin: 0 0 1rem 0 !important;
         width: 100% !important;
     }
     body.sidebar-is-closed .top-header-bar {
-        padding: 0 !important;
+        padding: 0.5rem 0 !important;
         margin: 0 0 1rem 0 !important;
         width: 100% !important;
     }
@@ -484,14 +492,22 @@ body.sidebar-is-closed .top-header-bar {
 }
 
 [data-theme="dark"] .top-header-bar,
-body.dark-mode .top-header-bar,
-[data-theme="glass"] .top-header-bar {
-    background: transparent !important;
-    background-color: transparent !important;
+body.dark-mode .top-header-bar {
+    background: var(--bg-main, #000000) !important;
+    background-color: var(--bg-main, #000000) !important;
     border: none !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+}
+
+[data-theme="glass"] .top-header-bar {
+    background: rgba(11, 8, 24, 0.85) !important;
+    background-color: rgba(11, 8, 24, 0.85) !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
 }
 
 /* Mobile / Tablet Backdrop Blur */
@@ -682,7 +698,7 @@ body.sidebar-is-closed .bakery-main-content {
 }
 
 .bakery-sidebar.sidebar-collapsed .sidebar-brand-icon,
-.bakery-sidebar.sidebar-collapsed .bakery-brand-icon {
+.bakery-sidebar.sidebar-collapsed {
     margin: 0 auto;
 }
 
@@ -1498,11 +1514,6 @@ body.sidebar-is-closed .bakery-main-content {
         margin-bottom: 0.45rem !important;
     }
 
-    .bakery-brand-icon {
-        width: 32px !important;
-        height: 32px !important;
-        border-radius: 9px !important;
-    }
 
     .bakery-logo-title {
         font-size: 1.05rem !important;
@@ -1563,16 +1574,6 @@ body.sidebar-is-closed .bakery-main-content {
     .bakery-logo-area {
         padding-bottom: 0.35rem !important;
         margin-bottom: 0.35rem !important;
-    }
-
-    .bakery-brand-icon {
-        width: 28px !important;
-        height: 28px !important;
-    }
-
-    .bakery-brand-icon svg {
-        width: 16px !important;
-        height: 16px !important;
     }
 
     .bakery-logo-title {

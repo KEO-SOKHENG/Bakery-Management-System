@@ -51,8 +51,6 @@
 <!-- Global Timeframe Filter Bar -->
 <div class="dash-filter-bar" style="margin-bottom: 1.25rem;">
     <div class="filter-bar-title">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18v2.586a1 1 0 0 1-.293.707l-6.414 6.414a1 1 0 0 0-.293.707V19l-4 2v-6.586a1 1 0 0 0-.293-.707L3.293 7.293A1 1 0 0 1 3 6.586V4z"/></svg>
-        <span data-lang-key="analytics_timeframe">{{ __('messages.analytics_timeframe') }}</span>
         @if($startDate && $endDate)
             <span class="filter-date-badge">{{ $startDate->format('M d, Y') }} &mdash; {{ $endDate->format('M d, Y') }}</span>
         @endif

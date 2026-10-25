@@ -570,15 +570,26 @@ window.showConfirmDialog = function(options) {
         proceedBtn.className = 'confirm-modal-btn confirm-btn ' + (isWarning ? 'warning' : (isInfo ? 'primary' : 'danger'));
     }
 
+    const triggerEl = options.triggerEl || (document.activeElement && document.activeElement !== document.body ? document.activeElement : null);
+
     // Open Modal
     modal.classList.add('is-active');
-    modal.setAttribute('aria-hidden', 'false');
+    modal.removeAttribute('aria-hidden');
+    modal.removeAttribute('inert');
     if (cancelBtn) cancelBtn.focus();
 
     function closeModal() {
         modal.classList.remove('is-active');
         modal.setAttribute('aria-hidden', 'true');
+        modal.setAttribute('inert', '');
         cleanup();
+        if (triggerEl && typeof triggerEl.focus === 'function') {
+            try {
+                triggerEl.focus();
+            } catch (err) {
+                // Ignore focus errors
+            }
+        }
     }
 
     function onProceedClick() {
@@ -675,6 +686,7 @@ function initGlobalConfirmModal() {
                 message: message,
                 confirmText: confirmText,
                 type: type,
+                triggerEl: submitter || form,
                 onConfirm: function() {
                     form._isConfirmedByModal = true;
                     const prevOnsubmit = form.onsubmit;
@@ -749,6 +761,7 @@ function initGlobalConfirmModal() {
                 message: message,
                 confirmText: confirmText,
                 type: type,
+                triggerEl: btn,
                 onConfirm: function() {
                     btn._isConfirmedByModal = true;
                     const form = btn.closest('form');
