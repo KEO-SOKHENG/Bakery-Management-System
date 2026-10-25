@@ -2,23 +2,50 @@
 
 @section('title', 'Purchase Orders - Bakery Management System')
 
-@section('content')
-<!-- Header Bar -->
-<x-page-header title="Raw Material Purchase Orders" subtitle="Procure baking ingredients, manage vendor orders, and receive replenishment stock">
-    <x-slot:actions>
-        <x-button variant="secondary" :href="route('admin.suppliers')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/></svg>
-            <span>Suppliers</span>
-        </x-button>
-        <x-button variant="primary" :href="route('admin.purchase-orders.create')" id="btn_create_po">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span>New Purchase Order</span>
-        </x-button>
-    </x-slot:actions>
-</x-page-header>
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
+@endpush
 
-<!-- KPI Metrics Grid -->
-<div class="stats-grid">
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <a href="{{ route('admin.purchase-orders.index', array_merge(request()->except('status', 'page'), ['status' => 'all'])) }}"
+           class="period-pill {{ (!request()->filled('status') || request('status') === 'all') ? 'active' : '' }}">
+            <span>All Orders ({{ $stats['total'] }})</span>
+        </a>
+        <a href="{{ route('admin.purchase-orders.index', array_merge(request()->except('status', 'page'), ['status' => 'draft'])) }}"
+           class="period-pill {{ request('status') === 'draft' ? 'active' : '' }}">
+            <span>Drafts ({{ $stats['draft'] }})</span>
+        </a>
+        <a href="{{ route('admin.purchase-orders.index', array_merge(request()->except('status', 'page'), ['status' => 'ordered'])) }}"
+           class="period-pill {{ request('status') === 'ordered' ? 'active' : '' }}">
+            <span>Ordered ({{ $stats['ordered'] }})</span>
+        </a>
+        <a href="{{ route('admin.purchase-orders.index', array_merge(request()->except('status', 'page'), ['status' => 'received'])) }}"
+           class="period-pill {{ request('status') === 'received' ? 'active' : '' }}">
+            <span>Received ({{ $stats['received'] }})</span>
+        </a>
+        <a href="{{ route('admin.purchase-orders.index', array_merge(request()->except('status', 'page'), ['status' => 'cancelled'])) }}"
+           class="period-pill {{ request('status') === 'cancelled' ? 'active' : '' }}">
+            <span>Cancelled ({{ $stats['cancelled'] }})</span>
+        </a>
+    </div>
+@endsection
+
+@section('header_sub_action')
+    <a href="{{ route('admin.suppliers') }}" class="btn btn-secondary sticky-add-product-btn" style="margin-right: 0.5rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/></svg>
+        <span>Suppliers</span>
+    </a>
+    <a href="{{ route('admin.purchase-orders.create') }}" class="btn btn-primary sticky-add-product-btn" id="btn_create_po">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>New Purchase Order</span>
+    </a>
+@endsection
+
+@section('content')
+
+<!-- KPI Metrics Grid (Exact Orders / Dashboard Page Style) -->
+<div class="dash-stat-row">
     <div class="stat-card">
         <div class="stat-icon-box orange">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -26,6 +53,10 @@
         <div class="stat-info">
             <span class="stat-label">Total Purchase Orders</span>
             <div class="stat-value">{{ $stats['total'] }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Procurement
+            </span>
         </div>
     </div>
 
@@ -34,9 +65,12 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
         </div>
         <div class="stat-info">
-            <span class="stat-label">Pending Purchase Orders</span>
+            <span class="stat-label">Pending Orders</span>
             <div class="stat-value">{{ $stats['draft'] + $stats['ordered'] }}</div>
-            <span class="stat-trend {{ ($stats['draft'] + $stats['ordered']) > 0 ? 'warning' : 'neutral' }}">{{ $stats['ordered'] }} ordered</span>
+            <span class="stat-trend {{ ($stats['draft'] + $stats['ordered']) > 0 ? 'warning' : 'up' }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                {{ $stats['ordered'] }} ordered
+            </span>
         </div>
     </div>
 
@@ -47,6 +81,10 @@
         <div class="stat-info">
             <span class="stat-label">Received & Stocked In</span>
             <div class="stat-value">{{ $stats['received'] }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Stock Replenished
+            </span>
         </div>
     </div>
 
@@ -57,71 +95,53 @@
         <div class="stat-info">
             <span class="stat-label">Total Procured Value</span>
             <div class="stat-value">${{ number_format($stats['total_spend'], 2) }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Spend Track
+            </span>
         </div>
     </div>
 </div>
 
-<!-- Status Filter Tabs -->
-<div class="orders-filter-bar" id="po_status_tabs" style="margin-bottom: 1.25rem;">
-    <a href="{{ route('admin.purchase-orders.index', array_merge(request()->except('status', 'page'), ['status' => 'all'])) }}"
-       class="filter-btn {{ (!request()->filled('status') || request('status') === 'all') ? 'active' : '' }}">
-        All Orders ({{ $stats['total'] }})
-    </a>
-    <a href="{{ route('admin.purchase-orders.index', array_merge(request()->except('status', 'page'), ['status' => 'draft'])) }}"
-       class="filter-btn {{ request('status') === 'draft' ? 'active' : '' }}">
-        Drafts ({{ $stats['draft'] }})
-    </a>
-    <a href="{{ route('admin.purchase-orders.index', array_merge(request()->except('status', 'page'), ['status' => 'ordered'])) }}"
-       class="filter-btn {{ request('status') === 'ordered' ? 'active' : '' }}">
-        Ordered ({{ $stats['ordered'] }})
-    </a>
-    <a href="{{ route('admin.purchase-orders.index', array_merge(request()->except('status', 'page'), ['status' => 'received'])) }}"
-       class="filter-btn {{ request('status') === 'received' ? 'active' : '' }}">
-        Received ({{ $stats['received'] }})
-    </a>
-    <a href="{{ route('admin.purchase-orders.index', array_merge(request()->except('status', 'page'), ['status' => 'cancelled'])) }}"
-       class="filter-btn {{ request('status') === 'cancelled' ? 'active' : '' }}">
-        Cancelled ({{ $stats['cancelled'] }})
-    </a>
+<!-- Live Search & Detailed Filters Form (Orders Filter Style) -->
+<div class="orders-search-filter-card" style="margin-bottom: 1rem; border-radius: 50px; padding: 0.5rem 0.85rem;">
+    <form method="GET" action="{{ route('admin.purchase-orders.index') }}" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; width: 100%;">
+        @if(request('status') && request('status') !== 'all')
+            <input type="hidden" name="status" value="{{ request('status') }}">
+        @endif
+
+        <div class="orders-search-box" style="flex: 1; min-width: 240px; position: relative;">
+            <svg style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #71717a; pointer-events: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" name="search" id="po_search_input" value="{{ request('search') }}"
+                   placeholder="Search PO #, supplier, or notes..."
+                   style="height: 38px; border-radius: 50px; padding-left: 2.5rem; width: 100%; border: 1px solid var(--border-color, #262626); background: var(--bg-card, #121212); color: inherit;">
+        </div>
+
+        <div class="orders-select-wrapper" style="min-width: 170px;">
+            <select name="supplier_id" style="height: 38px; border-radius: 50px; padding: 0 1.25rem; width: 100%; border: 1px solid var(--border-color, #262626); background: var(--bg-card, #121212); color: inherit; cursor: pointer;" onchange="this.form.submit()">
+                <option value="all">All Suppliers</option>
+                @foreach($suppliers as $s)
+                    <option value="{{ $s->id }}" {{ request('supplier_id') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div style="min-width: 150px;">
+            <input type="date" name="date" value="{{ request('date') }}" style="height: 38px; border-radius: 50px; padding: 0 1rem; width: 100%; border: 1px solid var(--border-color, #262626); background: var(--bg-card, #121212); color: inherit;" onchange="this.form.submit()">
+        </div>
+
+        @if(request()->hasAny(['search', 'supplier_id', 'date']) && (request('search') || (request('supplier_id') && request('supplier_id') !== 'all') || request('date')))
+            <a href="{{ route('admin.purchase-orders.index', request('status') ? ['status' => request('status')] : []) }}" class="btn btn-secondary" style="height: 38px;">
+                Clear
+            </a>
+        @endif
+    </form>
 </div>
 
-<!-- Live Search & Detailed Filters Form -->
-<form method="GET" action="{{ route('admin.purchase-orders.index') }}" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: center;">
-    @if(request('status') && request('status') !== 'all')
-        <input type="hidden" name="status" value="{{ request('status') }}">
-    @endif
-
-    <div style="flex: 1; min-width: 260px; position: relative;">
-        <svg style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" name="search" id="po_search_input" value="{{ request('search') }}"
-               placeholder="Search PO #, supplier, or notes..."
-               class="form-control-input" style="padding-left: 2.6rem;">
-    </div>
-
-    <div style="min-width: 180px;">
-        <select name="supplier_id" class="form-control-select" onchange="this.form.submit()">
-            <option value="all">All Suppliers</option>
-            @foreach($suppliers as $s)
-                <option value="{{ $s->id }}" {{ request('supplier_id') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
-            @endforeach
-        </select>
-    </div>
-
-    <div style="min-width: 150px;">
-        <input type="date" name="date" value="{{ request('date') }}" class="form-control-input" onchange="this.form.submit()">
-    </div>
-
-    @if(request()->hasAny(['search', 'supplier_id', 'date']) && (request('search') || (request('supplier_id') && request('supplier_id') !== 'all') || request('date')))
-        <x-button variant="secondary" size="sm" :href="route('admin.purchase-orders.index', request('status') ? ['status' => request('status')] : [])">
-            Clear Filters
-        </x-button>
-    @endif
-</form>
-
-<!-- Purchase Orders List Table -->
-<div class="card" style="border-radius: 1rem; overflow: hidden; padding: 0;">
+<!-- Purchase Orders List Table Card (Orders Card Style) -->
+<div class="orders-card" style="padding: 1.25rem;">
     <div class="table-responsive-wrapper" style="margin-bottom: 0;">
-        <table class="bakery-table" id="purchase_orders_table" style="width: 100%;">
+        <table class="orders-table" id="purchase_orders_table">
             <thead>
                 <tr>
                     <th>PO Number</th>

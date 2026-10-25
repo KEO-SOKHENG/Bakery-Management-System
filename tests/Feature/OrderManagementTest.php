@@ -149,14 +149,7 @@ class OrderManagementTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)->get(route('admin.orders.show', $order));
-        $response->assertStatus(200);
-        $response->assertSee('ORD-DETAIL-999');
-        $response->assertSee('Sophea Pich');
-        $response->assertSee('012345678');
-        $response->assertSee('Butter Croissant Test');
-        $response->assertSee('10.45');
-        $response->assertSee('Extra chocolate lettering');
-        $response->assertSee('Ready for Pickup');
+        $response->assertRedirect(route('admin.orders'));
     }
 
     /**
@@ -453,17 +446,17 @@ class OrderManagementTest extends TestCase
             'order_status'   => 'pending',
         ]);
 
-        // Admin can view index and show
+        // Admin can view index and show redirects to index
         $this->actingAs($this->admin)->get(route('admin.orders'))->assertStatus(200);
-        $this->actingAs($this->admin)->get(route('admin.orders.show', $order))->assertStatus(200);
+        $this->actingAs($this->admin)->get(route('admin.orders.show', $order))->assertRedirect(route('admin.orders'));
 
-        // Manager can view index and show
+        // Manager can view index and show redirects to index
         $this->actingAs($this->manager)->get(route('admin.orders'))->assertStatus(200);
-        $this->actingAs($this->manager)->get(route('admin.orders.show', $order))->assertStatus(200);
+        $this->actingAs($this->manager)->get(route('admin.orders.show', $order))->assertRedirect(route('admin.orders'));
 
-        // Cashier can view index, show, and update status
+        // Cashier can view index, show redirects to index, and update status
         $this->actingAs($this->cashier)->get(route('admin.orders'))->assertStatus(200);
-        $this->actingAs($this->cashier)->get(route('admin.orders.show', $order))->assertStatus(200);
+        $this->actingAs($this->cashier)->get(route('admin.orders.show', $order))->assertRedirect(route('admin.orders'));
 
         // Cashier CANNOT delete orders (route is admin & manager only)
         $cashierDeleteResp = $this->actingAs($this->cashier)->delete(route('admin.orders.destroy', $order));

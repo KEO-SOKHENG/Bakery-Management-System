@@ -6,15 +6,22 @@
     <link rel="stylesheet" href="{{ asset('css/categories.css') }}">
 @endpush
 
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <a href="{{ route('admin.categories') }}" class="period-pill active">
+            <span>All Categories ({{ $categories->count() }})</span>
+        </a>
+    </div>
+@endsection
+
+@section('header_sub_action')
+    <x-button variant="primary" id="btn_open_category_modal" class="sticky-add-product-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Add Category</span>
+    </x-button>
+@endsection
+
 @section('content')
-<x-page-header title="Product Categories ({{ $categories->count() }})" subtitle="Organize product catalogs into categories for POS display and inventory tracking">
-    <x-slot:actions>
-        <x-button variant="primary" id="btn_open_category_modal">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span>Add Category</span>
-        </x-button>
-    </x-slot:actions>
-</x-page-header>
 
 <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem;">
     @forelse($categories as $cat)

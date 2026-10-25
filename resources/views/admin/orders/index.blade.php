@@ -103,12 +103,6 @@
                     <span>Clear All Orders</span>
                 </button>
             @endif
-
-            <!-- Create Order Button -->
-            <a href="{{ route('admin.orders.create') }}" class="btn btn-create-order" id="btn_create_order">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-                <span>Create Order</span>
-            </a>
         </div>
     </div>
 
@@ -119,13 +113,12 @@
             <table class="orders-table">
                 <thead>
                     <tr>
-                        <th style="width: 15%;">Order #</th>
-                        <th style="width: 18%;">Customer</th>
-                        <th style="width: 23%;">Items</th>
-                        <th style="width: 15%;">Total & Payment</th>
-                        <th style="width: 13%;">Status</th>
-                        <th style="width: 9%;" class="col-date">Date</th>
-                        <th style="width: 7%; min-width: 64px; text-align: center; padding: 0.85rem 0.25rem;">View</th>
+                        <th style="width: 10%;">Order #</th>
+                        <th style="width: 20%;">Customer</th>
+                        <th style="width: 26%;">Items</th>
+                        <th style="width: 18%;">Total & Payment</th>
+                        <th style="width: 14%;">Status</th>
+                        <th style="width: 12%;" class="col-date">Date</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -146,15 +139,43 @@
                             'card' => 'Card',
                             default => 'Cash',
                         };
+
+                        $orderModalData = [
+                            'id' => $order->id,
+                            'order_number' => '#' . $order->id,
+                            'order_code' => $order->order_number,
+                            'customer_name' => $order->customer_name ?: 'Walk-in Customer',
+                            'customer_phone' => $order->customer ? $order->customer->phone : null,
+                            'payment_method' => $paymentMethodLabel,
+                            'payment_status' => ucfirst($order->payment_status ?? 'unpaid'),
+                            'status_html' => $statusBadge,
+                            'date' => $order->created_at ? $order->created_at->format('M d, Y • h:i A') : 'N/A',
+                            'is_custom' => (bool)$order->is_custom,
+                            'special_instructions' => $order->special_instructions,
+                            'subtotal' => $currency . number_format($order->subtotal, 2),
+                            'discount' => (float)$order->discount,
+                            'discount_formatted' => $currency . number_format($order->discount, 2),
+                            'tax' => $currency . number_format($order->tax, 2),
+                            'total' => $currency . number_format($order->total, 2),
+                            'items_count' => $order->items->count(),
+                            'items' => $order->items->map(function($item) use ($currency) {
+                                return [
+                                    'name' => $item->product ? $item->product->name : 'Bakery Item',
+                                    'quantity' => $item->quantity,
+                                    'price' => $currency . number_format($item->price, 2),
+                                    'subtotal' => $currency . number_format($item->subtotal, 2),
+                                ];
+                            })->values()->toArray(),
+                        ];
                     @endphp
-                    <tr id="order_row_{{ $order->id }}" data-status="{{ $normStatus }}" onclick="window.location='{{ route('admin.orders.show', $order) }}'">
+                    <tr id="order_row_{{ $order->id }}" data-status="{{ $normStatus }}" data-order-code="{{ $order->order_number }}" class="order-clickable-row" onclick="openOrderDetailModal(this)" data-order='@json($orderModalData)'>
                         <td>
-                            <a href="{{ route('admin.orders.show', $order) }}" style="font-weight: 800; color: var(--accent-brown, #d97736); text-decoration: none;">
-                                {{ $order->order_number }}
-                            </a>
+                            <span class="order-number-pill">
+                                #{{ $order->id }}
+                            </span>
                             @if($order->is_custom)
                                 <div style="margin-top: 2px;">
-                                    <span class="type-pill type-custom" style="font-size: 0.68rem; padding: 2px 7px;">🎂 Custom Cake</span>
+                                    <span class="type-pill type-custom" style="font-size: 0.68rem; padding: 2px 7px;">🎂 Custom</span>
                                 </div>
                             @endif
                         </td>
@@ -191,19 +212,14 @@
                             <div>{{ $order->created_at ? $order->created_at->format('M d, Y') : 'N/A' }}</div>
                             <div style="font-size: 0.725rem;">{{ $order->created_at ? $order->created_at->format('h:i A') : '' }}</div>
                         </td>
-                        <td style="text-align: center;" onclick="event.stopPropagation();">
-                            <a href="{{ route('admin.orders.show', $order) }}" class="btn-icon-action" title="View Order #{{ $order->order_number }} Details">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                            </a>
-                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="text-align: center; color: var(--text-muted, #9ca3af); padding: 3rem;">
+                        <td colspan="6" style="text-align: center; color: var(--text-muted, #9ca3af); padding: 3rem;">
                             <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
                                 <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
                                 <span style="font-weight: 700; font-size: 0.95rem;">No orders match your selected filters.</span>
-                                <span style="font-size: 0.825rem; color: #94a3b8;">Try clearing filters or click "Create Order" to record an order.</span>
+                                <span style="font-size: 0.825rem; color: #94a3b8;">Try clearing filters to display orders.</span>
                             </div>
                         </td>
                     </tr>
@@ -220,26 +236,206 @@
         @endif
     </div>
 
+    <!-- Simple Order Detail Modal Card ("Cart") -->
+    <div id="orderDetailModal" class="order-detail-modal-backdrop" onclick="if(event.target === this) closeOrderDetailModal()">
+        <div class="order-detail-modal-card">
+            <!-- Modal Header -->
+            <div class="order-detail-modal-header">
+                <div class="order-detail-modal-header-left">
+                    <div class="order-detail-modal-badge" id="modal_order_number">#1</div>
+                    <div>
+                        <h3 class="order-detail-modal-title">Order Details</h3>
+                        <p class="order-detail-modal-date" id="modal_order_date">-</p>
+                    </div>
+                </div>
+                <div id="modal_order_status_badge">
+                    <!-- Status pill injected here -->
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="order-detail-modal-body">
+                <!-- Customer & Payment Quick Info -->
+                <div class="order-detail-info-grid">
+                    <div class="order-detail-info-item">
+                        <span class="info-label">Customer</span>
+                        <span class="info-value" id="modal_customer_name">Walk-in Customer</span>
+                        <span class="info-sub" id="modal_customer_phone" style="display: none;"></span>
+                    </div>
+                    <div class="order-detail-info-item">
+                        <span class="info-label">Payment</span>
+                        <span class="info-value" id="modal_payment_method">Cash</span>
+                        <span class="info-sub" id="modal_payment_status">Paid</span>
+                    </div>
+                </div>
+
+                <!-- Custom cake notes if any -->
+                <div id="modal_custom_note_box" class="order-detail-note-box" style="display: none;">
+                    <span class="note-tag">🎂 Special Instructions:</span>
+                    <span id="modal_custom_note_text" class="note-text"></span>
+                </div>
+
+                <!-- Ordered Items Section -->
+                <div class="order-detail-items-section">
+                    <div class="items-header">
+                        <span>Ordered Items</span>
+                        <span id="modal_items_count" class="items-count-pill">0 items</span>
+                    </div>
+                    <div class="items-list-container" id="modal_items_list">
+                        <!-- Dynamic item rows inserted here -->
+                    </div>
+                </div>
+
+                <!-- Financial Summary Box -->
+                <div class="order-detail-summary-box">
+                    <div class="summary-line" id="modal_subtotal_row">
+                        <span>Subtotal</span>
+                        <span id="modal_subtotal_val">$0.00</span>
+                    </div>
+                    <div class="summary-line discount" id="modal_discount_row" style="display: none;">
+                        <span>Discount</span>
+                        <span id="modal_discount_val">-$0.00</span>
+                    </div>
+                    <div class="summary-line" id="modal_tax_row">
+                        <span>Tax</span>
+                        <span id="modal_tax_val">+$0.00</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-line total">
+                        <span>Total Amount</span>
+                        <span id="modal_total_val">$0.00</span>
+                    </div>
+                </div>
+
+                <!-- Actions: Simple Close Button -->
+                <div class="order-detail-modal-actions">
+                    <button type="button" onclick="closeOrderDetailModal()" class="btn-order-detail-close">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openOrderDetailModal(rowEl) {
+            const rawData = rowEl.getAttribute('data-order');
+            if (!rawData) return;
+            try {
+                const order = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+                
+                document.getElementById('modal_order_number').textContent = order.order_number || `#${order.id}`;
+                document.getElementById('modal_order_date').textContent = order.date || '';
+                document.getElementById('modal_order_status_badge').innerHTML = order.status_html || `<span class="status-badge status-completed">${order.status || 'Completed'}</span>`;
+                document.getElementById('modal_customer_name').textContent = order.customer_name || 'Walk-in Customer';
+                
+                const phoneEl = document.getElementById('modal_customer_phone');
+                if (order.customer_phone) {
+                    phoneEl.textContent = order.customer_phone;
+                    phoneEl.style.display = 'block';
+                } else {
+                    phoneEl.style.display = 'none';
+                }
+
+                document.getElementById('modal_payment_method').textContent = order.payment_method || 'Cash';
+                document.getElementById('modal_payment_status').textContent = `• ${order.payment_status || 'Paid'}`;
+
+                const noteBox = document.getElementById('modal_custom_note_box');
+                const noteText = document.getElementById('modal_custom_note_text');
+                if (order.special_instructions) {
+                    noteText.textContent = order.special_instructions;
+                    noteBox.style.display = 'flex';
+                } else {
+                    noteBox.style.display = 'none';
+                }
+
+                const itemsCountEl = document.getElementById('modal_items_count');
+                const count = order.items_count || (order.items ? order.items.length : 0);
+                itemsCountEl.textContent = `${count} ${count === 1 ? 'item' : 'items'}`;
+
+                const itemsListContainer = document.getElementById('modal_items_list');
+                itemsListContainer.innerHTML = '';
+                if (order.items && order.items.length > 0) {
+                    order.items.forEach(item => {
+                        const row = document.createElement('div');
+                        row.className = 'order-item-row';
+                        row.innerHTML = `
+                            <div class="order-item-name-qty">
+                                <span class="order-item-qty">${item.quantity}x</span>
+                                <span class="order-item-name">${item.name}</span>
+                            </div>
+                            <div class="order-item-pricing">
+                                <div class="order-item-subtotal">${item.subtotal}</div>
+                                <div class="order-item-unit-price">${item.price} each</div>
+                            </div>
+                        `;
+                        itemsListContainer.appendChild(row);
+                    });
+                } else {
+                    itemsListContainer.innerHTML = '<div style="padding: 0.75rem; color: #94a3b8; font-size: 0.85rem; text-align: center;">No item details recorded.</div>';
+                }
+
+                document.getElementById('modal_subtotal_val').textContent = order.subtotal || '$0.00';
+                
+                const discountRow = document.getElementById('modal_discount_row');
+                if (order.discount && order.discount > 0) {
+                    document.getElementById('modal_discount_val').textContent = `-${order.discount_formatted}`;
+                    discountRow.style.display = 'flex';
+                } else {
+                    discountRow.style.display = 'none';
+                }
+
+                document.getElementById('modal_tax_val').textContent = `+${order.tax || '$0.00'}`;
+                document.getElementById('modal_total_val').textContent = order.total || '$0.00';
+
+                const modal = document.getElementById('orderDetailModal');
+                if (modal) {
+                    if (modal.parentElement !== document.body) {
+                        document.body.appendChild(modal);
+                    }
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+            } catch (err) {
+                console.error('Failed to parse order data', err);
+            }
+        }
+
+        function closeOrderDetailModal() {
+            const modal = document.getElementById('orderDetailModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeOrderDetailModal();
+                if (typeof closePurgeModal === 'function') closePurgeModal();
+            }
+        });
+    </script>
+
     <!-- Easy 1-Click Delete / Clear Orders Modal (Admin Only) -->
     @if(Auth::user() && Auth::user()->isAdmin())
-    <div id="purgeModal" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem;">
-        <div style="background: #ffffff; border-radius: 20px; max-width: 480px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden;">
+    <div id="purgeModal" class="purge-modal-backdrop" onclick="if(event.target === this) closePurgeModal()">
+        <div class="purge-modal-card">
             <!-- Modal Header -->
-            <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); padding: 1.15rem 1.35rem; border-bottom: 1px solid #fecaca; display: flex; align-items: center; justify-content: space-between;">
-                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                    <div style="width: 40px; height: 40px; border-radius: 12px; background: #fee2e2; border: 1.5px solid #f87171; display: flex; align-items: center; justify-content: center; color: #dc2626;">
+            <div class="purge-modal-header">
+                <div class="purge-modal-header-left">
+                    <div class="purge-modal-icon-badge">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                     </div>
                     <div>
-                        <h3 style="margin: 0; font-size: 1.15rem; font-weight: 800; color: #991b1b;">Delete Orders</h3>
-                        <p style="margin: 0; font-size: 0.8rem; color: #b91c1c;">Select what you want to delete</p>
+                        <h3 class="purge-modal-title">Delete Orders</h3>
+                        <p class="purge-modal-subtitle">Select what you want to delete</p>
                     </div>
                 </div>
-                <button type="button" onclick="closePurgeModal()" style="background: none; border: none; font-size: 1.6rem; color: #991b1b; cursor: pointer; line-height: 1; padding: 0.25rem;">&times;</button>
             </div>
 
             <!-- Modal Form -->
-            <form action="{{ route('admin.orders.purgeOld') }}" method="POST" id="purgeForm" style="padding: 1.25rem 1.35rem;">
+            <form action="{{ route('admin.orders.purgeOld') }}" method="POST" id="purgeForm" class="purge-modal-body">
                 @csrf
                 <!-- Hidden inputs for seamless backend compatibility -->
                 <input type="hidden" name="scope" id="form_purge_scope" value="all">
@@ -250,53 +446,47 @@
                 <input type="hidden" name="confirm_phrase" id="confirm_phrase_input" value="CONFIRM">
 
                 <!-- Fast 1-Click Scope Buttons -->
-                <label style="display: block; font-weight: 700; font-size: 0.8rem; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.6rem;">
-                    Select Delete Option
-                </label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem;">
-                    <button type="button" class="scope-quick-btn active" id="btn_scope_all" onclick="setScopeMode('all', 0, 'all', this)"
-                            style="padding: 0.75rem 0.65rem; border-radius: 12px; border: 2px solid #ef4444; background: #fef2f2; color: #dc2626; font-weight: 800; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: all 0.15s ease;">
+                <label class="purge-section-label">Select Delete Option</label>
+                <div class="purge-scope-grid">
+                    <button type="button" class="scope-quick-btn active" id="btn_scope_all" onclick="setScopeMode('all', 0, 'all', this)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>
                         <span>All Orders</span>
                     </button>
 
-                    <button type="button" class="scope-quick-btn" id="btn_scope_30" onclick="setScopeMode('days', 30, 'all', this)"
-                            style="padding: 0.75rem 0.65rem; border-radius: 12px; border: 2px solid #e2e8f0; background: #ffffff; color: #475569; font-weight: 700; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: all 0.15s ease;">
+                    <button type="button" class="scope-quick-btn" id="btn_scope_30" onclick="setScopeMode('days', 30, 'all', this)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         <span>Older than 30d</span>
                     </button>
 
-                    <button type="button" class="scope-quick-btn" id="btn_scope_90" onclick="setScopeMode('days', 90, 'all', this)"
-                            style="padding: 0.75rem 0.65rem; border-radius: 12px; border: 2px solid #e2e8f0; background: #ffffff; color: #475569; font-weight: 700; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: all 0.15s ease;">
+                    <button type="button" class="scope-quick-btn" id="btn_scope_90" onclick="setScopeMode('days', 90, 'all', this)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         <span>Older than 90d</span>
                     </button>
 
-                    <button type="button" class="scope-quick-btn" id="btn_scope_cancelled" onclick="setScopeMode('all', 0, 'cancelled', this)"
-                            style="padding: 0.75rem 0.65rem; border-radius: 12px; border: 2px solid #e2e8f0; background: #ffffff; color: #475569; font-weight: 700; font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: all 0.15s ease;">
+                    <button type="button" class="scope-quick-btn" id="btn_scope_cancelled" onclick="setScopeMode('all', 0, 'cancelled', this)">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                         <span>Cancelled Only</span>
                     </button>
                 </div>
 
                 <!-- Live Impact Preview Box -->
-                <div id="purge_preview_box" style="background: #fafaf9; border: 1.5px solid #e7e5e4; border-radius: 14px; padding: 0.85rem 1rem; margin-bottom: 1.25rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                        <span style="font-size: 0.85rem; font-weight: 600; color: #44403c;">Matching orders to delete:</span>
-                        <strong id="preview_orders_count" style="font-size: 1.15rem; color: #dc2626; font-weight: 800;">Loading...</strong>
+                <div id="purge_preview_box" class="purge-preview-box">
+                    <div class="purge-preview-row">
+                        <span class="purge-preview-label">Matching orders to delete:</span>
+                        <strong id="preview_orders_count" class="purge-preview-count">Loading...</strong>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.775rem; color: #78716c;">
+                    <div class="purge-preview-sub">
                         <span>Includes linked items & sales records</span>
                         <span id="preview_sub_counts">...</span>
                     </div>
                 </div>
 
                 <!-- Action Buttons: Cancel vs 1-Click Delete -->
-                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; align-items: center;">
-                    <button type="button" onclick="closePurgeModal()" class="btn btn-secondary" style="padding: 0.65rem 1.25rem; border-radius: 50px; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-weight: 700; cursor: pointer; transition: all 0.15s ease;">
+                <div class="purge-modal-actions">
+                    <button type="button" onclick="closePurgeModal()" class="btn btn-purge-cancel">
                         Cancel
                     </button>
-                    <button type="submit" id="btn_submit_purge" class="btn btn-danger" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.5rem; border-radius: 50px; background: #dc2626; color: #ffffff; border: none; font-weight: 800; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);">
+                    <button type="submit" id="btn_submit_purge" class="btn btn-purge-submit">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                         <span>Delete Orders Now</span>
                     </button>
@@ -307,16 +497,8 @@
 
     <script>
         function setScopeMode(scope, days, status, btnEl) {
-            document.querySelectorAll('.scope-quick-btn').forEach(btn => {
-                btn.style.border = '2px solid #e2e8f0';
-                btn.style.background = '#ffffff';
-                btn.style.color = '#475569';
-                btn.style.fontWeight = '700';
-            });
-            btnEl.style.border = '2px solid #ef4444';
-            btnEl.style.background = '#fef2f2';
-            btnEl.style.color = '#dc2626';
-            btnEl.style.fontWeight = '800';
+            document.querySelectorAll('.scope-quick-btn').forEach(btn => btn.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
 
             const scopeInput = document.getElementById('form_purge_scope');
             const daysInput = document.getElementById('form_purge_days');

@@ -2,22 +2,43 @@
 
 @section('title', 'Suppliers & Vendors - Bakery Management System')
 
-@section('content')
-<x-page-header title="Raw Material Suppliers & Vendors" subtitle="Manage ingredient vendors, purchasing contacts, and procurement history">
-    <x-slot:actions>
-        <x-button variant="secondary" :href="route('admin.purchase-orders.index')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            <span>Purchase Orders</span>
-        </x-button>
-        <x-button variant="primary" id="btn_open_supplier_modal">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span>Add Supplier</span>
-        </x-button>
-    </x-slot:actions>
-</x-page-header>
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
+@endpush
 
-<!-- KPI Metrics Grid -->
-<div class="stats-grid">
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <a href="{{ route('admin.suppliers', array_merge(request()->except('status', 'page'), ['status' => 'all'])) }}"
+           class="period-pill {{ (!request()->filled('status') || request('status') === 'all') ? 'active' : '' }}">
+            <span>All Suppliers ({{ $stats['total'] }})</span>
+        </a>
+        <a href="{{ route('admin.suppliers', array_merge(request()->except('status', 'page'), ['status' => 'active'])) }}"
+           class="period-pill {{ request('status') === 'active' ? 'active' : '' }}">
+            <span>Active Partners ({{ $stats['active'] }})</span>
+        </a>
+        <a href="{{ route('admin.suppliers', array_merge(request()->except('status', 'page'), ['status' => 'inactive'])) }}"
+           class="period-pill {{ request('status') === 'inactive' ? 'active' : '' }}">
+            <span>Inactive Vendors ({{ $stats['inactive'] }})</span>
+        </a>
+    </div>
+@endsection
+
+@section('header_sub_action')
+    <a href="{{ route('admin.purchase-orders.index') }}" class="btn btn-secondary sticky-add-product-btn" style="margin-right: 0.5rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>Purchase Orders</span>
+    </a>
+    <button type="button" class="btn btn-primary sticky-add-product-btn" id="btn_open_supplier_modal">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Add Supplier</span>
+    </button>
+@endsection
+
+@section('content')
+<h1 class="sr-only">Raw Material Suppliers</h1>
+
+<!-- KPI Metrics Grid (Exact Orders / Dashboard Page Style) -->
+<div class="dash-stat-row">
     <div class="stat-card">
         <div class="stat-icon-box orange">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
@@ -25,6 +46,10 @@
         <div class="stat-info">
             <span class="stat-label">Total Suppliers</span>
             <div class="stat-value">{{ $stats['total'] }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Vendor Base
+            </span>
         </div>
     </div>
 
@@ -35,6 +60,10 @@
         <div class="stat-info">
             <span class="stat-label">Active Partners</span>
             <div class="stat-value">{{ $stats['active'] }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Verified Active
+            </span>
         </div>
     </div>
 
@@ -45,6 +74,10 @@
         <div class="stat-info">
             <span class="stat-label">Inactive Vendors</span>
             <div class="stat-value">{{ $stats['inactive'] }}</div>
+            <span class="stat-trend {{ $stats['inactive'] > 0 ? 'warning' : 'up' }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                {{ $stats['inactive'] > 0 ? 'Dormant' : 'All Active' }}
+            </span>
         </div>
     </div>
 
@@ -55,39 +88,41 @@
         <div class="stat-info">
             <span class="stat-label">Total Procured Spend</span>
             <div class="stat-value">${{ number_format($stats['total_spend'], 2) }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Procurement
+            </span>
         </div>
     </div>
 </div>
 
-<!-- Search and Filter Bar -->
-<div class="card" style="padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
-    <form method="GET" action="{{ route('admin.suppliers') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-        <div style="display: flex; gap: 0.75rem; flex: 1; min-width: 280px;">
-            <div style="position: relative; flex: 1;">
-                <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search supplier name, contact, phone, or email..." class="form-control-input" style="padding-left: 2.35rem;">
-            </div>
-            <div style="width: 140px;">
-                <x-select name="status" onchange="this.form.submit()">
-                    <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status</option>
-                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                </x-select>
-            </div>
+<!-- Search and Filter Bar (Orders Page Filter Style) -->
+<div class="orders-search-filter-card" style="margin-bottom: 1rem; border-radius: 50px; padding: 0.5rem 0.85rem;">
+    <form method="GET" action="{{ route('admin.suppliers') }}" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; width: 100%;">
+        <div class="orders-search-box" style="flex: 1; min-width: 240px; position: relative;">
+            <svg style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #71717a;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search supplier name, contact, phone, or email..." style="height: 38px; border-radius: 50px; padding-left: 2.5rem; width: 100%; border: 1px solid var(--border-color, #262626); background: var(--bg-card, #121212); color: inherit;">
+        </div>
+        <div class="orders-select-wrapper" style="min-width: 140px;">
+            <select name="status" style="height: 38px; border-radius: 50px; padding: 0 1.25rem; width: 100%; border: 1px solid var(--border-color, #262626); background: var(--bg-card, #121212); color: inherit; cursor: pointer;" onchange="this.form.submit()">
+                <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status</option>
+                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+            </select>
         </div>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <x-button variant="primary" type="submit">Search</x-button>
+            <button type="submit" class="btn btn-primary" style="height: 38px;">Filter</button>
             @if(request()->hasAny(['search', 'status']))
-                <x-button variant="secondary" :href="route('admin.suppliers')">Clear</x-button>
+                <a href="{{ route('admin.suppliers') }}" class="btn btn-secondary" style="height: 38px;">Clear</a>
             @endif
         </div>
     </form>
 </div>
 
-<!-- Suppliers Table -->
-<x-card style="overflow: hidden; padding: 0;">
+<!-- Suppliers Table Card (Orders Card Style) -->
+<div class="orders-card" style="padding: 1.25rem;">
     <div class="table-responsive-wrapper" style="margin-bottom: 0;">
-        <table class="bakery-table" id="suppliers_table" style="width: 100%;">
+        <table class="orders-table" id="suppliers_table">
             <thead>
                 <tr>
                     <th>Vendor / Company</th>
@@ -144,12 +179,12 @@
                             </span>
                         </td>
                         <td>
-                            <x-badge :variant="$supplier->status === 'active' ? 'success' : 'danger'">
+                            <span class="status-badge {{ $supplier->status === 'active' ? 'status-completed' : 'status-cancelled' }}">
                                 {{ ucfirst($supplier->status) }}
-                            </x-badge>
+                            </span>
                         </td>
                         <td style="text-align: right;">
-                            <div style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 0.5rem;">
                                 <a href="{{ route('admin.suppliers.show', $supplier->id) }}" class="table-icon-btn" title="View Supplier Profile">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
@@ -197,7 +232,7 @@
             {{ $suppliers->links() }}
         </div>
     @endif
-</x-card>
+</div>
 
 <!-- ADD SUPPLIER MODAL -->
 <x-modal id="add_supplier_modal" title="Add Supplier" maxWidth="540px" class="dash-modal-overlay">

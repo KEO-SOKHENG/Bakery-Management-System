@@ -4,16 +4,21 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/settings.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
 @endpush
 
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <a href="{{ route('admin.settings') }}" class="period-pill active">
+            <span>General Settings</span>
+        </a>
+        <a href="{{ route('admin.notifications') }}" class="period-pill">
+            <span>Notifications</span>
+        </a>
+    </div>
+@endsection
+
 @section('content')
-<div class="settings-header-wrapper">
-    <x-page-header title="Settings" subtitle="Configure your bakery system and store preferences.">
-        <x-slot:actions>
-            <span class="sr-only">System Settings</span>
-        </x-slot:actions>
-    </x-page-header>
-</div>
 
 @if(!$canManage)
     <x-alert type="warning">

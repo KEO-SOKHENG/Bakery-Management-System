@@ -165,7 +165,7 @@ class NotificationService
      */
     public function notifyOrderCreated(Order $order): void
     {
-        $actionUrl = route('admin.orders.show', $order);
+        $actionUrl = route('admin.orders');
 
         if ($order->is_custom) {
             // Custom cake orders alert kitchen staff (bakers) in addition to management
@@ -187,7 +187,7 @@ class NotificationService
      */
     public function notifyOrderStatusUpdated(Order $order, string $newStatus): void
     {
-        $actionUrl = route('admin.orders.show', $order);
+        $actionUrl = route('admin.orders');
 
         if ($newStatus === Order::STATUS_READY_FOR_PICKUP || $newStatus === 'ready') {
             $title = "Order Ready for Pickup: #{$order->order_number}";
@@ -384,7 +384,7 @@ class NotificationService
             $title = "Custom Cake Pickup Soon: #{$cOrder->order_number}";
             $message = "Order for {$cOrder->customer_name} is scheduled for pickup ({$pickupTime}). Status: " . ucfirst(str_replace('_', ' ', $cOrder->order_status));
 
-            $this->notifyRoles(['admin', 'manager', 'cashier', 'baker'], 'custom_order', $title, $message, 'warning', route('admin.orders.show', $cOrder), $dedupKey);
+            $this->notifyRoles(['admin', 'manager', 'cashier', 'baker'], 'custom_order', $title, $message, 'warning', route('admin.orders'), $dedupKey);
             $counts['pickup_soon']++;
         }
 

@@ -3,23 +3,33 @@
    Supports Light, Dark, and Glass Themes + Responsive Tablet / Mobile Layouts
    ========================================================================== */
 
-/* Orders Main Container - Viewport Fit with No Outer Scroll */
+/* Orders Main Container - Viewport Fit with No Outer Scroll & Zero Hover Clipping */
 .orders-container {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 120px);
+    height: calc(100vh - 138px);
     min-height: 480px;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: visible;
+    padding-top: 8px;
 }
 
 /* Orders Stat Grid - Exact Dashboard Page Style, Size, and Font */
 .orders-container .dash-stat-row {
-    margin-bottom: 1rem !important;
+    margin-bottom: 0.75rem !important;
     flex-shrink: 0 !important;
+    padding-top: 2px;
 }
 
 .orders-container .dash-stat-row .stat-card {
+    position: relative !important;
+    z-index: 1 !important;
+    box-shadow: none !important;
+}
+
+.orders-container .dash-stat-row .stat-card:hover {
+    position: relative !important;
+    z-index: 10 !important;
     box-shadow: none !important;
 }
 
@@ -327,38 +337,29 @@
     box-sizing: border-box;
 }
 
-/* Internal Scrollable Table Wrapper */
+/* Internal Scrollable Table Wrapper (Hidden Scrollbars, Seamless Mousewheel/Touch Scroll) */
 .orders-table-wrapper {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     border-radius: 14px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(217, 119, 6, 0.35) transparent;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }
 
 .orders-table-wrapper::-webkit-scrollbar {
-    width: 6px;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
-.orders-table-wrapper::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.orders-table-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(217, 119, 6, 0.35);
-    border-radius: 9999px;
-}
-
-.orders-table-wrapper::-webkit-scrollbar-thumb:hover {
-    background: #d97706;
-}
-
+.orders-table-wrapper::-webkit-scrollbar-track,
+.orders-table-wrapper::-webkit-scrollbar-thumb,
 .orders-table-wrapper::-webkit-scrollbar-button {
-    display: none;
-    width: 0;
-    height: 0;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .orders-table {
@@ -401,11 +402,25 @@
 }
 
 .orders-table tr {
-    cursor: pointer;
+    cursor: default;
 }
 
-.orders-table tr:hover td {
-    background-color: rgba(250, 246, 240, 0.6);
+.orders-table tr.order-clickable-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.orders-table tr.order-clickable-row:hover td {
+    background-color: rgba(250, 246, 240, 0.85);
+}
+
+.order-number-pill {
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--accent-brown, #d97736);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    display: inline-block;
 }
 
 .orders-table tr:last-child td {
@@ -911,16 +926,17 @@
     box-shadow: none !important;
 }
 
-[data-theme="dark"] .orders-table-wrapper {
-    scrollbar-color: rgba(245, 158, 11, 0.35) transparent !important;
+[data-theme="dark"] .orders-table-wrapper,
+body.dark-mode .orders-table-wrapper {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }
 
-[data-theme="dark"] .orders-table-wrapper::-webkit-scrollbar-thumb {
-    background: rgba(245, 158, 11, 0.35) !important;
-}
-
-[data-theme="dark"] .orders-table-wrapper::-webkit-scrollbar-thumb:hover {
-    background: #f59e0b !important;
+[data-theme="dark"] .orders-table-wrapper::-webkit-scrollbar,
+body.dark-mode .orders-table-wrapper::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 [data-theme="dark"] .order-metric-value,
@@ -1148,4 +1164,791 @@ button:focus,
         overflow-y: visible !important;
     }
 }
+
+/* ==========================================================================
+   Purge Orders Modal Styles (Clean, Accessible, Theme-Aware, Flat)
+   ========================================================================== */
+.purge-modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+}
+
+.purge-modal-card {
+    background: #ffffff;
+    border-radius: 20px;
+    max-width: 480px;
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: none !important;
+}
+
+.purge-modal-header {
+    background: #fff5f5;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #fee2e2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.purge-modal-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.purge-modal-icon-badge {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #fee2e2;
+    border: 1.5px solid #fca5a5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #dc2626;
+    flex-shrink: 0;
+}
+
+.purge-modal-title {
+    margin: 0 !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: #991b1b !important;
+    line-height: 1.2 !important;
+}
+
+.purge-modal-subtitle {
+    margin: 0.2rem 0 0 0 !important;
+    font-size: 0.8rem !important;
+    color: #b91c1c !important;
+    line-height: 1.2 !important;
+}
+
+.purge-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 1.75rem;
+    color: #991b1b;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.purge-modal-close:hover {
+    background: rgba(220, 38, 38, 0.1);
+    color: #7f1d1d;
+}
+
+.purge-modal-body {
+    padding: 1.35rem 1.5rem;
+}
+
+.purge-section-label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.65rem;
+}
+
+.purge-scope-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+    margin-bottom: 1.15rem;
+}
+
+.scope-quick-btn {
+    padding: 0.75rem 0.65rem;
+    border-radius: 12px;
+    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    transition: all 0.15s ease;
+    box-shadow: none !important;
+}
+
+.scope-quick-btn:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    color: #1e293b;
+}
+
+.scope-quick-btn.active {
+    border: 1.5px solid #ef4444 !important;
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+    font-weight: 800 !important;
+}
+
+.purge-preview-box {
+    background: #fafaf9;
+    border: 1.5px solid #e7e5e4;
+    border-radius: 14px;
+    padding: 0.9rem 1.15rem;
+    margin-bottom: 1.35rem;
+    box-shadow: none !important;
+}
+
+.purge-preview-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+}
+
+.purge-preview-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #44403c;
+}
+
+.purge-preview-count {
+    font-size: 1.15rem;
+    color: #dc2626;
+    font-weight: 800;
+}
+
+.purge-preview-sub {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.775rem;
+    color: #78716c;
+}
+
+.purge-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.btn-purge-cancel {
+    padding: 0.65rem 1.25rem !important;
+    border-radius: 50px !important;
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    box-shadow: none !important;
+}
+
+.btn-purge-cancel:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+.btn-purge-submit {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.65rem 1.5rem !important;
+    border-radius: 50px !important;
+    background: #dc2626 !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: 800 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+}
+
+.btn-purge-submit:hover {
+    background: #b91c1c !important;
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   Dark Theme Purge Modal Overrides (Crisp Contrast, Accessible, Flat)
+   ========================================================================== */
+[data-theme="dark"] .purge-modal-card,
+body.dark-mode .purge-modal-card {
+    background: #18181c !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme="dark"] .purge-modal-header,
+body.dark-mode .purge-modal-header {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.18) 0%, rgba(220, 38, 38, 0.08) 100%) !important;
+    border-bottom: 1px solid rgba(220, 38, 38, 0.25) !important;
+}
+
+[data-theme="dark"] .purge-modal-icon-badge,
+body.dark-mode .purge-modal-icon-badge {
+    background: rgba(220, 38, 38, 0.28) !important;
+    border-color: rgba(220, 38, 38, 0.5) !important;
+    color: #f87171 !important;
+}
+
+[data-theme="dark"] .purge-modal-title,
+body.dark-mode .purge-modal-title {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .purge-modal-subtitle,
+body.dark-mode .purge-modal-subtitle {
+    color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .purge-modal-close,
+body.dark-mode .purge-modal-close {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+[data-theme="dark"] .purge-modal-close:hover,
+body.dark-mode .purge-modal-close:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .purge-section-label,
+body.dark-mode .purge-section-label {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .scope-quick-btn,
+body.dark-mode .scope-quick-btn {
+    background: #141417 !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+    color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .scope-quick-btn:hover,
+body.dark-mode .scope-quick-btn:hover {
+    background: #202026 !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .scope-quick-btn.active,
+body.dark-mode .scope-quick-btn.active {
+    background: rgba(220, 38, 38, 0.22) !important;
+    border-color: #ef4444 !important;
+    color: #fca5a5 !important;
+    font-weight: 800 !important;
+}
+
+[data-theme="dark"] .purge-preview-box,
+body.dark-mode .purge-preview-box {
+    background: #121215 !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .purge-preview-label,
+body.dark-mode .purge-preview-label {
+    color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .purge-preview-count,
+body.dark-mode .purge-preview-count {
+    color: #f87171 !important;
+}
+
+[data-theme="dark"] .purge-preview-sub,
+body.dark-mode .purge-preview-sub {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .btn-purge-cancel,
+body.dark-mode .btn-purge-cancel {
+    background: #222228 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .btn-purge-cancel:hover,
+body.dark-mode .btn-purge-cancel:hover {
+    background: #2d2d35 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .btn-purge-submit,
+body.dark-mode .btn-purge-submit {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+[data-theme="dark"] .btn-purge-submit:hover,
+body.dark-mode .btn-purge-submit:hover {
+    background: #b91c1c !important;
+}
+
+/* ==========================================================================
+   Simple Order Detail Modal Card ("Cart") - Clean, Accessible, Flat
+   ========================================================================== */
+.order-detail-modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+}
+
+.order-detail-modal-card {
+    background: #ffffff;
+    border-radius: 20px;
+    max-width: 520px;
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: none !important;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+
+.order-detail-modal-header {
+    background: #faf6f0;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #eee9e0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.order-detail-modal-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.order-detail-modal-badge {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #b45309;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    padding: 0.35rem 0.75rem;
+    border-radius: 12px;
+    line-height: 1;
+}
+
+.order-detail-modal-title {
+    margin: 0 !important;
+    font-size: 1.05rem !important;
+    font-weight: 800 !important;
+    color: #29150d !important;
+    line-height: 1.2 !important;
+}
+
+.order-detail-modal-date {
+    margin: 0.2rem 0 0 0 !important;
+    font-size: 0.775rem !important;
+    color: #78716c !important;
+}
+
+.order-detail-modal-body {
+    padding: 1.25rem 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.order-detail-modal-body::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.order-detail-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 0.85rem 1rem;
+    border-radius: 14px;
+}
+
+.order-detail-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.order-detail-info-item .info-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+}
+
+.order-detail-info-item .info-value {
+    font-size: 0.925rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.order-detail-info-item .info-sub {
+    font-size: 0.775rem;
+    color: #64748b;
+}
+
+.order-detail-note-box {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 12px;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.825rem;
+    color: #92400e;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.order-detail-note-box .note-tag {
+    font-weight: 800;
+}
+
+.order-detail-items-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.order-detail-items-section .items-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #64748b;
+}
+
+.items-count-pill {
+    font-size: 0.725rem;
+    padding: 2px 8px;
+    background: #f1f5f9;
+    border-radius: 50px;
+    font-weight: 700;
+    color: #475569;
+}
+
+.items-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    overflow: visible;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.items-list-container::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+#orderDetailModal,
+#orderDetailModal * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+#orderDetailModal::-webkit-scrollbar,
+#orderDetailModal *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.order-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.55rem 0.75rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.order-item-name-qty {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.order-item-qty {
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #b45309;
+    background: #fef3c7;
+    padding: 2px 7px;
+    border-radius: 6px;
+    line-height: 1.2;
+}
+
+.order-item-name {
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: #1e293b;
+}
+
+.order-item-pricing {
+    text-align: right;
+}
+
+.order-item-subtotal {
+    font-weight: 800;
+    font-size: 0.875rem;
+    color: #0f172a;
+}
+
+.order-item-unit-price {
+    font-size: 0.725rem;
+    color: #94a3b8;
+}
+
+.order-detail-summary-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.summary-line span:last-child {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.summary-line.discount span:last-child {
+    color: #059669;
+}
+
+.summary-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 0.2rem 0;
+}
+
+.summary-line.total {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.summary-line.total span:last-child {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #16a34a;
+}
+
+.order-detail-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.25rem;
+}
+
+.btn-order-detail-close {
+    padding: 0.6rem 1.5rem !important;
+    border-radius: 50px !important;
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    box-shadow: none !important;
+}
+
+.btn-order-detail-close:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* Dark Mode Overrides for Simple Order Detail Modal */
+[data-theme="dark"] .order-detail-modal-card,
+body.dark-mode .order-detail-modal-card {
+    background: #18181c !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme="dark"] .order-detail-modal-header,
+body.dark-mode .order-detail-modal-header {
+    background: #1e1e24 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .order-detail-modal-badge,
+body.dark-mode .order-detail-modal-badge {
+    background: rgba(245, 158, 11, 0.2) !important;
+    border-color: rgba(245, 158, 11, 0.4) !important;
+    color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .order-detail-modal-title,
+body.dark-mode .order-detail-modal-title {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .order-detail-modal-date,
+body.dark-mode .order-detail-modal-date {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .order-detail-info-grid,
+body.dark-mode .order-detail-info-grid {
+    background: #131316 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .order-detail-info-item .info-label,
+body.dark-mode .order-detail-info-item .info-label {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .order-detail-info-item .info-value,
+body.dark-mode .order-detail-info-item .info-value {
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .order-detail-info-item .info-sub,
+body.dark-mode .order-detail-info-item .info-sub {
+    color: #64748b !important;
+}
+
+[data-theme="dark"] .order-detail-note-box,
+body.dark-mode .order-detail-note-box {
+    background: rgba(245, 158, 11, 0.1) !important;
+    border-color: rgba(245, 158, 11, 0.25) !important;
+    color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .order-detail-items-section .items-header,
+body.dark-mode .order-detail-items-section .items-header {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .items-count-pill,
+body.dark-mode .items-count-pill {
+    background: #27272a !important;
+    color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .order-item-row,
+body.dark-mode .order-item-row {
+    background: #141417 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .order-item-qty,
+body.dark-mode .order-item-qty {
+    background: rgba(245, 158, 11, 0.2) !important;
+    color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .order-item-name,
+body.dark-mode .order-item-name {
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .order-item-subtotal,
+body.dark-mode .order-item-subtotal {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .order-item-unit-price,
+body.dark-mode .order-item-unit-price {
+    color: #64748b !important;
+}
+
+[data-theme="dark"] .order-detail-summary-box,
+body.dark-mode .order-detail-summary-box {
+    background: #131316 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .summary-line,
+body.dark-mode .summary-line {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .summary-line span:last-child,
+body.dark-mode .summary-line span:last-child {
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .summary-line.discount span:last-child,
+body.dark-mode .summary-line.discount span:last-child {
+    color: #34d399 !important;
+}
+
+[data-theme="dark"] .summary-divider,
+body.dark-mode .summary-divider {
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .summary-line.total,
+body.dark-mode .summary-line.total {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .summary-line.total span:last-child,
+body.dark-mode .summary-line.total span:last-child {
+    color: #34d399 !important;
+}
+
+[data-theme="dark"] .btn-order-detail-close,
+body.dark-mode .btn-order-detail-close {
+    background: #222228 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .btn-order-detail-close:hover,
+body.dark-mode .btn-order-detail-close:hover {
+    background: #2d2d35 !important;
+    color: #ffffff !important;
+}
+
+
 

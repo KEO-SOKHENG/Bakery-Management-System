@@ -13,9 +13,9 @@
 
     <!-- Top Action Bar -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <a href="{{ route('admin.orders.show', $order) }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 50px; padding: 0.55rem 1.25rem; font-weight: 700; text-decoration: none; color: #563020; background: #faf6f0; border: 1px solid rgba(238, 233, 224, 0.9);">
+        <a href="{{ route('admin.orders') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 50px; padding: 0.55rem 1.25rem; font-weight: 700; text-decoration: none; color: #563020; background: #faf6f0; border: 1px solid rgba(238, 233, 224, 0.9);">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-            <span>Back to Order Details</span>
+            <span>Back to Orders</span>
         </a>
     </div>
 

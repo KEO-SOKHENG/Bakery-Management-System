@@ -4,7 +4,28 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/reports.css') }}?v={{ @filemtime(public_path('css/reports.css')) ?: '1.0' }}">
+    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
 @endpush
+
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'today'])) }}" class="period-pill {{ $period === 'today' ? 'active' : '' }}" data-lang-key="today">{{ __('messages.today') }}</a>
+        <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'yesterday'])) }}" class="period-pill {{ $period === 'yesterday' ? 'active' : '' }}" data-lang-key="yesterday">{{ __('messages.yesterday') }}</a>
+        <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => '7days'])) }}" class="period-pill {{ $period === '7days' ? 'active' : '' }}" data-lang-key="last_7_days">{{ __('messages.last_7_days') }}</a>
+        <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'this_month'])) }}" class="period-pill {{ $period === 'this_month' ? 'active' : '' }}" data-lang-key="this_month">{{ __('messages.this_month') }}</a>
+    </div>
+@endsection
+
+@section('header_sub_action')
+    <a href="{{ route('admin.reports.export.pdf', request()->all()) }}" class="btn btn-secondary sticky-add-product-btn" id="btn_export_pdf" title="Export PDF" style="margin-right: 0.5rem;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>PDF</span>
+    </a>
+    <a href="{{ route('admin.reports.export.excel', request()->all()) }}" class="btn btn-secondary sticky-add-product-btn" id="btn_export_excel" title="Export Excel / CSV">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+        <span>Excel</span>
+    </a>
+@endsection
 
 @section('content')
 <!-- Print Only Official Header -->
@@ -15,36 +36,6 @@
         <span>Period: {{ $startDate ? $startDate->format('M d, Y') : 'Start' }} &mdash; {{ $endDate ? $endDate->format('M d, Y') : 'End' }}</span>
         <span>Generated: {{ now()->format('M d, Y H:i:s') }}</span>
         <span>Status: Official Transactional Record</span>
-    </div>
-</div>
-
-<!-- Report Dashboard Header -->
-<div class="reports-header">
-    <div>
-        <h2 style="font-size: 1.45rem; font-weight: 800; margin: 0; color: var(--text-title); letter-spacing: -0.02em;" data-lang-key="reports_title">
-            {{ __('messages.reports_title') }}
-        </h2>
-        <p class="reports-subtitle" data-lang-key="reports_subtitle">
-            {{ __('messages.reports_subtitle') }}
-        </p>
-    </div>
-    <div class="report-export-group">
-        <span class="report-period-badge">
-            <span class="live-dot"></span>
-            <span>Live System Sync</span>
-        </span>
-        <x-button variant="secondary" :href="route('admin.reports.export.pdf', request()->all())" class="btn-export-pdf" id="btn_export_pdf" title="Export PDF">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            <span data-lang-key="export_pdf">{{ __('messages.export_pdf') }}</span>
-        </x-button>
-        <x-button variant="secondary" :href="route('admin.reports.export.excel', request()->all())" class="btn-export-excel" id="btn_export_excel" title="Export Excel / CSV">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-            <span data-lang-key="export_excel">{{ __('messages.export_excel') }}</span>
-        </x-button>
-        <x-button variant="secondary" class="btn-print-report" id="btn_print_report" onclick="window.print();" title="Print Layout">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            <span data-lang-key="print_report">{{ __('messages.print_report') }}</span>
-        </x-button>
     </div>
 </div>
 

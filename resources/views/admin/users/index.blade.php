@@ -4,17 +4,34 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/users.css') }}?v={{ @filemtime(public_path('css/users.css')) ?: '1.0' }}">
+    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
 @endpush
 
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <a href="{{ route('admin.users.index') }}" class="period-pill active">
+            <span data-lang-key="tab_staff_accounts">{{ __('messages.tab_staff_accounts') }}</span>
+        </a>
+        <a href="{{ route('admin.hr.attendance') }}" class="period-pill">
+            <span data-lang-key="tab_attendance">{{ __('messages.tab_attendance') }}</span>
+        </a>
+        <a href="{{ route('admin.hr.schedules') }}" class="period-pill">
+            <span data-lang-key="tab_schedules">{{ __('messages.tab_schedules') }}</span>
+        </a>
+        <a href="{{ route('admin.hr.salaries') }}" class="period-pill">
+            <span data-lang-key="tab_salaries">{{ __('messages.tab_salaries') }}</span>
+        </a>
+    </div>
+@endsection
+
+@section('header_sub_action')
+    <button type="button" class="btn btn-primary sticky-add-product-btn" id="btn_open_create_user_modal">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span data-lang-key="add_staff">{{ __('messages.add_staff') }}</span>
+    </button>
+@endsection
+
 @section('content')
-<x-page-header title="Staff & Accounts" :subtitle="__('messages.users_management_subtitle')">
-    <x-slot:actions>
-        <x-button variant="primary" id="btn_open_create_user_modal" class="btn-user-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span data-lang-key="add_staff">{{ __('messages.add_staff') }}</span>
-        </x-button>
-    </x-slot:actions>
-</x-page-header>
 
 <!-- Flash Notifications -->
 @if(session('success'))
@@ -39,28 +56,8 @@
     </x-alert>
 @endif
 
-<!-- Navigation Tabs -->
-<div class="hr-nav-tabs">
-    <a href="{{ route('admin.users.index') }}" class="hr-nav-tab active">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <span data-lang-key="tab_staff_accounts">{{ __('messages.tab_staff_accounts') }}</span>
-    </a>
-    <a href="{{ route('admin.hr.attendance') }}" class="hr-nav-tab">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span data-lang-key="tab_attendance">{{ __('messages.tab_attendance') }}</span>
-    </a>
-    <a href="{{ route('admin.hr.schedules') }}" class="hr-nav-tab">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span data-lang-key="tab_schedules">{{ __('messages.tab_schedules') }}</span>
-    </a>
-    <a href="{{ route('admin.hr.salaries') }}" class="hr-nav-tab">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        <span data-lang-key="tab_salaries">{{ __('messages.tab_salaries') }}</span>
-    </a>
-</div>
-
-<!-- Summary Metric Cards -->
-<div class="stats-grid">
+<!-- Summary Metric Cards (Exact Orders / Dashboard Page Style) -->
+<div class="dash-stat-row">
     <div class="stat-card">
         <div class="stat-icon-box blue">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>

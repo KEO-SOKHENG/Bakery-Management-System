@@ -4,29 +4,28 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/production.css') }}?v={{ @filemtime(public_path('css/production.css')) ?: '1.0' }}">
+    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
 @endpush
+
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <span class="period-pill active">
+            <span data-lang-key="production_management">{{ __('messages.production_management') }}</span>
+        </span>
+    </div>
+@endsection
+
+@if(in_array(auth()->user()->role, ['admin', 'manager']))
+    @section('header_sub_action')
+        <button type="button" class="btn btn-primary sticky-add-product-btn" id="btn_open_prod_modal">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span data-lang-key="schedule_production_batch">{{ __('messages.schedule_production_batch') }}</span>
+        </button>
+    @endsection
+@endif
 
 @section('content')
 <div class="production-dashboard-wrapper">
-    <!-- 1. Hero Header Bar -->
-    <div class="production-hero-bar page-header">
-        <div class="production-hero-title page-header-info">
-            <h1 class="page-header-title">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-brown, #5D4037);"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                <span data-lang-key="production_management">{{ __('messages.production_management') }}</span>
-            </h1>
-            <p class="page-header-subtitle">{{ __('messages.deduct_stock_notice') }}</p>
-        </div>
-
-        @if(in_array(auth()->user()->role, ['admin', 'manager']))
-            <div class="page-header-actions">
-                <x-button variant="primary" id="btn_open_prod_modal" class="btn-schedule-batch">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                    <span data-lang-key="schedule_production_batch">{{ __('messages.schedule_production_batch') }}</span>
-                </x-button>
-            </div>
-        @endif
-    </div>
 
     <!-- Alert Notifications -->
     @if(session('success'))
@@ -37,8 +36,8 @@
         <x-alert type="danger" :message="session('error')" />
     @endif
 
-    <!-- 2. KPI Summary Cards -->
-    <div class="stats-grid">
+    <!-- 2. KPI Summary Cards (Exact Orders / Dashboard Page Style) -->
+    <div class="dash-stat-row">
         <div class="stat-card">
             <div class="stat-icon-box orange">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>

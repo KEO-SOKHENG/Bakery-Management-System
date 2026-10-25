@@ -2,22 +2,46 @@
 
 @section('title', 'Ingredients Inventory - Bakery Management System')
 
-@section('content')
-<x-page-header title="Raw Material Ingredients Inventory" subtitle="Monitor baking stocks, minimum thresholds, purchase costs, and replenish via Purchase Orders">
-    <x-slot:actions>
-        <x-button variant="secondary" :href="route('admin.purchase-orders.create')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-            <span>Purchase Order</span>
-        </x-button>
-        <x-button variant="primary" id="btn_open_ingredient_modal">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span>Add Ingredient</span>
-        </x-button>
-    </x-slot:actions>
-</x-page-header>
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
+@endpush
 
-<!-- KPI Metrics Grid -->
-<div class="stats-grid">
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <a href="{{ route('admin.ingredients', array_merge(request()->except('stock_status', 'page'), ['stock_status' => ''])) }}"
+           class="period-pill {{ !request('stock_status') ? 'active' : '' }}">
+            <span>All Ingredients ({{ $stats['total'] }})</span>
+        </a>
+        <a href="{{ route('admin.ingredients', array_merge(request()->except('stock_status', 'page'), ['stock_status' => 'normal'])) }}"
+           class="period-pill {{ request('stock_status') === 'normal' ? 'active' : '' }}">
+            <span>In Stock</span>
+        </a>
+        <a href="{{ route('admin.ingredients', array_merge(request()->except('stock_status', 'page'), ['stock_status' => 'low'])) }}"
+           class="period-pill {{ request('stock_status') === 'low' ? 'active' : '' }}">
+            <span>Low Stock ({{ $stats['low_stock'] }})</span>
+        </a>
+        <a href="{{ route('admin.ingredients', array_merge(request()->except('stock_status', 'page'), ['stock_status' => 'out'])) }}"
+           class="period-pill {{ request('stock_status') === 'out' ? 'active' : '' }}">
+            <span>Out of Stock ({{ $stats['out_of_stock'] }})</span>
+        </a>
+    </div>
+@endsection
+
+@section('header_sub_action')
+    <a href="{{ route('admin.purchase-orders.create') }}" class="btn btn-secondary sticky-add-product-btn" style="margin-right: 0.5rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        <span>Purchase Order</span>
+    </a>
+    <button type="button" class="btn btn-primary sticky-add-product-btn" id="btn_open_ingredient_modal">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Add Ingredient</span>
+    </button>
+@endsection
+
+@section('content')
+
+<!-- KPI Metrics Grid (Exact Orders / Dashboard Page Style) -->
+<div class="dash-stat-row">
     <div class="stat-card">
         <div class="stat-icon-box orange">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
@@ -25,6 +49,10 @@
         <div class="stat-info">
             <span class="stat-label">Total Ingredients</span>
             <div class="stat-value">{{ $stats['total'] }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Catalog Track
+            </span>
         </div>
     </div>
 
@@ -35,6 +63,10 @@
         <div class="stat-info">
             <span class="stat-label">Low Stock Warnings</span>
             <div class="stat-value">{{ $stats['low_stock'] }}</div>
+            <span class="stat-trend {{ $stats['low_stock'] > 0 ? 'warning' : 'up' }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                {{ $stats['low_stock'] > 0 ? 'Restock Soon' : 'Optimal Levels' }}
+            </span>
         </div>
     </div>
 
@@ -45,6 +77,10 @@
         <div class="stat-info">
             <span class="stat-label">Out of Stock</span>
             <div class="stat-value">{{ $stats['out_of_stock'] }}</div>
+            <span class="stat-trend {{ $stats['out_of_stock'] > 0 ? 'warning' : 'up' }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                {{ $stats['out_of_stock'] > 0 ? 'Urgent Replenish' : 'Fully Stocked' }}
+            </span>
         </div>
     </div>
 
@@ -55,62 +91,55 @@
         <div class="stat-info">
             <span class="stat-label">Total Stock Value</span>
             <div class="stat-value">${{ number_format($stats['total_value'], 2) }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Valuation
+            </span>
         </div>
     </div>
 </div>
 
-<!-- Filter Bar -->
-<x-card style="padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
-    <form method="GET" action="{{ route('admin.ingredients') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
-        <div style="display: flex; gap: 0.75rem; flex: 1; min-width: 280px; flex-wrap: wrap;">
-            <div style="position: relative; flex: 1; min-width: 220px;">
-                <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search ingredient name..." class="form-control-input" style="padding-left: 2.35rem;">
-            </div>
+<!-- Filter Bar (Orders Page Filter Style) -->
+<div class="orders-search-filter-card" style="margin-bottom: 1rem; border-radius: 50px; padding: 0.5rem 0.85rem;">
+    <form method="GET" action="{{ route('admin.ingredients') }}" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; width: 100%;">
+        <div class="orders-search-box" style="flex: 1; min-width: 220px; position: relative;">
+            <svg style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #71717a;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search ingredient name..." style="height: 38px; border-radius: 50px; padding-left: 2.5rem; width: 100%; border: 1px solid var(--border-color, #262626); background: var(--bg-card, #121212); color: inherit;">
+        </div>
 
-            <div style="min-width: 170px;">
-                <x-select name="supplier_id" onchange="this.form.submit()">
-                    <option value="all">All Suppliers</option>
-                    @foreach($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}" {{ request('supplier_id') == $supplier->id ? 'selected' : '' }}>{{ $supplier->name }}</option>
-                    @endforeach
-                </x-select>
-            </div>
-
-            <div style="min-width: 150px;">
-                <x-select name="stock_status" onchange="this.form.submit()">
-                    <option value="">All Stock Levels</option>
-                    <option value="normal" {{ request('stock_status') === 'normal' ? 'selected' : '' }}>In Stock</option>
-                    <option value="low" {{ request('stock_status') === 'low' ? 'selected' : '' }}>Low Stock (≤ Threshold)</option>
-                    <option value="out" {{ request('stock_status') === 'out' ? 'selected' : '' }}>Out of Stock (0)</option>
-                </x-select>
-            </div>
+        <div class="orders-select-wrapper" style="min-width: 160px;">
+            <select name="supplier_id" onchange="this.form.submit()" style="height: 38px; border-radius: 50px; padding: 0 1.25rem; width: 100%; border: 1px solid var(--border-color, #262626); background: var(--bg-card, #121212); color: inherit; cursor: pointer;">
+                <option value="all">All Suppliers</option>
+                @foreach($suppliers as $supplier)
+                    <option value="{{ $supplier->id }}" {{ request('supplier_id') == $supplier->id ? 'selected' : '' }}>{{ $supplier->name }}</option>
+                @endforeach
+            </select>
         </div>
 
         <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <x-button variant="primary" type="submit">Filter</x-button>
+            <button type="submit" class="btn btn-primary" style="height: 38px;">Filter</button>
             @if(request()->hasAny(['search', 'supplier_id', 'stock_status']))
-                <x-button variant="secondary" :href="route('admin.ingredients')">Clear</x-button>
+                <a href="{{ route('admin.ingredients') }}" class="btn btn-secondary" style="height: 38px;">Clear</a>
             @endif
         </div>
     </form>
-</x-card>
+</div>
 
-<!-- Ingredients Table -->
-<x-card style="overflow: hidden; padding: 0;">
+<!-- Ingredients Table Card (Orders Page Card & Table Style) -->
+<div class="orders-card" style="padding: 1.25rem;">
     <div class="table-responsive-wrapper" style="margin-bottom: 0;">
-        <table class="bakery-table" id="ingredients_table" style="width: 100%;">
+        <table class="orders-table" id="ingredients_table">
             <thead>
                 <tr>
-                    <th>Ingredient Name</th>
-                    <th>Current Stock</th>
-                    <th>Unit</th>
-                    <th>Purchase Cost</th>
-                    <th>Reorder Threshold</th>
-                    <th>Primary Supplier</th>
-                    <th>Expiry Date</th>
-                    <th>Stock Status</th>
-                    <th style="text-align: right;">Action</th>
+                    <th style="width: 20%;">Ingredient Name</th>
+                    <th style="width: 10%;">Current Stock</th>
+                    <th style="width: 8%;">Unit</th>
+                    <th style="width: 11%;">Purchase Cost</th>
+                    <th style="width: 12%;">Reorder Min</th>
+                    <th style="width: 15%;">Primary Supplier</th>
+                    <th style="width: 10%;">Expiry Date</th>
+                    <th style="width: 14%;">Stock Status</th>
+                    <th style="width: 12%; text-align: right;">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -159,12 +188,16 @@
                             {{ $ing->expiry_date ? $ing->expiry_date->format('M d, Y') : '—' }}
                         </td>
                         <td>
-                            <x-badge :variant="$isOut ? 'danger' : ($isLow ? 'warning' : 'success')">
-                                {{ $isOut ? 'Out of Stock' : ($isLow ? 'Low Stock' : 'In Stock') }}
-                            </x-badge>
+                            @if($isOut)
+                                <span class="status-badge status-cancelled">Out of Stock</span>
+                            @elseif($isLow)
+                                <span class="status-badge status-pending">Low Stock</span>
+                            @else
+                                <span class="status-badge status-completed">In Stock</span>
+                            @endif
                         </td>
                         <td style="text-align: right;">
-                            <div style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                            <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 0.4rem;">
                                 <a href="{{ route('admin.purchase-orders.create', ['ingredient_id' => $ing->id]) }}" class="table-icon-btn" title="Procure Ingredient via PO">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                 </a>
@@ -213,7 +246,7 @@
             {{ $ingredients->links() }}
         </div>
     @endif
-</x-card>
+</div>
 
 <!-- ADD INGREDIENT MODAL -->
 <x-modal id="add_ingredient_modal" title="Add Ingredient" maxWidth="540px" class="dash-modal-overlay">

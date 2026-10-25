@@ -4,17 +4,25 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/recipes.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
 @endpush
 
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <span class="period-pill active">
+            <span>All Recipes ({{ $recipes->count() }})</span>
+        </span>
+    </div>
+@endsection
+
+@section('header_sub_action')
+    <button type="button" class="btn btn-primary sticky-add-product-btn" id="btn_open_recipe_modal">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Add Recipe</span>
+    </button>
+@endsection
+
 @section('content')
-<x-page-header title="Bakery Recipes" subtitle="Standardized recipes, ingredients, baking temperatures, and yield costs">
-    <x-slot:actions>
-        <x-button variant="primary" id="btn_open_recipe_modal">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
-            <span>Add Recipe</span>
-        </x-button>
-    </x-slot:actions>
-</x-page-header>
 
 <div class="recipes-grid">
     @forelse($recipes as $recipe)

@@ -31,7 +31,7 @@ class ProductController extends Controller
             $query->where('status', $request->status);
         }
 
-        $products = $query->orderBy('id', 'desc')->paginate(10);
+        $products = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
         $categories = Category::where('status', 'active')->get();
 
         return view('admin.products', compact('products', 'categories'));

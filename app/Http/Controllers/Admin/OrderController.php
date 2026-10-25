@@ -26,17 +26,21 @@ class OrderController extends Controller
     {
         $query = Order::with(['items.product', 'customer', 'user', 'sale', 'payments']);
 
-        // 1. Search by order number, customer name, or customer phone
+        // 1. Search by order number, order ID, customer name, or customer phone
         if ($request->filled('search')) {
             $search = trim($request->search);
+            $cleanSearch = ltrim($search, '#');
             $like = DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
-            $query->where(function ($q) use ($search, $like) {
+            $query->where(function ($q) use ($search, $cleanSearch, $like) {
                 $q->where('order_number', $like, "%{$search}%")
                   ->orWhere('customer_name', $like, "%{$search}%")
                   ->orWhereHas('customer', function ($cq) use ($search, $like) {
                       $cq->where('name', $like, "%{$search}%")
                          ->orWhere('phone', $like, "%{$search}%");
                   });
+                if (is_numeric($cleanSearch)) {
+                    $q->orWhere('id', (int) $cleanSearch);
+                }
             });
         }
 
@@ -138,12 +142,7 @@ class OrderController extends Controller
      */
     public function create()
     {
-        $products = Product::where('status', 'active')->orderBy('name')->get();
-        $customers = Customer::where('status', 'active')->orderBy('name')->get();
-        $taxPercentage = (float) Setting::get('tax_percentage', Setting::get('tax_rate', 10.0));
-        $currency = Setting::get('currency', '$');
-
-        return view('admin.orders.create', compact('products', 'customers', 'taxPercentage', 'currency'));
+        return redirect()->route('admin.orders');
     }
 
     /**
@@ -305,7 +304,7 @@ class OrderController extends Controller
                 ]);
             }
 
-            return redirect()->route('admin.orders.show', $order)
+            return redirect()->route('admin.orders')
                 ->with('success', "Order #{$order->order_number} created successfully!");
         } catch (\Exception $e) {
             if ($request->wantsJson() || $request->ajax()) {
@@ -316,30 +315,11 @@ class OrderController extends Controller
     }
 
     /**
-     * Display the detailed order view with customer info, items, timeline tracking, and receipt preview.
+     * Display the detailed order view (Redirects to orders index).
      */
-    public function show(Order $order)
+    public function show($order = null)
     {
-        $order->load(['items.product.category', 'customer', 'user', 'sale', 'payments']);
-
-        $taxPercentage = (float) Setting::get('tax_percentage', Setting::get('tax_rate', 10.0));
-        $currency = Setting::get('currency', '$');
-        $bakeryName = Setting::get('bakery_name', Setting::get('shop_name', 'Sweet Delights Bakery'));
-        $bakeryPhone = Setting::get('bakery_phone', Setting::get('shop_phone', '+855 23 123 456'));
-        $bakeryAddress = Setting::get('bakery_address', Setting::get('shop_address', 'Monivong Blvd, Phnom Penh, Cambodia'));
-        $receiptHeader = Setting::get('receipt_header', "Sweet Delights Bakery & Cafe\nFresh Daily Artisan Breads");
-        $receiptFooter = Setting::get('receipt_footer', "Thank you for visiting!\nFollow us @sweetdelights.bakery");
-
-        return view('admin.orders.show', compact(
-            'order',
-            'taxPercentage',
-            'currency',
-            'bakeryName',
-            'bakeryPhone',
-            'bakeryAddress',
-            'receiptHeader',
-            'receiptFooter'
-        ));
+        return redirect()->route('admin.orders');
     }
 
     /**
@@ -348,7 +328,7 @@ class OrderController extends Controller
     public function edit(Order $order)
     {
         if (!$order->canBeEdited()) {
-            return redirect()->route('admin.orders.show', $order)
+            return redirect()->route('admin.orders')
                 ->with('error', "Only Pending orders can be modified. Current status is '{$order->order_status}'.");
         }
 
@@ -378,13 +358,13 @@ class OrderController extends Controller
                 'pickup_date'          => !empty($validated['pickup_date']) ? $validated['pickup_date'] : $order->pickup_date,
             ]);
 
-            return redirect()->route('admin.orders.show', $order)
+            return redirect()->route('admin.orders')
                 ->with('success', "Order #{$order->order_number} notes and pickup schedule updated.");
         }
 
         // Only pending orders can have full modification
         if (!$order->isPending()) {
-            return redirect()->route('admin.orders.show', $order)
+            return redirect()->route('admin.orders')
                 ->with('error', "Cannot modify an order with status '{$order->order_status}'.");
         }
 
@@ -503,7 +483,7 @@ class OrderController extends Controller
                 ]);
             });
 
-            return redirect()->route('admin.orders.show', $order)
+            return redirect()->route('admin.orders')
                 ->with('success', "Order #{$order->order_number} updated successfully.");
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage())->withInput();
@@ -632,7 +612,7 @@ class OrderController extends Controller
                 \Illuminate\Support\Facades\Log::warning("Failed to dispatch order cancellation notification: " . $e->getMessage());
             }
 
-            return redirect()->route('admin.orders.show', $order)
+            return redirect()->route('admin.orders')
                 ->with('success', "Order #{$order->order_number} has been cancelled and reserved items restored to inventory.");
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());

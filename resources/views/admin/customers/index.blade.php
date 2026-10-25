@@ -4,17 +4,25 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/customers.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
 @endpush
 
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <span class="period-pill active">
+            <span>All Customers ({{ number_format($totalCustomers) }})</span>
+        </span>
+    </div>
+@endsection
+
+@section('header_sub_action')
+    <button type="button" class="btn btn-primary sticky-add-product-btn" id="btn_open_add_customer_modal">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span data-lang-key="add_customer">{{ __('messages.add_customer') }}</span>
+    </button>
+@endsection
+
 @section('content')
-<x-page-header title="Customer Management" subtitle="Register bakery patrons, track loyalty points & tiers, and inspect purchase histories">
-    <x-slot:actions>
-        <x-button variant="primary" id="btn_open_add_customer_modal" class="btn-cust-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span data-lang-key="add_customer">{{ __('messages.add_customer') }}</span>
-        </x-button>
-    </x-slot:actions>
-</x-page-header>
 
 <!-- Flash Notifications -->
 @if(session('success'))
@@ -31,8 +39,8 @@
     </x-alert>
 @endif
 
-<!-- Summary Metric Cards -->
-<div class="stats-grid">
+<!-- Summary Metric Cards (Exact Orders / Dashboard Page Style) -->
+<div class="dash-stat-row">
     <div class="stat-card">
         <div class="stat-icon-box blue">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -40,6 +48,10 @@
         <div class="stat-info">
             <span class="stat-label">Total Customers</span>
             <div class="stat-value">{{ number_format($totalCustomers) }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Registered
+            </span>
         </div>
     </div>
 
@@ -50,6 +62,10 @@
         <div class="stat-info">
             <span class="stat-label">Active Accounts</span>
             <div class="stat-value">{{ number_format($activeCustomers) }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Active
+            </span>
         </div>
     </div>
 
@@ -60,6 +76,10 @@
         <div class="stat-info">
             <span class="stat-label">Loyalty Members</span>
             <div class="stat-value">{{ number_format($loyaltyMembers) }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Points Active
+            </span>
         </div>
     </div>
 
@@ -70,6 +90,10 @@
         <div class="stat-info">
             <span class="stat-label">Customer Revenue</span>
             <div class="stat-value">${{ number_format($totalCustomerRevenue, 2) }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Total Spend
+            </span>
         </div>
     </div>
 </div>

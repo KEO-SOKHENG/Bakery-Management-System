@@ -287,75 +287,83 @@
                     <!-- Language Switcher -->
                    
 
-                    <!-- Live Search Input -->
-                    <div class="header-search-box">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <input
-                            type="text"
-                            class="header-search-input"
-                            id="{{ request()->is('pos*') || request()->is('cashier*') ? 'pos_search_input' : (request()->is('admin/orders*') ? 'order_search_input' : 'global_header_search') }}"
-                            placeholder="Search page items..."
-                            autocomplete="off"
-                        >
-                    </div>
+                    <div class="header-actions-primary">
+                        <!-- Live Search Input -->
+                        <div class="header-search-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input
+                                type="text"
+                                class="header-search-input"
+                                id="{{ request()->is('pos*') || request()->is('cashier*') ? 'pos_search_input' : (request()->is('admin/orders*') ? 'order_search_input' : 'global_header_search') }}"
+                                placeholder="Search page items..."
+                                autocomplete="off"
+                            >
+                        </div>
 
-                    <!-- Notification Bell & Popover -->
-                    <div class="header-notification-wrapper">
-                        <button class="icon-bell-btn" id="notification_bell_btn" type="button" aria-label="Notifications">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                            @if(($realUnreadCount ?? 0) > 0)
-                                <span class="bell-badge" id="notification_badge">{{ $realUnreadCount }}</span>
-                            @endif
-                        </button>
+                        <!-- Notification Bell & Popover -->
+                        <div class="header-notification-wrapper">
+                            <button class="icon-bell-btn" id="notification_bell_btn" type="button" aria-label="Notifications">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                                @if(($realUnreadCount ?? 0) > 0)
+                                    <span class="bell-badge" id="notification_badge">{{ $realUnreadCount }}</span>
+                                @endif
+                            </button>
 
-                        <div class="notification-dropdown" id="notification_dropdown">
-                            <div class="notification-header">
-                                <div class="notification-title-group">
-                                    <span class="notification-heading">Notifications</span>
-                                    <span class="notification-count-badge" id="notification_count_tag">{{ $realUnreadCount ?? 0 }} New</span>
-                                </div>
-                                <button type="button" class="btn-mark-all-read" id="btn_mark_all_read">Mark all as read</button>
-                            </div>
-
-                            <div class="notification-list" id="notification_list">
-                                @forelse(($realNotifications ?? []) as $notif)
-                                    @php
-                                        $isUnread = !$notif->isRead();
-                                        $sev = $notif->severity ?? 'info';
-                                    @endphp
-                                    <a href="{{ $notif->action_url ?: 'javascript:void(0)' }}" class="notification-item {{ $isUnread ? 'unread' : '' }}" data-id="{{ $notif->id }}" data-read="{{ $isUnread ? '0' : '1' }}">
-                                        <div class="notification-icon-box {{ $sev }}">
-                                            @if($sev === 'danger')
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 1 2 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                            @elseif($sev === 'warning')
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                                            @elseif($sev === 'success')
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                                            @else
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                                            @endif
-                                        </div>
-                                        <div class="notification-content">
-                                            <div class="notification-item-title">{{ $notif->title }}</div>
-                                            <div class="notification-item-desc">{{ $notif->message }}</div>
-                                            <span class="notification-time">{{ $notif->time_ago }}</span>
-                                        </div>
-                                        @if($isUnread)
-                                            <span class="unread-dot"></span>
-                                        @endif
-                                    </a>
-                                @empty
-                                    <div style="text-align: center; color: #a1a1aa; padding: 2rem; font-size: 0.825rem;" data-lang-key="no_notifications">
-                                        No new notifications at this time!
+                            <div class="notification-dropdown" id="notification_dropdown">
+                                <div class="notification-header">
+                                    <div class="notification-title-group">
+                                        <span class="notification-heading">Notifications</span>
+                                        <span class="notification-count-badge" id="notification_count_tag">{{ $realUnreadCount ?? 0 }} New</span>
                                     </div>
-                                @endforelse
-                            </div>
+                                    <button type="button" class="btn-mark-all-read" id="btn_mark_all_read">Mark all as read</button>
+                                </div>
 
-                            <div class="notification-footer">
-                                <a href="{{ route('admin.notifications') }}" class="btn-notification-all" data-lang-key="view_all_notifications">View All Notifications &rarr;</a>
+                                <div class="notification-list" id="notification_list">
+                                    @forelse(($realNotifications ?? []) as $notif)
+                                        @php
+                                            $isUnread = !$notif->isRead();
+                                            $sev = $notif->severity ?? 'info';
+                                        @endphp
+                                        <a href="{{ $notif->action_url ?: 'javascript:void(0)' }}" class="notification-item {{ $isUnread ? 'unread' : '' }}" data-id="{{ $notif->id }}" data-read="{{ $isUnread ? '0' : '1' }}">
+                                            <div class="notification-icon-box {{ $sev }}">
+                                                @if($sev === 'danger')
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 1 2 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                                @elseif($sev === 'warning')
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                                @elseif($sev === 'success')
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                                @else
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                                @endif
+                                            </div>
+                                            <div class="notification-content">
+                                                <div class="notification-item-title">{{ $notif->title }}</div>
+                                                <div class="notification-item-desc">{{ $notif->message }}</div>
+                                                <span class="notification-time">{{ $notif->time_ago }}</span>
+                                            </div>
+                                            @if($isUnread)
+                                                <span class="unread-dot"></span>
+                                            @endif
+                                        </a>
+                                    @empty
+                                        <div style="text-align: center; color: #a1a1aa; padding: 2rem; font-size: 0.825rem;" data-lang-key="no_notifications">
+                                            No new notifications at this time!
+                                        </div>
+                                    @endforelse
+                                </div>
+
+                                <div class="notification-footer">
+                                    <a href="{{ route('admin.notifications') }}" class="btn-notification-all" data-lang-key="view_all_notifications">View All Notifications &rarr;</a>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    @hasSection('header_sub_action')
+                        <div class="header-sub-action-wrap">
+                            @yield('header_sub_action')
+                        </div>
+                    @endif
 
                     <!-- User Profile Pill & Dropdown -->
                     <div class="user-profile-wrapper">

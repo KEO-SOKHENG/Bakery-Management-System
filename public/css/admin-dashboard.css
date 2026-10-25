@@ -21,6 +21,8 @@
 }
 
 .stat-card {
+    position: relative;
+    z-index: 1;
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -36,6 +38,8 @@
 }
 
 .stat-card:hover {
+    position: relative;
+    z-index: 10;
     transform: translateY(-4px) scale(1.015);
     box-shadow: 0 16px 32px rgba(86, 48, 32, 0.09), 0 2px 6px rgba(0, 0, 0, 0.03);
     border-color: rgba(86, 48, 32, 0.2);
@@ -1587,6 +1591,4 @@
 [data-theme="dark"] .chart-x-label.active {
     fill: #f5ede6;
 }
-
-
 

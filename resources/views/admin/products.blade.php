@@ -2,16 +2,29 @@
 
 @section('title', 'Products Management - Bakery System')
 
-@section('content')
-<x-page-header title="Products Catalog" subtitle="Manage products, pricing, categories, and stock quantities">
-    <x-slot:actions>
-        <x-button variant="primary" id="btn_open_create_product_modal">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span>Add Product</span>
-        </x-button>
-    </x-slot:actions>
-</x-page-header>
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <a href="{{ route('admin.products', array_merge(request()->except('category_id', 'page'), [])) }}"
+           class="period-pill {{ !request('category_id') ? 'active' : '' }}">
+            <span>All Categories</span>
+        </a>
+        @foreach($categories as $category)
+            <a href="{{ route('admin.products', array_merge(request()->except('category_id', 'page'), ['category_id' => $category->id])) }}"
+               class="period-pill {{ (string)request('category_id') === (string)$category->id ? 'active' : '' }}">
+                <span>{{ $category->name }}</span>
+            </a>
+        @endforeach
+    </div>
+@endsection
 
+@section('header_sub_action')
+    <x-button variant="primary" id="btn_open_create_product_modal" class="sticky-add-product-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Add Product</span>
+    </x-button>
+@endsection
+
+@section('content')
 @if(session('success'))
     <x-alert type="success" :message="session('success')" />
 @endif
@@ -72,6 +85,12 @@
         </div>
     @endforelse
 </div>
+
+@if($products->hasPages())
+    <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
+        {{ $products->links() }}
+    </div>
+@endif
 
 <!-- ADD NEW PRODUCT MODAL DIALOG -->
 <x-modal id="create_product_modal" title="Add Product" maxWidth="520px" class="product-modal-overlay">
@@ -134,6 +153,43 @@
                 if (e.target === modal) {
                     modal.classList.remove('is-active');
                     modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Live Header Search Integration
+        const searchInput = document.getElementById('global_header_search');
+        if (searchInput) {
+            @if(request('search'))
+                searchInput.value = {!! json_encode(request('search')) !!};
+            @endif
+
+            searchInput.addEventListener('input', function() {
+                const term = this.value.toLowerCase().trim();
+                const cards = document.querySelectorAll('.products-grid .product-card');
+                let visibleCount = 0;
+                cards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    if (!term || text.includes(term)) {
+                        card.style.display = '';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const url = new URL(window.location.href);
+                    if (this.value.trim()) {
+                        url.searchParams.set('search', this.value.trim());
+                    } else {
+                        url.searchParams.delete('search');
+                    }
+                    url.searchParams.delete('page');
+                    window.location.href = url.toString();
                 }
             });
         }
