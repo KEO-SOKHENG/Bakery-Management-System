@@ -204,7 +204,6 @@
                 </div>
             </div>
         @endif
-</div>
 
 <!-- =========================================================================
      DYNAMIC KPI STAT CARDS & OVERVIEW SUMMARY
@@ -240,6 +239,7 @@
             <span style="font-size: 0.75rem; color: {{ $plSum['grossProfit'] >= 0 ? '#16a34a' : '#dc2626' }}; font-weight: 700;">Margin: {{ $plSum['profitMargin'] }}%</span>
         </div>
     </div>
+</div>
 
     <div class="overview-summary-grid">
         <!-- 1. Sales Summary Card -->
@@ -665,6 +665,7 @@
             <span style="font-size: 0.75rem; color: #71717a;">(Gross Profit / Revenue) &times; 100</span>
         </div>
     @endif
+</div>
 </div>
 @endif
 
