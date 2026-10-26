@@ -24,14 +24,10 @@
     </div>
 @endsection
 
-@section('header_sub_action')
-    <button type="button" class="btn btn-primary sticky-add-product-btn" id="btn_open_create_user_modal">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span data-lang-key="add_staff">{{ __('messages.add_staff') }}</span>
-    </button>
-@endsection
-
 @section('content')
+<div class="orders-container">
+
+    <h1 class="sr-only">User & Staff Management</h1>
 
 <!-- Flash Notifications -->
 @if(session('success'))
@@ -58,87 +54,107 @@
 
 <!-- Summary Metric Cards (Exact Orders / Dashboard Page Style) -->
 <div class="dash-stat-row">
-    <div class="stat-card">
+    <div class="stat-card user-stat-card">
         <div class="stat-icon-box blue">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
         <div class="stat-info">
             <span class="stat-label" data-lang-key="total_staff">{{ __('messages.total_staff') }}</span>
             <div class="stat-value">{{ number_format($totalUsers) }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Team Base
+            </span>
         </div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card user-stat-card">
         <div class="stat-icon-box green">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
         <div class="stat-info">
             <span class="stat-label" data-lang-key="active_accounts">{{ __('messages.active_accounts') }}</span>
             <div class="stat-value">{{ number_format($activeUsers) }}</div>
+            <span class="stat-trend up">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                Active Staff
+            </span>
         </div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-icon-box gray">
+    <div class="stat-card user-stat-card">
+        <div class="stat-icon-box yellow">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
         </div>
         <div class="stat-info">
             <span class="stat-label" data-lang-key="inactive_accounts">{{ __('messages.inactive_accounts') }}</span>
             <div class="stat-value">{{ number_format($inactiveUsers) }}</div>
+            <span class="stat-trend {{ $inactiveUsers > 0 ? 'warning' : 'up' }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                {{ $inactiveUsers > 0 ? 'Dormant' : 'All Active' }}
+            </span>
         </div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card user-stat-card">
         <div class="stat-icon-box red">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
         <div class="stat-info">
             <span class="stat-label" data-lang-key="suspended_accounts">{{ __('messages.suspended_accounts') }}</span>
             <div class="stat-value">{{ number_format($suspendedUsers) }}</div>
+            <span class="stat-trend {{ $suspendedUsers > 0 ? 'warning' : 'up' }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+                {{ $suspendedUsers > 0 ? 'Locked' : 'Zero Issues' }}
+            </span>
         </div>
     </div>
 </div>
 
-<!-- Search & Filtering Toolbar -->
-<div class="user-toolbar">
-    <form action="{{ route('admin.users.index') }}" method="GET" class="user-search-form">
-        <div class="user-search-input-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input
-                type="text"
-                name="search"
-                id="user_search_input"
-                class="user-input"
-                value="{{ request('search') }}"
-                placeholder="{{ __('messages.search_users_placeholder') }}"
-                data-lang-key="search_users_placeholder"
-            >
-        </div>
-
-        <select name="role" class="user-select" onchange="this.form.submit()">
-            <option value="" data-lang-key="all_roles">{{ __('messages.all_roles') }}</option>
-            @foreach($roles as $key => $label)
-                <option value="{{ $key }}" {{ request('role') == $key ? 'selected' : '' }}>{{ $label }}</option>
-            @endforeach
-        </select>
-
-        <select name="status" class="user-select" onchange="this.form.submit()">
-            <option value="" data-lang-key="all_statuses">{{ __('messages.all_statuses') }}</option>
-            @foreach($statuses as $key => $label)
-                <option value="{{ $key }}" {{ request('status') == $key ? 'selected' : '' }}>{{ $label }}</option>
-            @endforeach
-        </select>
-
-        @if(request()->hasAny(['search', 'role', 'status']))
-            <a href="{{ route('admin.users.index') }}" class="user-clear-filters">Clear Filters</a>
+<!-- 2. Action & Filter Toolbar Row (Exact Orders & Ingredients Style) -->
+<div class="ingredients-toolbar-row" id="users_toolbar" style="margin-bottom: 0.75rem; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+    <!-- Left: Filters without toolbar search input -->
+    <form action="{{ route('admin.users.index') }}" method="GET" id="users_filter_form" style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; margin: 0;">
+        @if(request('search'))
+            <input type="hidden" name="search" id="user_search_input" value="{{ request('search') }}">
         @endif
+
+        <div class="supplier-filter-pill-card">
+            <select name="role" id="user_role_select" onchange="this.form.submit()">
+                <option value="" data-lang-key="all_roles">{{ __('messages.all_roles') }}</option>
+                @foreach($roles as $key => $label)
+                    <option value="{{ $key }}" {{ request('role') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+
+            <select name="status" id="user_status_select" onchange="this.form.submit()">
+                <option value="" data-lang-key="all_statuses">{{ __('messages.all_statuses') }}</option>
+                @foreach($statuses as $key => $label)
+                    <option value="{{ $key }}" {{ request('status') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </select>
+
+            <button type="submit" class="btn" style="border-radius: 50px; padding: 0.35rem 1rem; font-weight: 700; height: 32px; display: inline-flex; align-items: center; justify-content: center; background: #ea580c; border: 1px solid #ea580c; color: #ffffff; cursor: pointer; font-size: 0.825rem;">Filter</button>
+
+            @if(request()->hasAny(['search', 'role', 'status']) && (request('search') || request('role') || request('status')))
+                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary" style="border-radius: 50px; padding: 0.35rem 0.85rem; font-weight: 600; height: 32px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">Clear</a>
+            @endif
+        </div>
     </form>
+
+    <!-- Right: Add Staff Button -->
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <button type="button" class="btn" id="btn_open_create_user_modal" style="border-radius: 50px; height: 36px; padding: 0 1.15rem; display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; background: #ea580c; border: 1px solid #ea580c; color: #ffffff; cursor: pointer; font-size: 0.875rem; box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span data-lang-key="add_staff">{{ __('messages.add_staff') }}</span>
+        </button>
+    </div>
 </div>
 
-<!-- Users Table Card -->
-<x-card class="users-card">
-    <div class="users-table-wrapper">
-        <table class="users-table" id="users_table">
+<!-- 3. Users Table Card (Full Viewport Height with internal scrolling) -->
+<div class="orders-card" id="users_table_card">
+    <div class="orders-table-wrapper" id="users_table_wrapper">
+        <table class="orders-table" id="users_table">
             <thead>
                 <tr>
                     <th>Staff</th>
@@ -309,12 +325,8 @@
             </tbody>
         </table>
     </div>
-
-    <!-- Pagination -->
-    <div style="margin-top: 1.5rem;">
-        {{ $users->links() }}
-    </div>
-</x-card>
+</div>
+</div>
 
 <!-- ==========================================================================
      CREATE USER MODAL

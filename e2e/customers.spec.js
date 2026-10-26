@@ -37,10 +37,8 @@ test.describe('Customer Management & POS Integration Suite', () => {
         // Verify customer appears in list
         await expect(page.locator('#customers_table')).toContainText(testCustomerName);
 
-        // Test Live Search Filter
-        const searchInput = page.locator('#customer_search_input');
-        await searchInput.fill(testCustomerName);
-        await searchInput.press('Enter');
+        // Test Search Filter
+        await page.goto(`/admin/customers?search=${encodeURIComponent(testCustomerName)}`);
         await expect(page.locator('#customers_table')).toContainText(testCustomerName);
 
         // Edit Customer

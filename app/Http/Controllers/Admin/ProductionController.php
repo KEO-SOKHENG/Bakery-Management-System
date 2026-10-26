@@ -80,7 +80,7 @@ class ProductionController extends Controller
             $query->whereIn('status', ['completed', 'cancelled']);
         }
 
-        $productions = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
+        $productions = $query->orderBy('created_at', 'desc')->get();
 
         // 8. Aggregate Summary Stats (Consolidated single aggregation query)
         $bakerId = $user?->id ?? 0;

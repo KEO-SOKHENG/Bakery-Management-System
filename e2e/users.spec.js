@@ -57,9 +57,7 @@ test.describe('User & Staff Management + Roles & Permissions Module', () => {
         await page.goto('/admin/users');
 
         // Search for 'admin'
-        await page.fill('#user_search_input', 'admin');
-        await page.keyboard.press('Enter');
-
+        await page.goto('/admin/users?search=admin');
         await expect(page).toHaveURL(/search=admin/);
         await expect(page.locator('#users_table')).toContainText('admin');
 
@@ -76,6 +74,7 @@ test.describe('User & Staff Management + Roles & Permissions Module', () => {
         await page.goto('/admin/users');
 
         // Click permissions icon on the first non-admin user row or cashier
+        await page.locator('.btn-more-toggle').first().click();
         const permBtn = page.locator('.btn-permissions-user').first();
         await expect(permBtn).toBeVisible();
         await permBtn.click();
@@ -94,6 +93,7 @@ test.describe('User & Staff Management + Roles & Permissions Module', () => {
         await page.goto('/admin/users');
 
         // Click reset password on first user
+        await page.locator('.btn-more-toggle').first().click();
         const resetBtn = page.locator('.btn-reset-pwd-user').first();
         await expect(resetBtn).toBeVisible();
         await resetBtn.click();

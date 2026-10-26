@@ -43,7 +43,7 @@ class UserController extends Controller
             $query->where('status', $request->status);
         }
 
-        $users = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
+        $users = $query->orderBy('id', 'desc')->get();
 
         // Calculate KPI Metrics
         $totalUsers = User::count();

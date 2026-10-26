@@ -58,5 +58,10 @@ test.describe('Ingredients & Stock Page', () => {
         // Verify sticky table headers remain visible inside the card
         const firstTh = page.locator('#ingredients_table thead th').first();
         await expect(firstTh).toBeVisible();
+
+        // Verify pagination is removed and all ingredients load into the internal scrolling table
+        await expect(page.locator('.orders-pagination-wrapper')).not.toBeVisible();
+        const rows = page.locator('#ingredients_table tbody tr');
+        await expect(rows).toHaveCount(25);
     });
 });

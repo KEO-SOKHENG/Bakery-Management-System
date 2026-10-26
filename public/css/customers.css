@@ -614,3 +614,93 @@
         justify-content: center;
     }
 }
+
+/* ==========================================================================
+   Dark Mode Overrides for Customer Management
+   ========================================================================== */
+[data-theme="dark"] {
+    --cust-card-bg: #18181b;
+    --cust-text: #f4f4f5;
+    --cust-muted: #a1a1aa;
+    --cust-border: #27272a;
+}
+
+[data-theme="dark"] .cust-modal-card {
+    background: #18181b !important;
+    border-color: #27272a !important;
+    color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .cust-modal-header {
+    border-bottom-color: #27272a !important;
+}
+
+[data-theme="dark"] .cust-modal-footer {
+    border-top-color: #27272a !important;
+}
+
+[data-theme="dark"] .form-field-group label {
+    color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .form-field-group input,
+[data-theme="dark"] .form-field-group textarea,
+[data-theme="dark"] .form-field-group select {
+    background: #09090b !important;
+    border-color: #27272a !important;
+    color: #f4f4f5 !important;
+}
+
+[data-theme="dark"] .form-field-group input:focus,
+[data-theme="dark"] .form-field-group textarea:focus,
+[data-theme="dark"] .form-field-group select:focus {
+    border-color: #ea580c !important;
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.2) !important;
+}
+
+[data-theme="dark"] .tier-pill.tier-standard {
+    background: #27272a !important;
+    color: #e4e4e7 !important;
+    border-color: #3f3f46 !important;
+}
+
+[data-theme="dark"] .tier-pill.tier-silver {
+    background: rgba(148, 163, 184, 0.18) !important;
+    color: #e2e8f0 !important;
+    border-color: rgba(148, 163, 184, 0.35) !important;
+}
+
+[data-theme="dark"] .tier-pill.tier-gold {
+    background: rgba(245, 158, 11, 0.2) !important;
+    color: #fde047 !important;
+    border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+[data-theme="dark"] .tier-pill.tier-vip {
+    background: rgba(139, 92, 246, 0.2) !important;
+    color: #c4b5fd !important;
+    border-color: rgba(139, 92, 246, 0.4) !important;
+}
+
+[data-theme="dark"] .btn-icon-action {
+    background: #27272a !important;
+    border-color: #3f3f46 !important;
+    color: #e4e4e7 !important;
+}
+
+[data-theme="dark"] .btn-icon-action:hover {
+    background: #ea580c !important;
+    border-color: #ea580c !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .btn-icon-action.delete {
+    color: #ef4444 !important;
+}
+
+[data-theme="dark"] .btn-icon-action.delete:hover {
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: #ffffff !important;
+}
+

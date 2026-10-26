@@ -7,24 +7,19 @@
     <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
 @endpush
 
-@section('header_toolbar')
-    <div class="period-pill-group">
-        <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'today'])) }}" class="period-pill {{ $period === 'today' ? 'active' : '' }}" data-lang-key="today">{{ __('messages.today') }}</a>
-        <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'yesterday'])) }}" class="period-pill {{ $period === 'yesterday' ? 'active' : '' }}" data-lang-key="yesterday">{{ __('messages.yesterday') }}</a>
-        <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => '7days'])) }}" class="period-pill {{ $period === '7days' ? 'active' : '' }}" data-lang-key="last_7_days">{{ __('messages.last_7_days') }}</a>
-        <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'this_month'])) }}" class="period-pill {{ $period === 'this_month' ? 'active' : '' }}" data-lang-key="this_month">{{ __('messages.this_month') }}</a>
-    </div>
-@endsection
 
-@section('header_sub_action')
-    <a href="{{ route('admin.reports.export.pdf', request()->all()) }}" class="btn btn-secondary sticky-add-product-btn" id="btn_export_pdf" title="Export PDF" style="margin-right: 0.5rem;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        <span>PDF</span>
-    </a>
-    <a href="{{ route('admin.reports.export.excel', request()->all()) }}" class="btn btn-secondary sticky-add-product-btn" id="btn_export_excel" title="Export Excel / CSV">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-        <span>Excel</span>
-    </a>
+@section('header_toolbar')
+    <form method="GET" action="{{ route('admin.reports') }}" class="header-filter-form dash-filter-bar" style="background: transparent; border: none; padding: 0; margin: 0; box-shadow: none;">
+        <input type="hidden" name="type" value="{{ $type }}">
+        <div class="period-pill-group">
+            <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'today'])) }}" class="period-pill {{ $period === 'today' ? 'active' : '' }}" data-lang-key="today">{{ __('messages.today') }}</a>
+            <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'yesterday'])) }}" class="period-pill {{ $period === 'yesterday' ? 'active' : '' }}" data-lang-key="yesterday">{{ __('messages.yesterday') }}</a>
+            <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => '7days'])) }}" class="period-pill {{ $period === '7days' ? 'active' : '' }}" data-lang-key="last_7_days">{{ __('messages.last_7_days') }}</a>
+            <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => '30days'])) }}" class="period-pill {{ $period === '30days' ? 'active' : '' }}" data-lang-key="last_30_days">{{ __('messages.last_30_days') }}</a>
+            <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'this_month'])) }}" class="period-pill {{ $period === 'this_month' ? 'active' : '' }}" data-lang-key="this_month">{{ __('messages.this_month') }}</a>
+            <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'last_month'])) }}" class="period-pill {{ $period === 'last_month' ? 'active' : '' }}" data-lang-key="last_month">{{ __('messages.last_month') }}</a>
+        </div>
+    </form>
 @endsection
 
 @section('content')
@@ -39,32 +34,7 @@
     </div>
 </div>
 
-<!-- Global Timeframe Filter Bar -->
-<div class="dash-filter-bar" style="margin-bottom: 1.25rem;">
-    <div class="filter-bar-title">
-        @if($startDate && $endDate)
-            <span class="filter-date-badge">{{ $startDate->format('M d, Y') }} &mdash; {{ $endDate->format('M d, Y') }}</span>
-        @endif
-    </div>
-    <form method="GET" action="{{ route('admin.reports') }}" class="filter-form">
-        <input type="hidden" name="type" value="{{ $type }}">
-        <div class="period-pill-group">
-            <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'today'])) }}" class="period-pill {{ $period === 'today' ? 'active' : '' }}" data-lang-key="today">{{ __('messages.today') }}</a>
-            <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'yesterday'])) }}" class="period-pill {{ $period === 'yesterday' ? 'active' : '' }}" data-lang-key="yesterday">{{ __('messages.yesterday') }}</a>
-            <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => '7days'])) }}" class="period-pill {{ $period === '7days' ? 'active' : '' }}" data-lang-key="last_7_days">{{ __('messages.last_7_days') }}</a>
-            <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => '30days'])) }}" class="period-pill {{ $period === '30days' ? 'active' : '' }}" data-lang-key="last_30_days">{{ __('messages.last_30_days') }}</a>
-            <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'this_month'])) }}" class="period-pill {{ $period === 'this_month' ? 'active' : '' }}" data-lang-key="this_month">{{ __('messages.this_month') }}</a>
-            <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => $type, 'period' => 'last_month'])) }}" class="period-pill {{ $period === 'last_month' ? 'active' : '' }}" data-lang-key="last_month">{{ __('messages.last_month') }}</a>
-        </div>
-        <div class="custom-date-group">
-            <input type="hidden" name="period" value="custom">
-            <input type="date" name="start_date" class="custom-date-input" value="{{ request('start_date', $startDate ? $startDate->format('Y-m-d') : '') }}" aria-label="Start Date">
-            <span style="color: var(--text-muted);">&mdash;</span>
-            <input type="date" name="end_date" class="custom-date-input" value="{{ request('end_date', $endDate ? $endDate->format('Y-m-d') : '') }}" aria-label="End Date">
-            <button type="submit" class="btn-filter-apply" data-lang-key="apply">{{ __('messages.apply') }}</button>
-        </div>
-    </form>
-</div>
+<h1 class="sr-only">Reports &amp; Analytics</h1>
 
 <!-- Segmented Grouped Navigation: Overview | Sales | Inventory | Production | Customers | More ▾ -->
 @php
@@ -80,140 +50,160 @@
     };
 @endphp
 
-<div class="reports-nav-container">
-    <nav class="reports-main-nav report-nav-tabs" aria-label="Reports Navigation">
-        <!-- 1. Overview -->
-        <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'overview'])) }}" 
-           class="reports-nav-btn report-tab-btn {{ $activeGroup === 'overview' ? 'active' : '' }}" 
-           id="nav_overview">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
-            <span>Overview</span>
-        </a>
+<!-- Sticky Report Controls: Analytical Navigation Tabs & Export Actions (Single Clean Row) -->
+<div class="reports-sticky-toolbar-wrapper">
+    <div class="reports-toolbar-row">
+        <div class="reports-nav-container">
+            <nav class="reports-main-nav report-nav-tabs" aria-label="Reports Navigation">
+            <!-- 1. Overview -->
+            <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'overview'])) }}" 
+               class="reports-nav-btn report-tab-btn {{ $activeGroup === 'overview' ? 'active' : '' }}" 
+               id="nav_overview">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                <span>Overview</span>
+            </a>
 
-        <!-- 2. Sales -->
-        <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => in_array($type, ['sales', 'revenue', 'orders']) ? $type : 'sales'])) }}" 
-           class="reports-nav-btn report-tab-btn {{ $activeGroup === 'sales' ? 'active' : '' }}" 
-           id="nav_sales">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v12"/></svg>
-            <span>Sales</span>
-        </a>
+            <!-- 2. Sales -->
+            <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => in_array($type, ['sales', 'revenue', 'orders']) ? $type : 'sales'])) }}" 
+               class="reports-nav-btn report-tab-btn {{ $activeGroup === 'sales' ? 'active' : '' }}" 
+               id="nav_sales">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v12"/></svg>
+                <span>Sales</span>
+            </a>
 
-        <!-- 3. Inventory -->
-        <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => in_array($type, ['products', 'inventory', 'low-stock', 'purchases']) ? $type : 'products'])) }}" 
-           class="reports-nav-btn report-tab-btn {{ $activeGroup === 'inventory' ? 'active' : '' }}" 
-           id="nav_inventory">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-            <span>Inventory</span>
-        </a>
+            <!-- 3. Inventory -->
+            <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => in_array($type, ['products', 'inventory', 'low-stock', 'purchases']) ? $type : 'products'])) }}" 
+               class="reports-nav-btn report-tab-btn {{ $activeGroup === 'inventory' ? 'active' : '' }}" 
+               id="nav_inventory">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                <span>Inventory</span>
+            </a>
 
-        <!-- 4. Production -->
-        <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'production'])) }}" 
-           class="reports-nav-btn report-tab-btn {{ $activeGroup === 'production' ? 'active' : '' }}" 
-           id="tab_production">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-            <span>Production</span>
-        </a>
+            <!-- 4. Production -->
+            <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'production'])) }}" 
+               class="reports-nav-btn report-tab-btn {{ $activeGroup === 'production' ? 'active' : '' }}" 
+               id="tab_production">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                <span>Production</span>
+            </a>
 
-        <!-- 5. Customers -->
-        <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'customers'])) }}" 
-           class="reports-nav-btn report-tab-btn {{ $activeGroup === 'customers' ? 'active' : '' }}" 
-           id="tab_customers">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span>Customers</span>
-        </a>
+            <!-- 5. Customers -->
+            <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'customers'])) }}" 
+               class="reports-nav-btn report-tab-btn {{ $activeGroup === 'customers' ? 'active' : '' }}" 
+               id="tab_customers">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Customers</span>
+            </a>
 
-        <!-- 6. More ▾ Dropdown -->
-        <div class="reports-more-dropdown" id="reports_more_dropdown">
-            <button type="button" class="reports-nav-btn report-tab-btn reports-more-toggle {{ $activeGroup === 'more' ? 'active' : '' }}" id="nav_more_toggle" aria-expanded="false" aria-haspopup="true">
-                <span>More</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="reports-more-menu" id="reports_more_menu">
-                <div class="more-menu-header">Secondary Reports</div>
-                <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'profit-loss'])) }}" 
-                   class="more-menu-item {{ $type === 'profit-loss' ? 'active' : '' }}" 
-                   id="tab_profit_loss">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                    <span>Profit & Loss Report</span>
-                </a>
-
-                <div class="more-menu-divider"></div>
-                <div class="more-menu-header">Actions & Export</div>
-
-                <a href="{{ route('admin.reports.export.pdf', request()->all()) }}" class="more-menu-item" id="btn_export_pdf_menu" title="Export PDF">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    <span>Export PDF Document</span>
-                </a>
-
-                <a href="{{ route('admin.reports.export.excel', request()->all()) }}" class="more-menu-item" id="btn_export_excel_menu" title="Export Excel / CSV">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-                    <span>Export Spreadsheet (CSV)</span>
-                </a>
-
-                <button type="button" class="more-menu-item" id="btn_print_report_menu" onclick="window.print();" title="Print Layout">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                    <span>Print Official Report</span>
+            <!-- 6. More ▾ Dropdown -->
+            <div class="reports-more-dropdown" id="reports_more_dropdown">
+                <button type="button" class="reports-nav-btn report-tab-btn reports-more-toggle {{ $activeGroup === 'more' ? 'active' : '' }}" id="nav_more_toggle" aria-expanded="false" aria-haspopup="true">
+                    <span>More</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
                 </button>
-            </div>
-        </div>
-    </nav>
+                <div class="reports-more-menu" id="reports_more_menu">
+                    <div class="more-menu-header">Secondary Reports</div>
+                    <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'profit-loss'])) }}" 
+                       class="more-menu-item {{ $type === 'profit-loss' ? 'active' : '' }}" 
+                       id="tab_profit_loss">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        <span>Profit &amp; Loss Report</span>
+                    </a>
 
-    <!-- Contextual Sub-Navigation Pills for Sales -->
-    @if($activeGroup === 'sales')
-        <div class="reports-sub-nav">
-            <span class="sub-nav-label">Sales Reports:</span>
-            <div class="sub-nav-pills">
-                <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'sales'])) }}" 
-                   class="sub-tab-btn {{ $type === 'sales' ? 'active' : '' }}" 
-                   id="tab_sales">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v12"/></svg>
-                    <span>Sales Report</span>
-                </a>
-                <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'revenue'])) }}" 
-                   class="sub-tab-btn {{ $type === 'revenue' ? 'active' : '' }}" 
-                   id="tab_revenue">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                    <span>Revenue Report</span>
-                </a>
-                <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'orders'])) }}" 
-                   class="sub-tab-btn {{ $type === 'orders' ? 'active' : '' }}" 
-                   id="tab_orders">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                    <span>Order Report</span>
-                </a>
+                    <div class="more-menu-divider"></div>
+                    <div class="more-menu-header">Actions &amp; Export</div>
+
+                    <a href="{{ route('admin.reports.export.pdf', request()->all()) }}" class="more-menu-item" id="btn_export_pdf_menu" title="Export PDF">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        <span>Export PDF Document</span>
+                    </a>
+
+                    <a href="{{ route('admin.reports.export.excel', request()->all()) }}" class="more-menu-item" id="btn_export_excel_menu" title="Export Excel / CSV">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                        <span>Export Spreadsheet (CSV)</span>
+                    </a>
+
+                    <button type="button" class="more-menu-item" id="btn_print_report_menu" onclick="window.print();" title="Print Layout">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                        <span>Print Official Report</span>
+                    </button>
+                </div>
             </div>
-        </div>
-    @elseif($activeGroup === 'inventory')
-        <div class="reports-sub-nav">
-            <span class="sub-nav-label">Inventory Reports:</span>
-            <div class="sub-nav-pills">
-                <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'products'])) }}" 
-                   class="sub-tab-btn {{ $type === 'products' ? 'active' : '' }}" 
-                   id="tab_products">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
-                    <span>Product Report</span>
-                </a>
-                <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'inventory'])) }}" 
-                   class="sub-tab-btn {{ $type === 'inventory' ? 'active' : '' }}" 
-                   id="tab_inventory">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                    <span>Inventory Report</span>
-                </a>
-                <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'low-stock'])) }}" 
-                   class="sub-tab-btn {{ $type === 'low-stock' ? 'active' : '' }}" 
-                   id="tab_low_stock">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 1 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    <span>Low Stock Report</span>
-                </a>
-                <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'purchases'])) }}" 
-                   class="sub-tab-btn {{ $type === 'purchases' ? 'active' : '' }}" 
-                   id="tab_purchases">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                    <span>Supplier Report</span>
-                </a>
+        </nav>
+    </div>
+
+    <div class="reports-export-actions">
+        <button type="button" class="btn btn-secondary sticky-add-product-btn" id="btn_print_report" onclick="window.print();" title="Print Layout">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <span>Print</span>
+        </button>
+        <a href="{{ route('admin.reports.export.pdf', request()->all()) }}" class="btn btn-secondary sticky-add-product-btn" id="btn_export_pdf" title="Export PDF">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span>PDF</span>
+        </a>
+        <a href="{{ route('admin.reports.export.excel', request()->all()) }}" class="btn btn-secondary sticky-add-product-btn" id="btn_export_excel" title="Export Excel / CSV">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+            <span>Excel</span>
+        </a>
+    </div>
+</div>
+
+<!-- Contextual Sub-Navigation Pills for Sales -->
+        @if($activeGroup === 'sales')
+            <div class="reports-sub-nav">
+                <span class="sub-nav-label">Sales Reports:</span>
+                <div class="sub-nav-pills">
+                    <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'sales'])) }}" 
+                       class="sub-tab-btn {{ $type === 'sales' ? 'active' : '' }}" 
+                       id="tab_sales">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v12"/></svg>
+                        <span>Sales Report</span>
+                    </a>
+                    <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'revenue'])) }}" 
+                       class="sub-tab-btn {{ $type === 'revenue' ? 'active' : '' }}" 
+                       id="tab_revenue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                        <span>Revenue Report</span>
+                    </a>
+                    <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'orders'])) }}" 
+                       class="sub-tab-btn {{ $type === 'orders' ? 'active' : '' }}" 
+                       id="tab_orders">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        <span>Order Report</span>
+                    </a>
+                </div>
             </div>
-        </div>
-    @endif
+        @elseif($activeGroup === 'inventory')
+            <div class="reports-sub-nav">
+                <span class="sub-nav-label">Inventory Reports:</span>
+                <div class="sub-nav-pills">
+                    <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'products'])) }}" 
+                       class="sub-tab-btn {{ $type === 'products' ? 'active' : '' }}" 
+                       id="tab_products">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                        <span>Product Report</span>
+                    </a>
+                    <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'inventory'])) }}" 
+                       class="sub-tab-btn {{ $type === 'inventory' ? 'active' : '' }}" 
+                       id="tab_inventory">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        <span>Inventory Report</span>
+                    </a>
+                    <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'low-stock'])) }}" 
+                       class="sub-tab-btn {{ $type === 'low-stock' ? 'active' : '' }}" 
+                       id="tab_low_stock">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 1 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <span>Low Stock Report</span>
+                    </a>
+                    <a href="{{ route('admin.reports', array_merge($tabParams, ['type' => 'purchases'])) }}" 
+                       class="sub-tab-btn {{ $type === 'purchases' ? 'active' : '' }}" 
+                       id="tab_purchases">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        <span>Supplier Report</span>
+                    </a>
+                </div>
+            </div>
+        @endif
 </div>
 
 <!-- =========================================================================
@@ -227,6 +217,29 @@
         $plSum = $reportData['profitLoss'];
         $lowStockSum = $reportData['lowStock'];
     @endphp
+
+    <div class="reports-summary-grid">
+        <div class="report-stat-card">
+            <div class="report-stat-title" data-lang-key="total_sales">{{ __('messages.total_sales') }}</div>
+            <div class="report-stat-val val-green">{{ $currency }}{{ number_format($salesSum['totalSalesRevenue'], 2) }}</div>
+            <span style="font-size: 0.75rem; color: #71717a;">{{ number_format($salesSum['totalSalesCount']) }} completed sales</span>
+        </div>
+        <div class="report-stat-card">
+            <div class="report-stat-title" data-lang-key="total_revenue">{{ __('messages.total_revenue') }}</div>
+            <div class="report-stat-val val-default">{{ $currency }}{{ number_format($revSum['totalRevenue'], 2) }}</div>
+            <span style="font-size: 0.75rem; color: #71717a;">Net store revenue</span>
+        </div>
+        <div class="report-stat-card">
+            <div class="report-stat-title">Total Orders Recorded</div>
+            <div class="report-stat-val val-amber">{{ number_format($orderSum['totalOrders']) }}</div>
+            <span style="font-size: 0.75rem; color: #71717a;">Gross: {{ $currency }}{{ number_format($orderSum['totalOrderAmount'], 2) }}</span>
+        </div>
+        <div class="report-stat-card">
+            <div class="report-stat-title">Estimated Gross Profit</div>
+            <div class="report-stat-val {{ $plSum['grossProfit'] >= 0 ? 'val-green' : 'val-blue' }}" style="{{ $plSum['grossProfit'] < 0 ? 'color: #dc2626;' : '' }}">{{ $currency }}{{ number_format($plSum['grossProfit'], 2) }}</div>
+            <span style="font-size: 0.75rem; color: {{ $plSum['grossProfit'] >= 0 ? '#16a34a' : '#dc2626' }}; font-weight: 700;">Margin: {{ $plSum['profitMargin'] }}%</span>
+        </div>
+    </div>
 
     <div class="overview-summary-grid">
         <!-- 1. Sales Summary Card -->
@@ -658,220 +671,7 @@
 <!-- =========================================================================
      CHARTS / VISUAL ANALYTICS COMPONENT
      ========================================================================= -->
-@if($type === 'overview')
-    <!-- Overview Visual Analytics: Revenue Trend & Payment Breakdown -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 1.85rem;">
-        <!-- Period Revenue Trend Card -->
-        <div class="chart-card">
-            <div class="card-header-flex" style="flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
-                <div>
-                    <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-title); margin: 0;">Period Revenue Trend</h3>
-                    <p style="font-size: 0.775rem; color: var(--text-muted); margin-top: 0.15rem;">Daily revenue from retail & customer orders</p>
-                </div>
-                <div style="text-align: right;">
-                    <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total</span>
-                    <div style="font-size: 1.2rem; font-weight: 800; color: #16a34a;">{{ $currency }}{{ number_format($revSum['totalRevenue'], 2) }}</div>
-                </div>
-            </div>
-            
-            @php
-                $revValues = $revSum['chartRevenues'];
-                $maxRev = max(max($revValues ?: [0]), 10);
-                $pointCount = count($revSum['chartLabels']);
-                $svgPoints = [];
-                $svgAreaPoints = [];
-
-                foreach($revValues as $idx => $r) {
-                    $x = $pointCount > 1 ? 40 + ($idx / ($pointCount - 1)) * 720 : 400;
-                    $y = 190 - ($r / $maxRev) * 150;
-                    $svgPoints[] = "$x,$y";
-                }
-                $pointsStr = implode(' ', $svgPoints);
-                $areaPointsStr = "40,190 " . $pointsStr . " 760,190";
-            @endphp
-
-            <div style="width: 100%; height: 180px; position: relative; overflow: hidden;">
-                <svg viewBox="0 0 800 220" preserveAspectRatio="none" style="width: 100%; height: 100%; overflow: visible;" id="overview_revenue_svg_chart">
-                    <defs>
-                        <linearGradient id="overviewChartGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stop-color="#d97706" stop-opacity="0.35" />
-                            <stop offset="100%" stop-color="#d97706" stop-opacity="0.01" />
-                        </linearGradient>
-                    </defs>
-                    <line x1="40" y1="40" x2="760" y2="40" stroke="rgba(200, 190, 180, 0.25)" stroke-dasharray="4" />
-                    <line x1="40" y1="115" x2="760" y2="115" stroke="rgba(200, 190, 180, 0.25)" stroke-dasharray="4" />
-                    <line x1="40" y1="190" x2="760" y2="190" stroke="rgba(200, 190, 180, 0.45)" stroke-width="1.5" />
-                    <text x="32" y="44" font-size="10" fill="#9ca3af" text-anchor="end">{{ $currency }}{{ number_format($maxRev, 0) }}</text>
-                    <text x="32" y="119" font-size="10" fill="#9ca3af" text-anchor="end">{{ $currency }}{{ number_format($maxRev / 2, 0) }}</text>
-                    <text x="32" y="194" font-size="10" fill="#9ca3af" text-anchor="end">{{ $currency }}0</text>
-                    @if($pointCount > 1)
-                        <polygon points="{{ $areaPointsStr }}" fill="url(#overviewChartGradient)" />
-                        <polyline points="{{ $pointsStr }}" fill="none" stroke="#d97706" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                    @endif
-                    @foreach($revValues as $idx => $r)
-                        @php
-                            $cx = $pointCount > 1 ? 40 + ($idx / ($pointCount - 1)) * 720 : 400;
-                            $cy = 190 - ($r / $maxRev) * 150;
-                            $lbl = $revSum['chartLabels'][$idx] ?? '';
-                            $cnt = $revSum['chartOrderCounts'][$idx] ?? 0;
-                        @endphp
-                        <circle cx="{{ $cx }}" cy="{{ $cy }}" r="4" fill="#d97706" stroke="var(--card-bg, #ffffff)" stroke-width="2">
-                            <title>{{ $lbl }}: {{ $currency }}{{ number_format($r, 2) }} ({{ $cnt }} orders)</title>
-                        </circle>
-                    @endforeach
-                </svg>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.725rem; color: var(--text-muted);">
-                <span>{{ $revSum['chartLabels'][0] ?? 'Start' }}</span>
-                <span>{{ end($revSum['chartLabels']) ?: 'End' }}</span>
-            </div>
-        </div>
-
-        <!-- Payment Channel Distribution Card -->
-        <div class="chart-card">
-            <div class="card-header-flex" style="flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
-                <div>
-                    <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-title); margin: 0;">Payment Channels</h3>
-                    <p style="font-size: 0.775rem; color: var(--text-muted); margin-top: 0.15rem;">Volume & transactions by channel</p>
-                </div>
-                <div style="text-align: right;">
-                    <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => 'revenue'])) }}" style="font-size: 0.75rem; font-weight: 700; color: var(--primary-accent, #d97706); text-decoration: none;">View Detailed &rarr;</a>
-                </div>
-            </div>
-            @php
-                $pmMap = $salesSum['paymentMethods']->keyBy('payment_method');
-                $channels = [
-                    'cash'    => ['label' => 'Cash (In-Store)', 'color' => '#16a34a'],
-                    'card'    => ['label' => 'Credit / Debit Card', 'color' => '#2563eb'],
-                    'qr_code' => ['label' => 'KHQR / Digital Pay', 'color' => '#d97706'],
-                ];
-            @endphp
-            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                @foreach($channels as $chanKey => $chanMeta)
-                    @php
-                        $rec = $pmMap->get($chanKey);
-                        $chanTotal = $rec ? (float) $rec->total_amount : 0.0;
-                        $chanCount = $rec ? (int) $rec->count : 0;
-                        $chanPercent = $salesSum['totalSalesRevenue'] > 0 ? round(($chanTotal / $salesSum['totalSalesRevenue']) * 100, 1) : 0;
-                    @endphp
-                    <div style="padding: 0.65rem 0.85rem; border-radius: 8px; background: var(--bg-surface-subtle, rgba(0,0,0,0.02)); border-left: 3px solid {{ $chanMeta['color'] }};">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                            <span style="font-size: 0.785rem; font-weight: 700; color: var(--text-title);">{{ $chanMeta['label'] }}</span>
-                            <span style="font-size: 0.85rem; font-weight: 800; color: {{ $chanMeta['color'] }};">{{ $currency }}{{ number_format($chanTotal, 2) }}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-                            <span>{{ number_format($chanCount) }} txns</span>
-                            <span>{{ $chanPercent }}%</span>
-                        </div>
-                        <div class="report-progress-track" style="width: 100%; height: 5px; background: rgba(0,0,0,0.06); border-radius: 999px; overflow: hidden;">
-                            <div style="width: {{ $chanPercent }}%; height: 100%; background: {{ $chanMeta['color'] }}; border-radius: 999px;"></div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Report Directory & Critical Inventory Alerts -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-        <!-- Critical Low Stock Alerts Card -->
-        <div class="chart-card" id="overview_stock_alerts_card">
-            <div class="card-header-flex" style="margin-bottom: 1rem;">
-                <div>
-                    <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-title); margin: 0;">Critical Stock Attention</h3>
-                    <p style="font-size: 0.775rem; color: var(--text-muted); margin-top: 0.15rem;">Ingredients requiring immediate replenishment</p>
-                </div>
-                <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => 'low-stock'])) }}" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 8px;">
-                    View All ({{ $lowStockSum['totalNeedingReorder'] }})
-                </a>
-            </div>
-            @if(count($lowStockSum['records']) > 0)
-                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    @foreach($lowStockSum['records']->take(5) as $item)
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0.75rem; border-radius: 8px; background: var(--bg-surface-subtle, rgba(0,0,0,0.02)); border: 1px solid var(--border-color, rgba(0,0,0,0.06));">
-                            <div>
-                                <div style="font-weight: 700; font-size: 0.825rem; color: var(--text-title);">{{ $item->name }}</div>
-                                <div style="font-size: 0.725rem; color: var(--text-muted);">Supplier: {{ $item->supplier ? $item->supplier->name : 'N/A' }}</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-weight: 800; font-size: 0.85rem; color: {{ $item->quantity <= 0 ? '#dc2626' : '#d97706' }};">
-                                    {{ number_format($item->quantity, 2) }} {{ $item->unit }}
-                                </div>
-                                <div style="font-size: 0.7rem; color: var(--text-muted);">Min: {{ number_format($item->minimum_quantity, 2) }} {{ $item->unit }}</div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <div style="text-align: center; padding: 2rem; color: #16a34a;">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 0.5rem;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    <div style="font-weight: 700; font-size: 0.875rem;">All ingredients sufficiently stocked!</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">No items currently below minimum threshold.</div>
-                </div>
-            @endif
-        </div>
-
-        <!-- Quick Navigation Directory Card -->
-        <div class="chart-card">
-            <div class="card-header-flex" style="margin-bottom: 1rem;">
-                <div>
-                    <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-title); margin: 0;">Comprehensive Report Index</h3>
-                    <p style="font-size: 0.775rem; color: var(--text-muted); margin-top: 0.15rem;">Jump directly into specific analytical audit sheets</p>
-                </div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
-                <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => 'sales'])) }}" style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border-radius: 8px; background: var(--bg-surface-subtle, rgba(0,0,0,0.02)); border: 1px solid var(--border-color, rgba(0,0,0,0.06)); text-decoration: none; color: var(--text-title); font-size: 0.8rem; font-weight: 700; transition: all 0.2s ease;">
-                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16, 185, 129, 0.12); color: #059669; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 6v12"/></svg>
-                    </div>
-                    <span>Sales Report</span>
-                </a>
-                <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => 'revenue'])) }}" style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border-radius: 8px; background: var(--bg-surface-subtle, rgba(0,0,0,0.02)); border: 1px solid var(--border-color, rgba(0,0,0,0.06)); text-decoration: none; color: var(--text-title); font-size: 0.8rem; font-weight: 700; transition: all 0.2s ease;">
-                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(37, 99, 235, 0.12); color: #2563eb; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-                    </div>
-                    <span>Revenue Report</span>
-                </a>
-                <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => 'orders'])) }}" style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border-radius: 8px; background: var(--bg-surface-subtle, rgba(0,0,0,0.02)); border: 1px solid var(--border-color, rgba(0,0,0,0.06)); text-decoration: none; color: var(--text-title); font-size: 0.8rem; font-weight: 700; transition: all 0.2s ease;">
-                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(147, 51, 234, 0.12); color: #9333ea; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/></svg>
-                    </div>
-                    <span>Order Report</span>
-                </a>
-                <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => 'products'])) }}" style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border-radius: 8px; background: var(--bg-surface-subtle, rgba(0,0,0,0.02)); border: 1px solid var(--border-color, rgba(0,0,0,0.06)); text-decoration: none; color: var(--text-title); font-size: 0.8rem; font-weight: 700; transition: all 0.2s ease;">
-                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(217, 119, 6, 0.12); color: #d97706; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
-                    </div>
-                    <span>Product Report</span>
-                </a>
-                <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => 'inventory'])) }}" style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border-radius: 8px; background: var(--bg-surface-subtle, rgba(0,0,0,0.02)); border: 1px solid var(--border-color, rgba(0,0,0,0.06)); text-decoration: none; color: var(--text-title); font-size: 0.8rem; font-weight: 700; transition: all 0.2s ease;">
-                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(14, 165, 233, 0.12); color: #0ea5e9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-                    </div>
-                    <span>Inventory Report</span>
-                </a>
-                <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => 'production'])) }}" style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border-radius: 8px; background: var(--bg-surface-subtle, rgba(0,0,0,0.02)); border: 1px solid var(--border-color, rgba(0,0,0,0.06)); text-decoration: none; color: var(--text-title); font-size: 0.8rem; font-weight: 700; transition: all 0.2s ease;">
-                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(234, 88, 12, 0.12); color: #ea580c; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-                    </div>
-                    <span>Production Report</span>
-                </a>
-                <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => 'customers'])) }}" style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border-radius: 8px; background: var(--bg-surface-subtle, rgba(0,0,0,0.02)); border: 1px solid var(--border-color, rgba(0,0,0,0.06)); text-decoration: none; color: var(--text-title); font-size: 0.8rem; font-weight: 700; transition: all 0.2s ease;">
-                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(168, 85, 247, 0.12); color: #a855f7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                    </div>
-                    <span>Customer Report</span>
-                </a>
-                <a href="{{ route('admin.reports', array_merge(request()->except('page'), ['type' => 'purchases'])) }}" style="display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem; border-radius: 8px; background: var(--bg-surface-subtle, rgba(0,0,0,0.02)); border: 1px solid var(--border-color, rgba(0,0,0,0.06)); text-decoration: none; color: var(--text-title); font-size: 0.8rem; font-weight: 700; transition: all 0.2s ease;">
-                    <div style="width: 28px; height: 28px; border-radius: 6px; background: rgba(20, 184, 166, 0.12); color: #0d9488; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                    </div>
-                    <span>Supplier Report</span>
-                </a>
-            </div>
-        </div>
-    </div>
-@elseif($type === 'sales')
+@if($type === 'sales')
     <div class="chart-card" style="margin-bottom: 1.85rem;" id="sales_payment_distribution_card">
         <div class="card-header-flex" style="flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
             <div>
@@ -1146,9 +946,6 @@
             </select>
         @endif
 
-        <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1.25rem; border-radius: 12px; font-weight: 700; font-size: 0.825rem;">
-            Search & Filter
-        </button>
         @if(request()->hasAny(['search', 'payment_method', 'order_status', 'status']))
             <a href="{{ route('admin.reports', ['type' => $type, 'period' => $period]) }}" class="btn btn-secondary" style="padding: 0.5rem 1rem; border-radius: 12px; font-size: 0.825rem;">
                 Reset

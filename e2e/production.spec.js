@@ -29,6 +29,7 @@ test.describe('Production Management & Baking Workflow Suite', () => {
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
+        await expect(page).toHaveURL(/\/admin\/dashboard/);
         await page.goto('/admin/production');
 
         // Open Schedule Batch Modal
@@ -78,6 +79,7 @@ test.describe('Production Management & Baking Workflow Suite', () => {
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
+        await expect(page).toHaveURL(/\/admin\/dashboard/);
         await page.goto('/admin/production');
 
         // Schedule a fresh batch of 2 croissants
@@ -90,9 +92,8 @@ test.describe('Production Management & Baking Workflow Suite', () => {
         await expect(page).toHaveURL(/\/admin\/production/);
 
         // Filter to find the batch
-        await page.fill('#prod_search_input', 'Workflow Lifecycle Test');
-        await page.locator('#prod_filter_form').press('Enter');
-        await page.waitForTimeout(500);
+        await page.goto('/admin/production?search=Workflow+Lifecycle+Test');
+        await page.waitForTimeout(300);
 
         const batchRow = page.locator('.prod-batch-row').first();
         await expect(batchRow).toBeVisible();
@@ -107,9 +108,8 @@ test.describe('Production Management & Baking Workflow Suite', () => {
         await expect(page.locator('body')).toContainText(/In Progress/i);
 
         // Filter again to view row
-        await page.fill('#prod_search_input', 'Workflow Lifecycle Test');
-        await page.locator('#prod_filter_form').press('Enter');
-        await page.waitForTimeout(500);
+        await page.goto('/admin/production?search=Workflow+Lifecycle+Test');
+        await page.waitForTimeout(300);
 
         const updatedRow = page.locator('.prod-batch-row').first();
         await expect(updatedRow.locator('.badge-status')).toContainText(/In Progress/i);
@@ -123,9 +123,8 @@ test.describe('Production Management & Baking Workflow Suite', () => {
         await expect(page.locator('body')).toContainText(/Completed/i);
 
         // 3. View Batch Detail View
-        await page.fill('#prod_search_input', 'Workflow Lifecycle Test');
-        await page.locator('#prod_filter_form').press('Enter');
-        await page.waitForTimeout(500);
+        await page.goto('/admin/production?search=Workflow+Lifecycle+Test');
+        await page.waitForTimeout(300);
 
         const finalRow = page.locator('.prod-batch-row').first();
         await expect(finalRow.locator('.badge-status')).toContainText(/Completed/i);
@@ -145,6 +144,7 @@ test.describe('Production Management & Baking Workflow Suite', () => {
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
+        await expect(page).toHaveURL(/\/admin\/dashboard/);
         await page.goto('/admin/production');
 
         // Try to create batch directly as completed with 999,999 units
@@ -197,6 +197,7 @@ test.describe('Production Management & Baking Workflow Suite', () => {
         await page.fill('#username_input', 'admin@bakery.com');
         await page.fill('#password_input', 'pass123');
         await page.click('#submit_btn');
+        await expect(page).toHaveURL(/\/admin\/dashboard/);
         await page.goto('/admin/production');
 
         // Switch to Khmer

@@ -16,13 +16,15 @@ class CustomerController extends Controller
     {
         $query = Customer::withCount('orders');
 
+        $like = \Illuminate\Support\Facades\DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+
         // Search by name, phone, or email
         if ($request->filled('search')) {
             $search = trim($request->search);
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'ilike', "%{$search}%")
-                  ->orWhere('phone', 'ilike', "%{$search}%")
-                  ->orWhere('email', 'ilike', "%{$search}%");
+            $query->where(function ($q) use ($search, $like) {
+                $q->where('name', $like, "%{$search}%")
+                  ->orWhere('phone', $like, "%{$search}%")
+                  ->orWhere('email', $like, "%{$search}%");
             });
         }
 
@@ -36,7 +38,7 @@ class CustomerController extends Controller
             $query->where('status', $request->status);
         }
 
-        $customers = $query->orderBy('id', 'desc')->paginate(12)->withQueryString();
+        $customers = $query->orderBy('id', 'desc')->get();
 
         // Calculate summary metrics
         $totalCustomers = Customer::count();

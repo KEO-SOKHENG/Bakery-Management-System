@@ -43,7 +43,7 @@ class IngredientController extends Controller
             }
         }
 
-        $ingredients = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
+        $ingredients = $query->orderBy('id', 'desc')->get();
         $suppliers = Supplier::where('status', 'active')->orderBy('name')->get();
 
         // Consolidated KPI summary directly via database aggregation

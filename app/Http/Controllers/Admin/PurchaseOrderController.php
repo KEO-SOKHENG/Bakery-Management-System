@@ -48,7 +48,7 @@ class PurchaseOrderController extends Controller
             $query->whereDate('order_date', $date);
         }
 
-        $purchaseOrders = $query->orderBy('id', 'desc')->paginate(15)->withQueryString();
+        $purchaseOrders = $query->orderBy('id', 'desc')->get();
 
         $stats = [
             'total'       => PurchaseOrder::count(),

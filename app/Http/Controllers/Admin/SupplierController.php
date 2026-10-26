@@ -29,7 +29,7 @@ class SupplierController extends Controller
             $query->where('status', $request->status);
         }
 
-        $suppliers = $query->orderBy('id', 'desc')->paginate(12)->withQueryString();
+        $suppliers = $query->orderBy('id', 'desc')->get();
 
         $stats = [
             'total'       => Supplier::count(),

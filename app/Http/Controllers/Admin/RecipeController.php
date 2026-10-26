@@ -10,13 +10,45 @@ use Illuminate\Http\Request;
 
 class RecipeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $recipes = Recipe::with(['product', 'ingredients', 'recipeIngredients.ingredient'])->orderBy('id', 'desc')->get();
-        $products = Product::where('status', 'active')->get();
+        $query = Recipe::with(['product.category', 'ingredients', 'recipeIngredients.ingredient']);
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $like = \Illuminate\Support\Facades\DB::getDriverName() === 'pgsql' ? 'ilike' : 'like';
+            $query->where(function ($q) use ($search, $like) {
+                $q->where('name', $like, "%{$search}%")
+                  ->orWhereHas('product', function ($pq) use ($search, $like) {
+                      $pq->where('name', $like, "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('product_id') && $request->product_id !== 'all') {
+            $query->where('product_id', $request->product_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $recipes = $query->orderBy('id', 'desc')->get();
+        $products = Product::where('status', 'active')->orderBy('name')->get();
         $ingredients = Ingredient::where('status', 'active')->orderBy('name', 'asc')->get();
 
-        return view('admin.recipes', compact('recipes', 'products', 'ingredients'));
+        $allRecipes = Recipe::with('recipeIngredients.ingredient')->get();
+        $avgTime = $allRecipes->where('production_time', '>', 0)->avg('production_time');
+        $stats = [
+            'total'           => $allRecipes->count(),
+            'active'          => $allRecipes->where('status', 'active')->count(),
+            'inactive'        => $allRecipes->where('status', 'inactive')->count(),
+            'avg_time'        => (int) round($avgTime ?: 35),
+            'linked_products' => $allRecipes->pluck('product_id')->unique()->filter()->count(),
+            'avg_unit_cost'   => (float) ($allRecipes->isNotEmpty() ? $allRecipes->avg('cost_per_unit') : 0.0),
+        ];
+
+        return view('admin.recipes', compact('recipes', 'products', 'ingredients', 'stats'));
     }
 
     public function store(Request $request)

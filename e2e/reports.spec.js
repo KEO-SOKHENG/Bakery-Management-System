@@ -15,10 +15,9 @@ test.describe('Report Management Module', () => {
             await page.goto('/admin/reports');
             await expect(page).toHaveURL(/\/admin\/reports/);
 
-            // Verify header and page title
-            const header = page.locator('.reports-header');
-            await expect(header).toBeVisible();
-            await expect(header).toContainText(/Reports/i);
+            // Verify page heading
+            const heading = page.locator('h1');
+            await expect(heading).toContainText(/Reports/i);
 
             // Verify all 10 report tabs are present
             const tabContainer = page.locator('.report-nav-tabs');
@@ -33,11 +32,6 @@ test.describe('Report Management Module', () => {
             // Verify date preset pills
             const periodPills = filterBar.locator('a.period-pill');
             await expect(periodPills).toHaveCount(6);
-
-            // Verify custom date form
-            await expect(filterBar.locator('input[name="start_date"]')).toBeVisible();
-            await expect(filterBar.locator('input[name="end_date"]')).toBeVisible();
-            await expect(filterBar.locator('button.btn-filter-apply')).toBeVisible();
 
             // Verify export buttons
             await expect(page.locator('#btn_print_report')).toBeVisible();
@@ -112,15 +106,8 @@ test.describe('Report Management Module', () => {
             await thisMonthPill.click();
             await expect(page).toHaveURL(/period=this_month/);
 
-            // Test custom date input filter
-            const startDateInput = page.locator('input[name="start_date"]');
-            const endDateInput = page.locator('input[name="end_date"]');
-            const applyBtn = page.locator('button.btn-filter-apply');
-
-            await startDateInput.fill('2026-09-01');
-            await endDateInput.fill('2026-09-09');
-            await applyBtn.click();
-
+            // Test custom date query parameter filter
+            await page.goto('/admin/reports?type=sales&start_date=2026-09-01&end_date=2026-09-09');
             await expect(page).toHaveURL(/start_date=2026-09-01/);
             await expect(page).toHaveURL(/end_date=2026-09-09/);
             await expect(page.locator('.reports-summary-grid')).toBeVisible();
@@ -147,9 +134,9 @@ test.describe('Report Management Module', () => {
             const searchInput = page.locator('#report_search_input');
             await expect(searchInput).toBeVisible();
 
-            // Fill query and submit search
+            // Fill query and submit search via Enter key
             await searchInput.fill('ORD-');
-            await page.click('button:has-text("Search & Filter")');
+            await searchInput.press('Enter');
 
             await expect(page).toHaveURL(/search=ORD-/);
             await expect(page.locator('.report-table-wrapper')).toBeVisible();

@@ -440,6 +440,13 @@ html.sidebar-initially-closed .bakery-main-content {
     align-items: center !important;
     flex: 1 1 auto !important;
     min-width: 0 !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.header-toolbar-slot::-webkit-scrollbar {
+    display: none !important;
 }
 
 .header-toolbar-slot .header-filter-form,
@@ -485,6 +492,7 @@ body.sidebar-is-closed .top-header-bar {
 .top-header-bar .header-actions {
     margin-left: auto !important;
     pointer-events: auto !important;
+    flex-shrink: 0 !important;
 }
 
 .top-header-bar .mobile-sidebar-toggle-btn {

@@ -84,9 +84,15 @@
 
 .reports-summary-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.25rem;
     margin-bottom: 1.85rem;
+}
+
+@media (min-width: 1024px) {
+    .reports-summary-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 .report-stat-card {
@@ -411,6 +417,109 @@
 }
 
 /* ==========================================================================
+   REPORTS STICKY TOOLBAR WRAPPER (Always Sticky When Scrolling Up/Down)
+   Stacks seamlessly directly below the main application header (.top-header-bar)
+   ========================================================================== */
+.reports-sticky-toolbar-wrapper {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: var(--app-header-height, 87px) !important;
+    z-index: 840 !important;
+    background: var(--bg-main, #f5f0eb) !important;
+    padding-top: 0.25rem;
+    padding-bottom: 0.65rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(86, 48, 32, 0.08);
+    box-shadow: 0 4px 16px rgba(86, 48, 32, 0.04);
+    transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+[data-theme="dark"] .reports-sticky-toolbar-wrapper,
+body.dark-mode .reports-sticky-toolbar-wrapper {
+    background: var(--bg-main, #000000) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="glass"] .reports-sticky-toolbar-wrapper {
+    background: rgba(11, 8, 24, 0.94) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.reports-sticky-toolbar-wrapper .dash-filter-bar {
+    position: static !important;
+    top: auto !important;
+    margin-bottom: 0.65rem !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.reports-sticky-toolbar-wrapper .reports-nav-container {
+    position: static !important;
+    top: auto !important;
+    margin-bottom: 0 !important;
+}
+
+.reports-toolbar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: nowrap;
+}
+
+.reports-toolbar-row .reports-nav-container {
+    margin-bottom: 0 !important;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.reports-toolbar-row .reports-nav-container::-webkit-scrollbar {
+    display: none;
+}
+
+.reports-export-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.reports-export-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 1.15rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border-color, #eee9e0);
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--text-secondary, #71717a);
+}
+
+[data-theme="dark"] .reports-export-actions .btn {
+    background: #18181b;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f4f4f5;
+}
+
+[data-theme="dark"] .reports-export-actions .btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
    REPORT NAVIGATION: Overview | Sales | Inventory | Production | Customers | More
    ========================================================================== */
 .reports-nav-container {
@@ -429,7 +538,14 @@
     border: 1px solid var(--border-color, #eee9e0);
     box-shadow: 0 4px 16px rgba(86, 48, 32, 0.04);
     max-width: 100%;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.reports-main-nav::-webkit-scrollbar {
+    display: none;
 }
 
 .reports-nav-btn {
@@ -469,11 +585,13 @@
 }
 
 .has-liquid-pill .reports-nav-btn.pill-highlighted,
+.has-liquid-pill .reports-nav-btn.active,
 .has-liquid-pill .reports-nav-btn.active.pill-highlighted {
     color: #ffffff !important;
 }
 
 .has-liquid-pill .reports-nav-btn.pill-highlighted svg,
+.has-liquid-pill .reports-nav-btn.active svg,
 .has-liquid-pill .reports-nav-btn.active.pill-highlighted svg {
     color: #ffffff !important;
     stroke: #ffffff !important;
@@ -663,9 +781,15 @@
 /* Overview Summary Grid & Cards */
 .overview-summary-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.25rem;
     margin-bottom: 1.85rem;
+}
+
+@media (min-width: 1100px) {
+    .overview-summary-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
 }
 
 .overview-kpi-card {
@@ -800,11 +924,13 @@
 }
 
 [data-theme="dark"] .has-liquid-pill .reports-nav-btn.pill-highlighted,
+[data-theme="dark"] .has-liquid-pill .reports-nav-btn.active,
 [data-theme="dark"] .has-liquid-pill .reports-nav-btn.active.pill-highlighted {
     color: #ffffff !important;
 }
 
 [data-theme="dark"] .has-liquid-pill .reports-nav-btn.pill-highlighted svg,
+[data-theme="dark"] .has-liquid-pill .reports-nav-btn.active svg,
 [data-theme="dark"] .has-liquid-pill .reports-nav-btn.active.pill-highlighted svg {
     color: #ffffff !important;
     stroke: #ffffff !important;
@@ -1136,6 +1262,7 @@
     .bakery-sidebar,
     .top-header-bar,
     .dash-filter-bar,
+    .reports-sticky-toolbar-wrapper,
     .report-nav-tabs-container,
     .report-export-group,
     .btn-print-report,

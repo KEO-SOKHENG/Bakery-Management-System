@@ -238,12 +238,6 @@
             </tbody>
         </table>
     </div>
-
-    @if($ingredients->hasPages())
-        <div class="orders-pagination-wrapper">
-            {{ $ingredients->links() }}
-        </div>
-    @endif
 </div>
 </div>
 

@@ -15,8 +15,63 @@ test.describe('Recipes Management Page', () => {
         await expect(page.locator('body')).toContainText(/Recipes/i);
     });
 
-    test('should display recipe cards or table', async ({ page }) => {
-        const recipeElements = page.locator('table, .recipe-card, .recipes-grid');
-        await expect(recipeElements.first()).toBeVisible();
+    test('should display recipe table', async ({ page }) => {
+        const table = page.locator('#recipes_table');
+        await expect(table).toBeVisible();
+    });
+
+    test('should follow exact orders-container full-height layout with internal scrolling table', async ({ page }) => {
+        await page.setViewportSize({ width: 1440, height: 900 });
+
+        // Enable dark mode
+        await page.evaluate(() => {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.body.classList.add('dark-mode');
+        });
+
+        // 4 KPI cards
+        const statCards = page.locator('.dash-stat-row .stat-card');
+        await expect(statCards).toHaveCount(4);
+
+        // Filter toolbar
+        const toolbar = page.locator('#recipes_toolbar');
+        await expect(toolbar).toBeVisible();
+        await expect(page.locator('#recipe_product_select')).toBeVisible();
+        await expect(page.locator('#btn_open_recipe_modal')).toBeVisible();
+
+        // Table card
+        const card = page.locator('#recipes_table_card');
+        const wrapper = page.locator('#recipes_table_wrapper');
+        await expect(card).toBeVisible();
+        await expect(wrapper).toBeVisible();
+
+        const cardBox = await card.boundingBox();
+        expect(cardBox).not.toBeNull();
+        const cardBottom = cardBox.y + cardBox.height;
+        console.log(`Recipes Card Bottom: ${cardBottom}`);
+        expect(cardBottom).toBeGreaterThanOrEqual(860);
+        expect(cardBottom).toBeLessThanOrEqual(905);
+
+        // Verify table rows render
+        const rows = page.locator('#recipes_table tbody tr');
+        const count = await rows.count();
+        expect(count).toBeGreaterThan(0);
+
+        // Test Add Recipe Modal
+        await page.locator('#btn_open_recipe_modal').click();
+        const addModal = page.locator('#add_recipe_modal');
+        await expect(addModal).toBeVisible();
+        await page.locator('#btn_cancel_recipe').click();
+        await expect(addModal).not.toBeVisible();
+
+        // Test Edit Recipe Modal
+        const editBtn = page.locator('.btn-edit-recipe').first();
+        if (await editBtn.isVisible()) {
+            await editBtn.click();
+            const editModal = page.locator('#edit_recipe_modal');
+            await expect(editModal).toBeVisible();
+            await page.locator('#btn_cancel_edit_recipe').click();
+            await expect(editModal).not.toBeVisible();
+        }
     });
 });
