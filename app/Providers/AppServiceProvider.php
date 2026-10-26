@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(function (\App\Models\User $user, string $ability) {
             return $user->hasPermission($ability) ?: null;
         });
-        View::composer('layouts.app', function ($view) {
+        View::composer(['layouts.app', 'admin.settings', 'admin.notifications.*'], function ($view) {
             $notifications = collect();
             $unreadCount = 0;
 

@@ -4,138 +4,95 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/notifications.css') }}?v={{ @filemtime(public_path('css/notifications.css')) ?: '1.0' }}">
+    <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
 @endpush
 
+@section('header_toolbar')
+    <div class="period-pill-group">
+        <a href="{{ route('admin.settings') }}" class="period-pill" id="tab_general_settings">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 5px;"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span data-lang-key="general_settings">General Settings</span>
+        </a>
+        <a href="{{ route('admin.settings', ['tab' => 'notifications']) }}" class="period-pill active" id="tab_notifications_settings">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 5px;"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            <span data-lang-key="notifications">Notifications</span>
+            @if(($stats['unread'] ?? $realUnreadCount ?? 0) > 0)
+                <span style="display: inline-flex; align-items: center; justify-content: center; margin-left: 6px; min-width: 18px; height: 18px; padding: 0 5px; font-size: 0.72rem; font-weight: 700; line-height: 1; border-radius: 9999px; background: #ef4444; color: #ffffff;">{{ $stats['unread'] ?? $realUnreadCount }}</span>
+            @endif
+        </a>
+    </div>
+@endsection
+
 @section('content')
-<div class="notifications-page-container">
-    <!-- Header Area -->
-    <div class="notif-header-area">
-        <div class="notif-header-left">
-            <h1>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.2">
-                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-                </svg>
-                <span data-lang-key="notification_center">Notification Center</span>
-            </h1>
-            <p data-lang-key="notification_center_subtitle">Real-time alerts, operational updates, and event notifications.</p>
-        </div>
+<div class="orders-container notifications-page-container">
+    <h1 class="sr-only" data-lang-key="notification_center">Notification Center</h1>
 
-        <div class="notif-action-group">
-            @if(auth()->user()->isAdmin() || auth()->user()->hasPermission('notifications.promote'))
-                <x-button variant="warning" id="btn_open_promotion_modal" onclick="openPromotionModal();">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <span data-lang-key="broadcast_announcement">{{ __('messages.broadcast_announcement') ?? 'Broadcast Announcement' }}</span>
-                </x-button>
-            @endif
-
-            @if($stats['unread'] > 0)
-                <x-button variant="primary" id="page_mark_all_read">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span data-lang-key="mark_all_read">{{ __('messages.mark_all_read') ?? 'Mark All as Read' }}</span>
-                </x-button>
-            @endif
-        </div>
-    </div>
-
-    <!-- KPI Summary Cards -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon-box blue">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-            </div>
-            <div class="stat-info">
-                <span class="stat-label" data-lang-key="total_notifications">Total Notifications</span>
-                <div class="stat-value">{{ $stats['total'] }}</div>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon-box yellow">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-            </div>
-            <div class="stat-info">
-                <span class="stat-label" data-lang-key="unread_alerts">Unread Alerts</span>
-                <div class="stat-value" id="stat_unread_count">{{ $stats['unread'] }}</div>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon-box red">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 1 2 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            </div>
-            <div class="stat-info">
-                <span class="stat-label" data-lang-key="critical_action_required">Critical / Out of Stock</span>
-                <div class="stat-value">{{ $stats['critical'] }}</div>
-            </div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-icon-box green">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-            </div>
-            <div class="stat-info">
-                <span class="stat-label" data-lang-key="inventory_alerts">Inventory Alerts</span>
-                <div class="stat-value">{{ $stats['inventory'] }}</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Filter Tabs & Search Form -->
+    <!-- Filter Tabs & Actions Toolbar (Single Compact Row Matching Staff & Accounts) -->
     @php
         $selectedStatus = request('status', 'all');
         $selectedType = request('type', 'all');
         $readCount = max(0, $stats['total'] - $stats['unread']);
     @endphp
 
-    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
-        <!-- Status Filter Tabs -->
-        <div class="orders-filter-bar" id="notif_status_tabs">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem; flex-shrink: 0;">
+        <!-- Left: Status Filter Tabs -->
+        <div class="orders-filter-bar" id="notif_status_tabs" style="flex-shrink: 0;">
             <a href="{{ route('admin.notifications', array_merge(request()->except('status', 'page'), ['status' => 'all'])) }}"
                class="filter-btn {{ (!request()->filled('status') || request('status') === 'all') ? 'active' : '' }}">
                 <span data-lang-key="all">{{ __('messages.all') ?? 'All' }}</span> ({{ $stats['total'] }})
             </a>
             <a href="{{ route('admin.notifications', array_merge(request()->except('status', 'page'), ['status' => 'unread'])) }}"
                class="filter-btn {{ request('status') === 'unread' ? 'active' : '' }}">
-                <span data-lang-key="unread">{{ __('messages.unread') ?? 'Unread' }}</span> ({{ $stats['unread'] }})
+                <span data-lang-key="unread">{{ __('messages.unread') ?? 'Unread' }}</span> (<span id="stat_unread_count">{{ $stats['unread'] }}</span>)
             </a>
             <a href="{{ route('admin.notifications', array_merge(request()->except('status', 'page'), ['status' => 'read'])) }}"
                class="filter-btn {{ request('status') === 'read' ? 'active' : '' }}">
                 <span data-lang-key="read">{{ __('messages.read') ?? 'Read' }}</span> ({{ $readCount }})
             </a>
         </div>
+
+        <!-- Middle / Right: Search & Filters Form + Action Buttons -->
+        <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap; margin-left: auto;">
+            <form action="{{ route('admin.notifications') }}" method="GET" id="notif_filter_form" style="display: flex; gap: 0.5rem; align-items: center; margin: 0;">
+                @if(request('status') && request('status') !== 'all')
+                    <input type="hidden" name="status" value="{{ request('status') }}">
+                @endif
+                <div style="width: 150px;">
+                    <select name="type" class="form-control-select" onchange="this.form.submit()" style="height: 34px; font-size: 0.825rem; border-radius: 50px; padding: 0 0.85rem;">
+                        <option value="all" {{ (!request()->filled('type') || request('type') === 'all') ? 'selected' : '' }} data-lang-key="all_categories">{{ __('messages.all_categories') ?? 'All Categories' }}</option>
+                        <option value="inventory" {{ request('type') === 'inventory' ? 'selected' : '' }} data-lang-key="inventory">{{ __('messages.inventory') ?? 'Inventory' }}</option>
+                        <option value="order" {{ request('type') === 'order' ? 'selected' : '' }} data-lang-key="orders">{{ __('messages.orders') ?? 'Orders' }}</option>
+                        <option value="production" {{ request('type') === 'production' ? 'selected' : '' }} data-lang-key="production">{{ __('messages.production') ?? 'Production' }}</option>
+                        <option value="purchase_order" {{ request('type') === 'purchase_order' ? 'selected' : '' }} data-lang-key="purchase_orders">{{ __('messages.purchase_orders') ?? 'Purchase Orders' }}</option>
+                        <option value="promotion" {{ request('type') === 'promotion' ? 'selected' : '' }} data-lang-key="promotions">{{ __('messages.promotions') ?? 'Promotions' }}</option>
+                    </select>
+                </div>
+
+                @if(request()->hasAny(['search', 'type']) && (request('search') || (request('type') && request('type') !== 'all')))
+                    <a href="{{ route('admin.notifications', request('status') ? ['status' => request('status')] : []) }}" style="font-size: 0.8rem; font-weight: 700; color: #ef4444; text-decoration: none; padding: 0.25rem 0.5rem;" data-lang-key="clear_filters">
+                        {{ __('messages.clear_filters') ?? 'Clear' }}
+                    </a>
+                @endif
+            </form>
+
+            <!-- Actions Group -->
+            <div class="notif-action-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                @if(auth()->user()->isAdmin() || auth()->user()->hasPermission('notifications.promote'))
+                    <x-button variant="warning" id="btn_open_promotion_modal" onclick="openPromotionModal();" style="height: 34px; padding: 0 0.95rem; font-size: 0.825rem; border-radius: 50px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        <span data-lang-key="broadcast_announcement">{{ __('messages.broadcast_announcement') ?? 'Broadcast' }}</span>
+                    </x-button>
+                @endif
+
+                @if($stats['unread'] > 0)
+                    <x-button variant="primary" id="page_mark_all_read" style="height: 34px; padding: 0 0.95rem; font-size: 0.825rem; border-radius: 50px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span data-lang-key="mark_all_read">{{ __('messages.mark_all_read') ?? 'Mark All Read' }}</span>
+                    </x-button>
+                @endif
+            </div>
+        </div>
     </div>
-
-    <!-- Live Search & Detailed Filters Form -->
-    <form action="{{ route('admin.notifications') }}" method="GET" style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: center;">
-        @if(request('status') && request('status') !== 'all')
-            <input type="hidden" name="status" value="{{ request('status') }}">
-        @endif
-
-        <div style="flex: 1; min-width: 260px; position: relative;">
-            <input type="text" name="search" id="notif_search_input" value="{{ request('search') }}"
-                   placeholder="Search alerts by title or message..."
-                   class="form-control-input" style="padding-left: 2.6rem;">
-            <svg style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </div>
-
-        <div style="min-width: 170px;">
-            <select name="type" class="form-control-select" onchange="this.form.submit()">
-                <option value="all" {{ (!request()->filled('type') || request('type') === 'all') ? 'selected' : '' }} data-lang-key="all_categories">{{ __('messages.all_categories') ?? 'All Categories' }}</option>
-                <option value="inventory" {{ request('type') === 'inventory' ? 'selected' : '' }} data-lang-key="inventory">{{ __('messages.inventory') ?? 'Inventory' }}</option>
-                <option value="order" {{ request('type') === 'order' ? 'selected' : '' }} data-lang-key="orders">{{ __('messages.orders') ?? 'Orders' }}</option>
-                <option value="production" {{ request('type') === 'production' ? 'selected' : '' }} data-lang-key="production">{{ __('messages.production') ?? 'Production' }}</option>
-                <option value="purchase_order" {{ request('type') === 'purchase_order' ? 'selected' : '' }} data-lang-key="purchase_orders">{{ __('messages.purchase_orders') ?? 'Purchase Orders' }}</option>
-                <option value="promotion" {{ request('type') === 'promotion' ? 'selected' : '' }} data-lang-key="promotions">{{ __('messages.promotions') ?? 'Promotions' }}</option>
-            </select>
-        </div>
-
-        @if(request()->hasAny(['search', 'type']) && (request('search') || (request('type') && request('type') !== 'all')))
-            <a href="{{ route('admin.notifications', request('status') ? ['status' => request('status')] : []) }}" style="font-size: 0.85rem; font-weight: 700; color: #ef4444; text-decoration: none; padding: 0.5rem;" data-lang-key="clear_filters">
-                {{ __('messages.clear_filters') ?? 'Clear Filters' }}
-            </a>
-        @endif
-    </form>
 
     <!-- Notification Feed -->
     <div class="notif-feed-card">
@@ -151,7 +108,11 @@
             </div>
             <div class="notif-feed-header-right">
                 <span class="notif-feed-count-badge">
-                    Showing {{ $notifications->firstItem() ?? 0 }} - {{ $notifications->lastItem() ?? 0 }} of {{ $notifications->total() }}
+                    @if(method_exists($notifications, 'total'))
+                        Showing {{ $notifications->firstItem() ?? 0 }} - {{ $notifications->lastItem() ?? 0 }} of {{ $notifications->total() }}
+                    @else
+                        Total: {{ count($notifications) }}
+                    @endif
                 </span>
             </div>
         </div>
@@ -220,27 +181,23 @@
                     <!-- Right Side Actions Toolbar -->
                     <div class="notif-row-actions" onclick="event.stopPropagation();">
                         @if($notif->action_url)
-                            <a href="{{ $notif->action_url }}" class="btn-row-action btn-row-primary" onclick="markRowRead({{ $notif->id }});" title="View Details">
-                                <span data-lang-key="view_details">{{ __('messages.view_details') ?? 'View Details' }}</span>
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                            <a href="{{ $notif->action_url }}" class="btn-row-action btn-row-primary" onclick="markRowRead({{ $notif->id }});" title="{{ __('messages.view_details') ?? 'View Details' }}" aria-label="{{ __('messages.view_details') ?? 'View Details' }}">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                             </a>
                         @endif
 
                         @if($isUnread)
-                            <button type="button" class="btn-row-action btn-row-toggle" onclick="markRowRead({{ $notif->id }});" id="btn_read_{{ $notif->id }}" title="Mark as read">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span class="btn-action-label" data-lang-key="mark_as_read">{{ __('messages.mark_as_read') ?? 'Mark as read' }}</span>
+                            <button type="button" class="btn-row-action btn-row-toggle" onclick="markRowRead({{ $notif->id }});" id="btn_read_{{ $notif->id }}" title="{{ __('messages.mark_as_read') ?? 'Mark as read' }}" aria-label="{{ __('messages.mark_as_read') ?? 'Mark as read' }}">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
                             </button>
                         @else
-                            <button type="button" class="btn-row-action btn-row-toggle is-read" onclick="markRowUnread({{ $notif->id }});" id="btn_unread_{{ $notif->id }}" title="Mark as unread">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                                <span class="btn-action-label" data-lang-key="mark_as_unread">{{ __('messages.mark_as_unread') ?? 'Mark as unread' }}</span>
+                            <button type="button" class="btn-row-action btn-row-toggle is-read" onclick="markRowUnread({{ $notif->id }});" id="btn_unread_{{ $notif->id }}" title="{{ __('messages.mark_as_unread') ?? 'Mark as unread' }}" aria-label="{{ __('messages.mark_as_unread') ?? 'Mark as unread' }}">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                             </button>
                         @endif
 
-                        <button type="button" class="btn-row-action btn-row-delete" onclick="deleteNotification({{ $notif->id }});" title="Delete notification" id="btn_delete_{{ $notif->id }}">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                            <span class="btn-action-label" data-lang-key="delete">{{ __('messages.delete') ?? 'Delete' }}</span>
+                        <button type="button" class="btn-row-action btn-row-delete" onclick="deleteNotification({{ $notif->id }});" title="{{ __('messages.delete') ?? 'Delete' }}" aria-label="{{ __('messages.delete') ?? 'Delete' }}" id="btn_delete_{{ $notif->id }}">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         </button>
                     </div>
                 </div>
@@ -281,11 +238,6 @@
             </div>
         </div>
 
-        @if($notifications->hasPages())
-            <div class="notif-pagination-bar">
-                {{ $notifications->links() }}
-            </div>
-        @endif
     </div>
 </div>
 
@@ -408,9 +360,8 @@
                 
                 const readBtn = document.getElementById(`btn_read_${id}`);
                 if (readBtn) {
-                    readBtn.outerHTML = `<button type="button" class="btn-row-action btn-row-toggle is-read" onclick="markRowUnread(${id});" id="btn_unread_${id}" title="Mark as unread">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                        <span class="btn-action-label" data-lang-key="mark_as_unread">Mark as unread</span>
+                    readBtn.outerHTML = `<button type="button" class="btn-row-action btn-row-toggle is-read" onclick="markRowUnread(${id});" id="btn_unread_${id}" title="Mark as unread" aria-label="Mark as unread">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     </button>`;
                 }
             }
@@ -440,9 +391,8 @@
                 
                 const unreadBtn = document.getElementById(`btn_unread_${id}`);
                 if (unreadBtn) {
-                    unreadBtn.outerHTML = `<button type="button" class="btn-row-action btn-row-toggle" onclick="markRowRead(${id});" id="btn_read_${id}" title="Mark as read">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span class="btn-action-label" data-lang-key="mark_as_read">Mark as read</span>
+                    unreadBtn.outerHTML = `<button type="button" class="btn-row-action btn-row-toggle" onclick="markRowRead(${id});" id="btn_read_${id}" title="Mark as read" aria-label="Mark as read">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
                     </button>`;
                 }
             }

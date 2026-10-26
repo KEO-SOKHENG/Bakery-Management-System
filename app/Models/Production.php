@@ -113,9 +113,9 @@ class Production extends Model
     public function getDurationAttribute(): ?string
     {
         if ($this->started_at && $this->completed_at) {
-            $diffMins = $this->started_at->diffInMinutes($this->completed_at);
+            $diffMins = (int) round($this->started_at->diffInSeconds($this->completed_at) / 60);
             if ($diffMins < 60) {
-                return $diffMins . ' ' . ($diffMins === 1 ? 'min' : 'mins');
+                return $diffMins > 0 ? $diffMins . ' ' . ($diffMins === 1 ? 'min' : 'mins') : '< 1 min';
             }
             $hours = floor($diffMins / 60);
             $mins = $diffMins % 60;

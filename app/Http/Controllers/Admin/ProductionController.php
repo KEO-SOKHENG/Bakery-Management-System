@@ -156,7 +156,7 @@ class ProductionController extends Controller
         ));
     }
 
-    public function show(Production $production)
+    public function show(Request $request, Production $production)
     {
         $production->loadMissing([
             'recipe.ingredients.supplier',
@@ -166,6 +166,55 @@ class ProductionController extends Controller
         ]);
 
         $requiredIngredients = $production->getRequiredIngredients();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            $user = Auth::user();
+            $isAssignedToUser = $user && ($user->role !== 'baker' || $user->id === $production->baker_id);
+
+            return response()->json([
+                'success' => true,
+                'batch' => [
+                    'id' => $production->id,
+                    'batch_number' => $production->batch_number ?? ('PROD-' . str_pad($production->id, 4, '0', STR_PAD_LEFT)),
+                    'status' => strtolower($production->status),
+                    'status_label' => ucfirst(str_replace('_', ' ', $production->status)),
+                    'quantity' => $production->quantity,
+                    'scheduled_at' => $production->scheduled_at ? $production->scheduled_at->format('M d, Y h:i A') : ($production->production_date ? $production->production_date->format('M d, Y') : '-'),
+                    'started_at' => $production->started_at ? $production->started_at->format('M d, Y h:i A') : null,
+                    'completed_at' => $production->completed_at ? $production->completed_at->format('M d, Y h:i A') : null,
+                    'duration' => $production->duration,
+                    'notes' => $production->notes,
+                    'product' => [
+                        'id' => $production->product_id,
+                        'name' => $production->product->name ?? 'Bakery Product',
+                        'image_emoji' => $production->product->image_emoji ?? '🥖',
+                        'category' => $production->product->category->name ?? 'Bakery',
+                        'stock' => $production->product->stock ?? 0,
+                        'sku' => $production->product->sku ?? 'N/A',
+                    ],
+                    'recipe' => $production->recipe ? [
+                        'id' => $production->recipe->id,
+                        'name' => $production->recipe->name,
+                        'instructions' => $production->recipe->instructions ?? $production->recipe->description ?? 'No detailed instructions provided.',
+                    ] : null,
+                    'baker' => [
+                        'id' => $production->baker_id,
+                        'name' => $production->baker->name ?? 'Unassigned Baker',
+                        'initials' => $production->baker ? strtoupper(substr($production->baker->name, 0, 2)) : 'UB',
+                        'role' => $production->baker ? ucfirst($production->baker->role) : 'N/A',
+                        'email' => $production->baker->email ?? '',
+                    ],
+                    'creator' => [
+                        'name' => $production->creator->name ?? 'System',
+                    ],
+                    'ingredients' => $requiredIngredients->values()->all(),
+                    'can_start' => $production->isScheduled() && $isAssignedToUser,
+                    'can_complete' => $production->isInProgress() && $isAssignedToUser,
+                    'can_cancel' => in_array(strtolower($production->status), ['scheduled', 'in_progress']) && $isAssignedToUser,
+                    'update_url' => route('admin.production.updateStatus', $production->id),
+                ]
+            ]);
+        }
 
         return view('admin.production.show', compact('production', 'requiredIngredients'));
     }

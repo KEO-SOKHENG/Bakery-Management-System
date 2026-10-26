@@ -214,4 +214,65 @@ class PurchaseOrderTest extends TestCase
 
         $this->assertEquals('cancelled', $po->fresh()->status);
     }
+
+    public function test_purchase_order_show_returns_json_when_requested(): void
+    {
+        $po = PurchaseOrder::create([
+            'po_number'   => 'PO-JSON-' . rand(1000, 9999),
+            'supplier_id' => $this->supplier->id,
+            'order_date'  => today(),
+            'status'      => 'ordered',
+            'total_cost'  => 50.00,
+        ]);
+
+        $response = $this->actingAs($this->admin)->getJson(route('admin.purchase-orders.show', $po->id));
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'purchase_order' => [
+                'id'        => $po->id,
+                'po_number' => $po->po_number,
+                'status'    => 'ordered',
+            ],
+        ]);
+    }
+
+    public function test_purchase_orders_index_provides_ingredients_catalog_for_create_modal(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.purchase-orders.index'));
+        $response->assertStatus(200);
+        $response->assertViewHas('ingredients');
+        $response->assertViewHas('ingredientsJson');
+        $response->assertSee('createPurchaseOrderModal');
+        $response->assertSee('openCreatePurchaseOrderModal');
+    }
+
+    public function test_can_create_draft_purchase_order_from_modal_and_redirect_to_index(): void
+    {
+        $response = $this->actingAs($this->admin)->post(route('admin.purchase-orders.store'), [
+            'redirect_to' => 'index',
+            'supplier_id' => $this->supplier->id,
+            'order_date'  => today()->toDateString(),
+            'notes'       => 'Modal draft procurement',
+            'items'       => [
+                [
+                    'ingredient_id'  => $this->flour->id,
+                    'quantity'       => 20,
+                    'purchase_price' => 1.50,
+                ],
+            ],
+        ]);
+
+        $response->assertRedirect(route('admin.purchase-orders.index'));
+        $po = PurchaseOrder::where('notes', 'Modal draft procurement')->first();
+        $this->assertNotNull($po);
+        $this->assertEquals('draft', $po->status);
+        $this->assertEquals(30.00, (float) $po->total_cost);
+    }
+
+    public function test_create_route_redirects_to_index_with_action_create_and_params(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.purchase-orders.create', ['ingredient_id' => $this->flour->id]));
+        $response->assertRedirect(route('admin.purchase-orders.index', ['ingredient_id' => $this->flour->id, 'action' => 'create']));
+    }
 }

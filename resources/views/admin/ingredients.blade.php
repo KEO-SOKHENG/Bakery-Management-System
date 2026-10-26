@@ -112,7 +112,7 @@
 
     <!-- Right: Action Buttons (Purchase Order & Add Ingredient) -->
     <div class="ingredients-action-group" style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-        <a href="{{ route('admin.purchase-orders.create') }}" class="btn" id="btn_create_po" style="border-radius: 50px; height: 38px; padding: 0 1.25rem; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700; background: #d97706; border: 1px solid #d97706; color: #ffffff; text-decoration: none; font-size: 0.875rem; box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);">
+        <a href="{{ route('admin.purchase-orders.index', ['action' => 'create']) }}" class="btn" id="btn_create_po" style="border-radius: 50px; height: 38px; padding: 0 1.25rem; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700; background: #d97706; border: 1px solid #d97706; color: #ffffff; text-decoration: none; font-size: 0.875rem; box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
             <span>Purchase Order</span>
         </a>
@@ -196,7 +196,7 @@
                         </td>
                         <td style="text-align: right;">
                             <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 0.4rem;">
-                                <a href="{{ route('admin.purchase-orders.create', ['ingredient_id' => $ing->id]) }}" class="table-icon-btn" title="Procure Ingredient via PO">
+                                <a href="{{ route('admin.purchase-orders.index', ['action' => 'create', 'ingredient_id' => $ing->id]) }}" class="table-icon-btn" title="Procure Ingredient via PO">
                                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                 </a>
                                 <button type="button" class="table-icon-btn btn-edit-ing" title="Edit Ingredient"

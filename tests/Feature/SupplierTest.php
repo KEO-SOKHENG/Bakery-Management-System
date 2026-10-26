@@ -34,6 +34,9 @@ class SupplierTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('admin.suppliers'));
         $response->assertStatus(200);
         $response->assertSee('Raw Material Suppliers');
+        $response->assertSee('supplierDetailModal');
+        $response->assertSee('btn-view-supplier');
+        $response->assertSee('modal_supplier_name');
     }
 
     public function test_manager_can_view_suppliers_list(): void
@@ -71,6 +74,26 @@ class SupplierTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee($supplier->name);
         $response->assertSee('Chanrithy');
+    }
+
+    public function test_supplier_show_returns_json_when_requested(): void
+    {
+        $supplier = Supplier::create([
+            'name'           => 'JSON Test Vendor ' . rand(1000, 9999),
+            'contact_person' => 'Sam Dara',
+            'status'         => 'active',
+        ]);
+
+        $response = $this->actingAs($this->admin)->getJson(route('admin.suppliers.show', $supplier->id));
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'supplier' => [
+                'id' => $supplier->id,
+                'name' => $supplier->name,
+                'contact_person' => 'Sam Dara',
+            ],
+        ]);
     }
 
     public function test_supplier_with_historical_purchase_orders_cannot_be_deleted(): void

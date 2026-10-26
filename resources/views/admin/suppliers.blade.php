@@ -4,6 +4,88 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/orders.css') }}">
+    <style>
+        /* Supplier Quick Detail Modal Card ("Cart") */
+        .supplier-modal-card {
+            max-width: 580px;
+            width: 100%;
+        }
+        .supplier-modal-stat-pill {
+            padding: 0.65rem 0.75rem;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+        .supplier-modal-stat-pill:hover {
+            transform: translateY(-1px);
+            border-color: #cbd5e1;
+        }
+        .supplier-tab-btn {
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.775rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-muted, #71717a);
+            transition: all 0.15s ease;
+        }
+        .supplier-tab-btn:hover {
+            color: #ea580c;
+        }
+        .supplier-tab-btn.active {
+            background: rgba(234, 88, 12, 0.12) !important;
+            color: #ea580c !important;
+        }
+        .supplier-mini-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0.85rem;
+            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            font-size: 0.825rem;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .supplier-mini-item:hover {
+            border-color: #cbd5e1;
+        }
+
+        /* Dark mode overrides for Supplier Detail Modal */
+        [data-theme="dark"] .supplier-modal-stat-pill,
+        body.dark-mode .supplier-modal-stat-pill {
+            background: #141417 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        [data-theme="dark"] .supplier-tab-btn,
+        body.dark-mode .supplier-tab-btn {
+            color: #94a3b8 !important;
+        }
+        [data-theme="dark"] .supplier-tab-btn.active,
+        body.dark-mode .supplier-tab-btn.active {
+            background: rgba(234, 88, 12, 0.22) !important;
+            color: #f97316 !important;
+        }
+        [data-theme="dark"] .supplier-mini-item,
+        body.dark-mode .supplier-mini-item {
+            background: #141417 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        [data-theme="dark"] .supplier-mini-item:hover,
+        body.dark-mode .supplier-mini-item:hover {
+            background: #1c1c22 !important;
+            border-color: rgba(255, 255, 255, 0.16) !important;
+        }
+        [data-theme="dark"] .order-detail-modal-actions,
+        body.dark-mode .order-detail-modal-actions {
+            background: #18181c !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+    </style>
 @endpush
 
 @section('header_toolbar')
@@ -158,7 +240,7 @@
                                         {{ strtoupper(substr($supplier->name, 0, 1)) }}
                                     </div>
                                     <div>
-                                        <a href="{{ route('admin.suppliers.show', $supplier->id) }}" style="font-weight: 700; font-size: 0.9rem; color: #ea580c; text-decoration: none;">
+                                        <a href="javascript:void(0)" onclick="openSupplierDetailModalFromRow(this)" style="font-weight: 700; font-size: 0.9rem; color: #ea580c; text-decoration: none;" title="View Supplier Details">
                                             {{ $supplier->name }}
                                         </a>
                                         <div style="font-size: 0.725rem; color: var(--text-muted, #71717a); max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -213,9 +295,20 @@
                             <!-- Actions -->
                             <td style="text-align: right;">
                                 <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 0.4rem;">
-                                    <a href="{{ route('admin.suppliers.show', $supplier->id) }}" class="table-icon-btn" title="View Supplier Profile">
+                                    <button type="button" class="table-icon-btn btn-view-supplier" title="View Supplier Details"
+                                        data-id="{{ $supplier->id }}"
+                                        data-name="{{ $supplier->name }}"
+                                        data-contact="{{ $supplier->contact_person }}"
+                                        data-phone="{{ $supplier->phone }}"
+                                        data-email="{{ $supplier->email }}"
+                                        data-address="{{ $supplier->address }}"
+                                        data-status="{{ $supplier->status }}"
+                                        data-notes="{{ $supplier->notes }}"
+                                        data-items-count="{{ $supplier->ingredients_count }}"
+                                        data-orders-count="{{ $supplier->purchase_orders_count }}"
+                                        data-created-at="{{ $supplier->created_at ? $supplier->created_at->format('M d, Y') : '' }}">
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                    </a>
+                                    </button>
                                     <button type="button" class="table-icon-btn btn-edit-supplier" title="Edit Supplier" 
                                         data-id="{{ $supplier->id }}"
                                         data-name="{{ $supplier->name }}"
@@ -314,8 +407,402 @@
     </form>
 </x-modal>
 
+<!-- ========================================================================
+     SUPPLIER DETAIL MODAL CARD ("CART")
+     ======================================================================== -->
+<div id="supplierDetailModal" class="order-detail-modal-backdrop" onclick="if(event.target === this) closeSupplierDetailModal()">
+    <div class="order-detail-modal-card supplier-modal-card">
+        <!-- Modal Header -->
+        <div class="order-detail-modal-header" style="display: flex; align-items: center; justify-content: space-between; padding: 1.15rem 1.4rem;">
+            <div class="order-detail-modal-header-left" style="display: flex; align-items: center; gap: 0.85rem;">
+                <div id="modal_supplier_initial" style="width: 42px; height: 42px; border-radius: 12px; background: rgba(234, 88, 12, 0.15); display: flex; align-items: center; justify-content: center; color: #ea580c; font-weight: 800; font-size: 1.25rem; flex-shrink: 0; border: 1px solid rgba(234, 88, 12, 0.25);">
+                    E
+                </div>
+                <div>
+                    <h3 class="order-detail-modal-title" id="modal_supplier_name" style="font-size: 1.1rem; font-weight: 800; margin: 0; color: var(--text-title, #0f172a);">
+                        Supplier Name
+                    </h3>
+                    <p class="order-detail-modal-date" id="modal_supplier_sub" style="font-size: 0.775rem; margin: 0.2rem 0 0; color: var(--text-muted, #71717a);">
+                        Vendor Partner &bull; Registered Oct 26, 2026
+                    </p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div id="modal_supplier_status_badge">
+                    <span class="status-badge status-completed">Active</span>
+                </div>
+                <button type="button" onclick="closeSupplierDetailModal()" title="Close (Esc)" style="background: none; border: none; font-size: 1.4rem; line-height: 1; cursor: pointer; color: var(--text-muted, #94a3b8); padding: 0.25rem; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: color 0.15s ease;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="order-detail-modal-body" style="padding: 1.25rem 1.4rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; max-height: calc(85vh - 130px);">
+            <!-- 3-KPI Stats Row -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem;">
+                <div class="supplier-modal-stat-pill">
+                    <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted, #64748b); letter-spacing: 0.04em;">Supplied Items</div>
+                    <div id="modal_supplier_stat_items" style="font-size: 0.95rem; font-weight: 800; color: #ea580c; margin-top: 0.2rem;">0 items</div>
+                </div>
+                <div class="supplier-modal-stat-pill">
+                    <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted, #64748b); letter-spacing: 0.04em;">Purchase Orders</div>
+                    <div id="modal_supplier_stat_orders" style="font-size: 0.95rem; font-weight: 800; color: #3b82f6; margin-top: 0.2rem;">0 orders</div>
+                </div>
+                <div class="supplier-modal-stat-pill">
+                    <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted, #64748b); letter-spacing: 0.04em;">Total Spend</div>
+                    <div id="modal_supplier_stat_spend" style="font-size: 0.95rem; font-weight: 800; color: #10b981; margin-top: 0.2rem;">$0.00</div>
+                </div>
+            </div>
+
+            <!-- Contact & Facility Info Grid (2x2) -->
+            <div class="order-detail-info-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; padding: 0.85rem 1rem; border-radius: 14px;">
+                <div class="order-detail-info-item">
+                    <span class="info-label">Contact Person</span>
+                    <span class="info-value" id="modal_supplier_contact" style="font-size: 0.875rem;">—</span>
+                </div>
+                <div class="order-detail-info-item">
+                    <span class="info-label">Phone Number</span>
+                    <div class="info-value" id="modal_supplier_phone" style="font-size: 0.875rem;">—</div>
+                </div>
+                <div class="order-detail-info-item">
+                    <span class="info-label">Email Address</span>
+                    <div class="info-value" id="modal_supplier_email" style="font-size: 0.875rem; word-break: break-all;">—</div>
+                </div>
+                <div class="order-detail-info-item">
+                    <span class="info-label">Facility / Address</span>
+                    <span class="info-value" id="modal_supplier_address" style="font-size: 0.875rem; font-weight: 600;">—</span>
+                </div>
+            </div>
+
+            <!-- Notes & Procurement Terms -->
+            <div id="modal_supplier_notes_box" class="order-detail-note-box" style="display: none;">
+                <span class="note-tag" style="display: flex; align-items: center; gap: 0.35rem; font-weight: 800; font-size: 0.775rem;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+                    Procurement Terms & Notes
+                </span>
+                <span id="modal_supplier_notes" class="note-text" style="font-size: 0.825rem; line-height: 1.45;"></span>
+            </div>
+
+            <!-- Interactive Tabs: Supplied Items vs Recent Orders -->
+            <div class="order-detail-items-section" style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border, #e2e8f0); padding-bottom: 0.5rem;">
+                    <div style="display: flex; gap: 0.4rem;">
+                        <button type="button" id="tab_btn_ingredients" class="supplier-tab-btn active" onclick="switchSupplierTab('ingredients')">
+                            Supplied Items (<span id="modal_tab_items_count">0</span>)
+                        </button>
+                        <button type="button" id="tab_btn_orders" class="supplier-tab-btn" onclick="switchSupplierTab('orders')">
+                            Purchase Orders (<span id="modal_tab_orders_count">0</span>)
+                        </button>
+                    </div>
+                    <a id="modal_link_manage_inventory" href="{{ route('admin.ingredients') }}" style="font-size: 0.75rem; font-weight: 700; color: #ea580c; text-decoration: none;">
+                        Manage Inventory &rarr;
+                    </a>
+                </div>
+
+                <!-- Tab Content 1: Supplied Ingredients -->
+                <div id="supplier_tab_ingredients" style="display: block;">
+                    <div id="supplier_ingredients_loading" style="display: none; padding: 1.25rem; text-align: center; color: var(--text-muted, #94a3b8); font-size: 0.825rem;">
+                        <div style="display: inline-block; width: 18px; height: 18px; border: 2px solid #ea580c; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 0.35rem;"></div>
+                        <div>Loading supplied materials...</div>
+                    </div>
+                    <div id="supplier_ingredients_list" style="display: flex; flex-direction: column; gap: 0.4rem; max-height: 180px; overflow-y: auto;">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Tab Content 2: Purchase Orders -->
+                <div id="supplier_tab_orders" style="display: none;">
+                    <div id="supplier_orders_loading" style="display: none; padding: 1.25rem; text-align: center; color: var(--text-muted, #94a3b8); font-size: 0.825rem;">
+                        <div style="display: inline-block; width: 18px; height: 18px; border: 2px solid #3b82f6; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 0.35rem;"></div>
+                        <div>Loading purchase orders...</div>
+                    </div>
+                    <div id="supplier_orders_list" style="display: flex; flex-direction: column; gap: 0.4rem; max-height: 180px; overflow-y: auto;">
+                        <!-- Injected dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div class="order-detail-modal-actions" style="padding: 0.9rem 1.4rem; border-top: 1px solid var(--border, #e2e8f0); display: flex; align-items: center; gap: 0.6rem; background: var(--bg-surface, #faf6f0);">
+            <a id="modal_btn_create_po" href="#" class="btn" style="background: #ea580c; border: 1px solid #ea580c; color: #ffffff; border-radius: 50px; padding: 0.45rem 1rem; font-weight: 700; font-size: 0.825rem; display: inline-flex; align-items: center; gap: 0.35rem; text-decoration: none; box-shadow: 0 2px 6px rgba(234, 88, 12, 0.25);">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Create PO</span>
+            </a>
+            <button type="button" id="modal_btn_edit_supplier" class="btn btn-secondary" style="border-radius: 50px; padding: 0.45rem 0.9rem; font-size: 0.825rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                <span>Edit</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
+    let currentSupplierData = null;
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    window.openSupplierDetailModalFromRow = function(linkEl) {
+        const row = linkEl.closest('tr');
+        if (!row) return;
+        const viewBtn = row.querySelector('.btn-view-supplier');
+        if (viewBtn) {
+            openSupplierDetailModal(viewBtn);
+        }
+    };
+
+    window.openSupplierDetailModal = function(btn) {
+        const modal = document.getElementById('supplierDetailModal');
+        if (!modal) return;
+
+        const id = btn.getAttribute('data-id');
+        const name = btn.getAttribute('data-name') || 'Supplier';
+        const contact = btn.getAttribute('data-contact') || '';
+        const phone = btn.getAttribute('data-phone') || '';
+        const email = btn.getAttribute('data-email') || '';
+        const address = btn.getAttribute('data-address') || '';
+        const status = btn.getAttribute('data-status') || 'active';
+        const notes = btn.getAttribute('data-notes') || '';
+        const itemsCount = btn.getAttribute('data-items-count') || '0';
+        const ordersCount = btn.getAttribute('data-orders-count') || '0';
+        const createdAt = btn.getAttribute('data-created-at') || '';
+
+        currentSupplierData = { id, name, contact, phone, email, address, status, notes };
+
+        // Initial icon
+        const initial = name.trim().charAt(0).toUpperCase() || 'S';
+        document.getElementById('modal_supplier_initial').textContent = initial;
+
+        // Header info
+        document.getElementById('modal_supplier_name').textContent = name;
+        document.getElementById('modal_supplier_sub').textContent = `Vendor Partner • Added ${createdAt || 'Recently'}`;
+
+        // Status badge
+        const badgeHtml = status === 'active'
+            ? '<span class="status-badge status-completed">Active</span>'
+            : '<span class="status-badge status-cancelled">Inactive</span>';
+        document.getElementById('modal_supplier_status_badge').innerHTML = badgeHtml;
+
+        // Quick Stats
+        document.getElementById('modal_supplier_stat_items').textContent = `${itemsCount} items`;
+        document.getElementById('modal_supplier_stat_orders').textContent = `${ordersCount} orders`;
+        document.getElementById('modal_supplier_stat_spend').textContent = '...';
+
+        // Contact info
+        document.getElementById('modal_supplier_contact').textContent = contact || '—';
+        document.getElementById('modal_supplier_phone').innerHTML = phone
+            ? `<a href="tel:${escapeHtml(phone)}" style="color: inherit; text-decoration: none;">${escapeHtml(phone)}</a>`
+            : '<span style="color: var(--text-muted, #71717a);">—</span>';
+        document.getElementById('modal_supplier_email').innerHTML = email
+            ? `<a href="mailto:${escapeHtml(email)}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">${escapeHtml(email)}</a>`
+            : '<span style="color: var(--text-muted, #71717a);">—</span>';
+        document.getElementById('modal_supplier_address').textContent = address || 'No facility address recorded';
+
+        // Notes
+        const notesBox = document.getElementById('modal_supplier_notes_box');
+        if (notes && notes.trim().length > 0) {
+            document.getElementById('modal_supplier_notes').textContent = notes;
+            notesBox.style.display = 'flex';
+        } else {
+            notesBox.style.display = 'none';
+        }
+
+        // Tabs
+        document.getElementById('modal_tab_items_count').textContent = itemsCount;
+        document.getElementById('modal_tab_orders_count').textContent = ordersCount;
+        switchSupplierTab('ingredients');
+
+        // Footer actions
+        const createPoBtn = document.getElementById('modal_btn_create_po');
+        if (createPoBtn) createPoBtn.href = `/admin/purchase-orders?action=create&supplier_id=${id}`;
+
+        // Reset list placeholders
+        document.getElementById('supplier_ingredients_list').innerHTML = '';
+        document.getElementById('supplier_orders_list').innerHTML = '';
+        document.getElementById('supplier_ingredients_loading').style.display = 'block';
+        document.getElementById('supplier_orders_loading').style.display = 'block';
+
+        // Show modal & prevent background scrolling
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        // Fetch rich data via AJAX
+        fetch(`/admin/suppliers/${id}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('supplier_ingredients_loading').style.display = 'none';
+            document.getElementById('supplier_orders_loading').style.display = 'none';
+
+            if (data && data.success && data.supplier) {
+                if (data.stats && data.stats.total_spend !== undefined) {
+                    document.getElementById('modal_supplier_stat_spend').textContent = '$' + Number(data.stats.total_spend).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
+                if (data.stats && data.stats.total_orders !== undefined) {
+                    document.getElementById('modal_supplier_stat_orders').textContent = `${data.stats.total_orders} orders`;
+                    document.getElementById('modal_tab_orders_count').textContent = data.stats.total_orders;
+                }
+                if (data.supplier.ingredients) {
+                    document.getElementById('modal_tab_items_count').textContent = data.supplier.ingredients.length;
+                    renderSupplierIngredients(data.supplier.ingredients);
+                }
+                if (data.supplier.purchase_orders) {
+                    renderSupplierOrders(data.supplier.purchase_orders);
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Error fetching supplier details:', err);
+            document.getElementById('supplier_ingredients_loading').style.display = 'none';
+            document.getElementById('supplier_orders_loading').style.display = 'none';
+            document.getElementById('supplier_ingredients_list').innerHTML = '<div style="text-align: center; color: var(--text-muted, #71717a); padding: 1rem; font-size: 0.8rem;">Could not load ingredients list.</div>';
+            document.getElementById('supplier_orders_list').innerHTML = '<div style="text-align: center; color: var(--text-muted, #71717a); padding: 1rem; font-size: 0.8rem;">Could not load purchase orders.</div>';
+        });
+    };
+
+    window.closeSupplierDetailModal = function() {
+        const modal = document.getElementById('supplierDetailModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    };
+
+    window.switchSupplierTab = function(tab) {
+        const tabIngredients = document.getElementById('supplier_tab_ingredients');
+        const tabOrders = document.getElementById('supplier_tab_orders');
+        const btnIngredients = document.getElementById('tab_btn_ingredients');
+        const btnOrders = document.getElementById('tab_btn_orders');
+
+        if (tab === 'ingredients') {
+            tabIngredients.style.display = 'block';
+            tabOrders.style.display = 'none';
+            btnIngredients.classList.add('active');
+            btnOrders.classList.remove('active');
+        } else {
+            tabIngredients.style.display = 'none';
+            tabOrders.style.display = 'block';
+            btnOrders.classList.add('active');
+            btnIngredients.classList.remove('active');
+        }
+    };
+
+    window.renderSupplierIngredients = function(ingredients) {
+        const container = document.getElementById('supplier_ingredients_list');
+        if (!ingredients || ingredients.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; color: var(--text-muted, #71717a); padding: 1.5rem; font-size: 0.825rem;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.35rem;">📦</div>
+                    No ingredients linked to this vendor yet.
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = ingredients.map(ing => {
+            let badgeHtml = '<span class="status-badge status-completed" style="font-size: 0.7rem; padding: 2px 7px;">In Stock</span>';
+            if (ing.is_out_of_stock) {
+                badgeHtml = '<span class="status-badge status-cancelled" style="font-size: 0.7rem; padding: 2px 7px;">Out of Stock</span>';
+            } else if (ing.is_low_stock) {
+                badgeHtml = '<span class="status-badge status-pending" style="font-size: 0.7rem; padding: 2px 7px; background: rgba(245, 158, 11, 0.15); color: #d97706;">Low Stock</span>';
+            }
+
+            return `
+                <div class="supplier-mini-item">
+                    <div>
+                        <div style="font-weight: 700; color: var(--text-title, #0f172a); font-size: 0.85rem;">${escapeHtml(ing.name)}</div>
+                        <div style="font-size: 0.725rem; color: var(--text-muted, #71717a); margin-top: 2px;">
+                            Stock: <strong>${Number(ing.quantity).toFixed(2)} ${escapeHtml(ing.unit ? ing.unit.toUpperCase() : '')}</strong> &bull; Cost: <strong>$${Number(ing.cost).toFixed(2)}</strong>
+                        </div>
+                    </div>
+                    <div>
+                        ${badgeHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    };
+
+    window.renderSupplierOrders = function(orders) {
+        const container = document.getElementById('supplier_orders_list');
+        if (!orders || orders.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; color: var(--text-muted, #71717a); padding: 1.5rem; font-size: 0.825rem;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.35rem;">📋</div>
+                    No purchase orders placed with this vendor yet.
+                </div>
+            `;
+            return;
+        }
+
+        const statusClasses = {
+            'draft': 'status-pending',
+            'ordered': 'status-pending',
+            'received': 'status-completed',
+            'cancelled': 'status-cancelled'
+        };
+
+        container.innerHTML = orders.map(po => {
+            const badgeClass = statusClasses[po.status] || 'status-pending';
+            return `
+                <div class="supplier-mini-item">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.4rem;">
+                            <a href="${po.url}" style="font-weight: 800; font-family: monospace; font-size: 0.85rem; color: #ea580c; text-decoration: none;">
+                                #${escapeHtml(po.po_number)}
+                            </a>
+                            <span class="status-badge ${badgeClass}" style="font-size: 0.68rem; padding: 1px 6px;">
+                                ${escapeHtml(po.status ? po.status.charAt(0).toUpperCase() + po.status.slice(1) : '')}
+                            </span>
+                        </div>
+                        <div style="font-size: 0.725rem; color: var(--text-muted, #71717a); margin-top: 2px;">
+                            ${escapeHtml(po.order_date)} &bull; ${po.items_count} items
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: 800; color: var(--text-title, #0f172a); font-size: 0.875rem;">
+                            $${Number(po.total_cost).toFixed(2)}
+                        </div>
+                        <a href="${po.url}" style="font-size: 0.725rem; font-weight: 700; color: #3b82f6; text-decoration: none;">View PO &rarr;</a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    };
+
+    window.openEditSupplierModal = function(data) {
+        const editModal = document.getElementById('edit_supplier_modal');
+        const editForm = document.getElementById('edit_supplier_form');
+        if (!editModal || !editForm) return;
+
+        editForm.action = `/admin/suppliers/${data.id}`;
+        document.getElementById('edit_supplier_name').value = data.name || '';
+        document.getElementById('edit_supplier_contact').value = data.contact || '';
+        document.getElementById('edit_supplier_phone').value = data.phone || '';
+        document.getElementById('edit_supplier_email').value = data.email || '';
+        document.getElementById('edit_supplier_address').value = data.address || '';
+        document.getElementById('edit_supplier_status').value = data.status || 'active';
+        document.getElementById('edit_supplier_notes').value = data.notes || '';
+
+        editModal.classList.add('active', 'is-active');
+        editModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
         // Add Modal
         const addModal = document.getElementById('add_supplier_modal');
@@ -346,7 +833,6 @@
 
         // Edit Modal
         const editModal = document.getElementById('edit_supplier_modal');
-        const editForm = document.getElementById('edit_supplier_form');
         const closeEditBtn = document.getElementById('btn_close_edit_modal');
         const cancelEditBtn = document.getElementById('btn_cancel_edit_supplier');
 
@@ -363,22 +849,45 @@
             editModal.addEventListener('click', (e) => { if (e.target === editModal) closeEdit(); });
         }
 
+        // Edit button inside Detail Modal Card ("Cart")
+        const modalEditBtn = document.getElementById('modal_btn_edit_supplier');
+        if (modalEditBtn) {
+            modalEditBtn.addEventListener('click', function() {
+                if (currentSupplierData) {
+                    closeSupplierDetailModal();
+                    openEditSupplierModal(currentSupplierData);
+                }
+            });
+        }
+
+        // Edit buttons in table
         document.querySelectorAll('.btn-edit-supplier').forEach(btn => {
             btn.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                editForm.action = `/admin/suppliers/${id}`;
-                document.getElementById('edit_supplier_name').value = this.getAttribute('data-name') || '';
-                document.getElementById('edit_supplier_contact').value = this.getAttribute('data-contact') || '';
-                document.getElementById('edit_supplier_phone').value = this.getAttribute('data-phone') || '';
-                document.getElementById('edit_supplier_email').value = this.getAttribute('data-email') || '';
-                document.getElementById('edit_supplier_address').value = this.getAttribute('data-address') || '';
-                document.getElementById('edit_supplier_status').value = this.getAttribute('data-status') || 'active';
-                document.getElementById('edit_supplier_notes').value = this.getAttribute('data-notes') || '';
-
-                editModal.classList.add('active', 'is-active');
-                editModal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
+                openEditSupplierModal({
+                    id: this.getAttribute('data-id'),
+                    name: this.getAttribute('data-name'),
+                    contact: this.getAttribute('data-contact'),
+                    phone: this.getAttribute('data-phone'),
+                    email: this.getAttribute('data-email'),
+                    address: this.getAttribute('data-address'),
+                    status: this.getAttribute('data-status'),
+                    notes: this.getAttribute('data-notes')
+                });
             });
+        });
+
+        // View buttons in table
+        document.querySelectorAll('.btn-view-supplier').forEach(btn => {
+            btn.addEventListener('click', function() {
+                openSupplierDetailModal(this);
+            });
+        });
+
+        // Escape key to close modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSupplierDetailModal();
+            }
         });
     });
 </script>

@@ -160,13 +160,13 @@
             <table class="orders-table prod-table" id="production_batches_table">
                 <thead>
                     <tr>
-                        <th style="width: 16%;">{{ __('messages.batch_number') }}</th>
-                        <th style="width: 22%;">Product & Recipe</th>
-                        <th style="width: 10%;">Qty</th>
-                        <th style="width: 14%;">{{ __('messages.baker') }}</th>
-                        <th style="width: 16%;">Schedule & Timeline</th>
-                        <th style="width: 10%;">{{ __('messages.status') }}</th>
-                        <th style="width: 12%; text-align: right;">{{ __('messages.actions') }}</th>
+                        <th style="width: 14%;">{{ __('messages.batch_number') }}</th>
+                        <th style="width: 20%;">Product & Recipe</th>
+                        <th style="width: 6%;">Qty</th>
+                        <th style="width: 13%;">{{ __('messages.baker') }}</th>
+                        <th style="width: 14%;">{{ __('messages.scheduled_at') }}</th>
+                        <th style="width: 12%;">{{ __('messages.status') }}</th>
+                        <th style="width: 21%; text-align: right;">{{ __('messages.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -177,65 +177,95 @@
                             $canComplete = $batch->isInProgress();
                             $canCancel = in_array($statusClass, ['scheduled', 'in_progress']);
                             $isAssignedToUser = auth()->check() && (auth()->user()->role !== 'baker' || auth()->id() === $batch->baker_id);
+
+                            $batchData = [
+                                'id' => $batch->id,
+                                'batch_number' => $batch->batch_number ?? ('PROD-' . str_pad($batch->id, 4, '0', STR_PAD_LEFT)),
+                                'status' => $statusClass,
+                                'status_label' => ucfirst(str_replace('_', ' ', $batch->status)),
+                                'quantity' => $batch->quantity,
+                                'scheduled_at' => $batch->scheduled_at ? $batch->scheduled_at->format('M d, Y h:i A') : ($batch->production_date ? $batch->production_date->format('M d, Y') : '-'),
+                                'started_at' => $batch->started_at ? $batch->started_at->format('M d, Y h:i A') : null,
+                                'completed_at' => $batch->completed_at ? $batch->completed_at->format('M d, Y h:i A') : null,
+                                'created_at' => $batch->created_at ? $batch->created_at->format('M d, Y h:i A') : null,
+                                'duration' => $batch->duration,
+                                'notes' => $batch->notes,
+                                'product' => [
+                                    'name' => $batch->product->name ?? 'Bakery Product',
+                                    'image_emoji' => $batch->product->image_emoji ?? '🥖',
+                                    'category' => $batch->product->category->name ?? 'Bakery',
+                                    'stock' => $batch->product->stock ?? 0,
+                                    'sku' => $batch->product->sku ?? 'N/A',
+                                ],
+                                'recipe' => $batch->recipe ? [
+                                    'name' => $batch->recipe->name,
+                                    'instructions' => $batch->recipe->instructions ?? $batch->recipe->description ?? '',
+                                ] : null,
+                                'baker' => [
+                                    'name' => $batch->baker->name ?? 'Unassigned',
+                                    'initials' => $batch->baker ? strtoupper(substr($batch->baker->name, 0, 2)) : 'UB',
+                                    'role' => $batch->baker ? ucfirst($batch->baker->role) : 'N/A',
+                                ],
+                                'creator' => [
+                                    'name' => $batch->creator->name ?? 'System',
+                                ],
+                                'ingredients' => $batch->getRequiredIngredients()->values()->all(),
+                                'can_start' => $canStart && $isAssignedToUser,
+                                'can_complete' => $canComplete && $isAssignedToUser,
+                                'can_cancel' => $canCancel && $isAssignedToUser,
+                                'update_url' => route('admin.production.updateStatus', $batch->id),
+                            ];
                         @endphp
-                        <tr class="prod-batch-row" data-batch-id="{{ $batch->id }}" data-status="{{ $statusClass }}">
+                        <tr class="prod-batch-row" data-batch-id="{{ $batch->id }}" data-status="{{ $statusClass }}" data-batch="{{ json_encode($batchData) }}">
                             <!-- Batch Number -->
                             <td>
-                                <a href="{{ route('admin.production.show', $batch->id) }}" class="batch-code-pill" title="View Batch Details" style="font-family: monospace; font-weight: 800; color: #ea580c; text-decoration: none;">
+                                <button type="button" class="batch-code-pill" onclick="openBatchDetailModal(this)" title="View Details">
                                     {{ $batch->batch_number ?? ('PROD-' . str_pad($batch->id, 4, '0', STR_PAD_LEFT)) }}
-                                </a>
-                                <div style="font-size: 0.725rem; color: var(--text-muted, #71717a); margin-top: 0.2rem;">
-                                    Created {{ $batch->created_at ? $batch->created_at->format('M d, H:i') : '' }}
-                                </div>
+                                </button>
                             </td>
 
                             <!-- Product -->
                             <td>
-                                <div class="prod-product-cell" style="display: flex; align-items: center; gap: 0.6rem;">
-                                    <span class="prod-product-emoji" style="font-size: 1.4rem;">{{ $batch->product->image_emoji ?? '🥖' }}</span>
-                                    <div>
-                                        <div class="prod-product-name" style="font-weight: 700; color: inherit;">{{ $batch->product->name ?? 'Unknown Product' }}</div>
-                                        <div class="prod-recipe-sub" style="font-size: 0.75rem; color: var(--text-muted, #71717a);">
-                                            @if($batch->recipe)
-                                                <span>{{ $batch->recipe->name }}</span>
-                                            @else
-                                                <span style="color: #a1a1aa; font-style: italic;">No Recipe</span>
-                                            @endif
-                                        </div>
+                                <div>
+                                    <div class="prod-product-name">{{ $batch->product->name ?? 'Unknown Product' }}</div>
+                                    <div class="prod-recipe-sub">
+                                        @if($batch->recipe)
+                                            <span>{{ $batch->recipe->name }}</span>
+                                        @else
+                                            <span style="color: #a1a1aa; font-style: italic;">No Recipe</span>
+                                        @endif
                                     </div>
                                 </div>
                             </td>
 
                             <!-- Quantity -->
                             <td>
-                                <span style="font-weight: 800; font-size: 1rem; color: inherit;">
-                                    {{ $batch->quantity }}
-                                </span>
-                                <span style="font-size: 0.75rem; color: var(--text-muted, #71717a);"> units</span>
+                                <span class="prod-qty-num">{{ $batch->quantity }}</span>
+                                <span class="prod-qty-unit">units</span>
                             </td>
 
                             <!-- Assigned Baker -->
                             <td>
                                 @if($batch->baker)
-                                    <div class="baker-pill" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.2rem 0.5rem; border-radius: 50px; background: rgba(234, 88, 12, 0.08); font-size: 0.8rem; font-weight: 600;">
-                                        <span class="baker-avatar" style="width: 22px; height: 22px; border-radius: 50%; background: #ea580c; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 800;">
+                                    <div class="baker-pill" title="{{ $batch->baker->name }}">
+                                        <span class="baker-avatar">
                                             {{ strtoupper(substr($batch->baker->name, 0, 2)) }}
                                         </span>
-                                        <span>{{ $batch->baker->name }}</span>
+                                        <span class="baker-name">{{ $batch->baker->name }}</span>
                                     </div>
                                 @else
-                                    <span style="color: #a1a1aa; font-style: italic; font-size: 0.8rem;">Unassigned</span>
+                                    <span style="color: #a1a1aa; font-style: italic; font-size: 0.74rem;">Unassigned</span>
                                 @endif
                             </td>
 
                             <!-- Schedule & Timeline -->
                             <td>
-                                <div style="font-weight: 600; font-size: 0.825rem; color: inherit;">
+                                <div class="prod-schedule-date">
                                     {{ $batch->scheduled_at ? $batch->scheduled_at->format('M d, Y h:i A') : ($batch->production_date ? $batch->production_date->format('M d, Y') : '-') }}
                                 </div>
                                 @if($batch->duration)
-                                    <div style="font-size: 0.725rem; color: #16a34a; font-weight: 700;">
-                                        Duration: {{ is_numeric($batch->duration) ? round((float)$batch->duration, 1) . ' mins' : $batch->duration }}
+                                    <div class="prod-duration-badge">
+                                        Duration: {{ $batch->duration }}
                                     </div>
                                 @endif
                             </td>
@@ -247,58 +277,56 @@
 
                             <!-- Actions -->
                             <td style="text-align: right;">
-                                <div class="prod-actions-row" style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 0.4rem;">
+                                <div class="prod-actions-row">
                                     <!-- Start Production Button (Scheduled -> In Progress) -->
                                     @if($canStart && $isAssignedToUser)
-                                        <form action="{{ route('admin.production.updateStatus', $batch->id) }}" method="POST" style="display: inline;">
+                                        <form action="{{ route('admin.production.updateStatus', $batch->id) }}" method="POST" style="display: inline-flex; margin: 0;">
                                             @csrf
                                             <input type="hidden" name="status" value="in_progress">
-                                            <button type="submit" class="btn-action-start" title="Start Baking & Deduct Ingredients" style="background: #ea580c; color: #fff; border: none; border-radius: 50px; padding: 0.25rem 0.65rem; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                            <button type="submit" class="btn-prod-action btn-prod-start" title="Start Baking" aria-label="Start Baking">
                                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                                <span>{{ __('messages.start_production') }}</span>
+                                                <span>Start</span>
                                             </button>
                                         </form>
                                     @endif
 
                                     <!-- Complete Production Button (In Progress -> Completed) -->
                                     @if($canComplete && $isAssignedToUser)
-                                        <form action="{{ route('admin.production.updateStatus', $batch->id) }}" method="POST" style="display: inline;">
+                                        <form action="{{ route('admin.production.updateStatus', $batch->id) }}" method="POST" style="display: inline-flex; margin: 0;">
                                             @csrf
                                             <input type="hidden" name="status" value="completed">
-                                            <button type="submit" class="btn-action-complete" title="Mark Completed & Increment Product Stock" style="background: #16a34a; color: #fff; border: none; border-radius: 50px; padding: 0.25rem 0.65rem; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.3rem;">
-                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                                                <span>{{ __('messages.complete_production') }}</span>
+                                            <button type="submit" class="btn-prod-action btn-prod-complete" title="Complete Baking" aria-label="Complete Baking">
+                                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                                <span>Complete</span>
                                             </button>
                                         </form>
                                     @endif
 
                                     <!-- Cancel Button -->
                                     @if($canCancel && $isAssignedToUser)
-                                        <form action="{{ route('admin.production.updateStatus', $batch->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this production batch?');" style="display: inline;">
+                                        <form action="{{ route('admin.production.updateStatus', $batch->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this production batch?');" style="display: inline-flex; margin: 0;">
                                             @csrf
                                             <input type="hidden" name="status" value="cancelled">
-                                            <button type="submit" class="btn-action-cancel" title="Cancel Production" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; border: none; border-radius: 50px; padding: 0.25rem 0.6rem; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
-                                                &times; Cancel
+                                            <button type="submit" class="btn-prod-icon cancel" title="Cancel Production" aria-label="Cancel Production">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                                             </button>
                                         </form>
                                     @endif
 
-                                    <!-- View Details Link -->
-                                    <a href="{{ route('admin.production.show', $batch->id) }}" class="table-icon-btn btn-action-view" title="View Batch Details">
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                    </a>
+                                    <!-- View Details Modal Trigger Button ("Cart" Detail Modal) -->
+                                    <button type="button" class="btn-prod-icon view" onclick="openBatchDetailModal(this)" title="View Batch Details" aria-label="View Batch Details">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    </button>
 
                                     <!-- Delete Button (Only Scheduled or Cancelled, Admin/Manager Only) -->
                                     @if(in_array(auth()->user()->role, ['admin', 'manager']) && ($batch->isScheduled() || $batch->isCancelled()))
-                                        <form action="{{ route('admin.production.destroy', $batch->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete production batch #{{ $batch->batch_number }}?');" style="display: inline;">
+                                        <form action="{{ route('admin.production.destroy', $batch->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete production batch #{{ $batch->batch_number }}?');" style="display: inline-flex; margin: 0;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn-icon-action delete" title="Delete Batch" style="background: none; border: none; color: #dc2626; cursor: pointer; padding: 4px; display: inline-flex; align-items: center;">
-                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <button type="submit" class="btn-prod-icon delete" title="Delete Batch" aria-label="Delete Batch">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                     <polyline points="3 6 5 6 21 6"></polyline>
                                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                                                    <line x1="14" y1="11" x2="14" y2="17"></line>
                                                 </svg>
                                             </button>
                                         </form>
@@ -443,9 +471,361 @@
     </div>
 </div>
 
+<!-- ========================================================================
+     BATCH DETAIL MODAL CARD ("CART")
+     ======================================================================== -->
+<div id="batchDetailModal" class="order-detail-modal-backdrop" onclick="if(event.target === this) closeBatchDetailModal()">
+    <div class="order-detail-modal-card prod-modal-card-detail">
+        <!-- Modal Header -->
+        <div class="order-detail-modal-header">
+            <div class="order-detail-modal-header-left">
+                <div class="order-detail-modal-badge" id="modal_batch_code">BATCH-0001</div>
+                <div>
+                    <h3 class="order-detail-modal-title">Production Details</h3>
+                    <p class="order-detail-modal-date" id="modal_batch_sched_date">-</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div id="modal_batch_status_badge">
+                    <!-- Status badge injected here -->
+                </div>
+                <button type="button" class="btn-close-modal" onclick="closeBatchDetailModal()" style="font-size: 1.5rem; line-height: 1; padding: 0.2rem; background: none; border: none; cursor: pointer; color: inherit;">&times;</button>
+            </div>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="order-detail-modal-body">
+            <!-- Product & Quantity Banner -->
+            <div class="prod-detail-banner-card">
+                <div class="prod-detail-banner-left">
+                    <span class="prod-detail-banner-emoji" id="modal_batch_product_emoji">🥖</span>
+                    <div style="min-width: 0;">
+                        <div class="prod-detail-banner-name" id="modal_batch_product_name">Product Name</div>
+                        <div class="prod-detail-banner-sub" id="modal_batch_product_sub">Bakery &bull; Stock: 0 units</div>
+                    </div>
+                </div>
+                <div class="prod-detail-banner-qty">
+                    <span class="prod-detail-banner-qty-val" id="modal_batch_qty_val">10</span>
+                    <span class="prod-detail-banner-qty-lbl">units to bake</span>
+                </div>
+            </div>
+
+            <!-- Lifecycle Timeline -->
+            <div class="prod-modal-timeline-grid">
+                <div class="prod-modal-timeline-item">
+                    <div class="timeline-step-dot scheduled"></div>
+                    <div style="min-width: 0;">
+                        <div class="timeline-step-label">Scheduled</div>
+                        <div class="timeline-step-val" id="modal_timeline_scheduled">-</div>
+                    </div>
+                </div>
+                <div class="prod-modal-timeline-item">
+                    <div class="timeline-step-dot in-progress" id="modal_dot_started"></div>
+                    <div style="min-width: 0;">
+                        <div class="timeline-step-label">Started Baking</div>
+                        <div class="timeline-step-val" id="modal_timeline_started">-</div>
+                    </div>
+                </div>
+                <div class="prod-modal-timeline-item">
+                    <div class="timeline-step-dot completed" id="modal_dot_completed"></div>
+                    <div style="min-width: 0;">
+                        <div class="timeline-step-label" id="modal_timeline_completed_label">Completed</div>
+                        <div class="timeline-step-val" id="modal_timeline_completed">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personnel & Recipe 2-column Grid -->
+            <div class="order-detail-info-grid">
+                <div class="order-detail-info-item">
+                    <span class="info-label">Assigned Baker</span>
+                    <div style="display: flex; align-items: center; gap: 0.45rem; margin-top: 0.25rem;">
+                        <span class="baker-avatar" id="modal_batch_baker_avatar">UB</span>
+                        <span class="info-value" id="modal_batch_baker_name" style="margin: 0;">Unassigned</span>
+                    </div>
+                    <span class="info-sub" id="modal_batch_creator" style="margin-top: 0.35rem;">Scheduled by: System</span>
+                </div>
+                <div class="order-detail-info-item">
+                    <span class="info-label">Recipe</span>
+                    <span class="info-value" id="modal_batch_recipe_name" style="margin-top: 0.25rem; color: #ea580c;">Standard Recipe</span>
+                    <span class="info-sub" id="modal_batch_duration_sub" style="margin-top: 0.35rem;">Duration: -</span>
+                </div>
+            </div>
+
+            <!-- Special Notes / Instructions if any -->
+            <div id="modal_batch_notes_box" class="order-detail-note-box" style="display: none;">
+                <span class="note-tag">📝 Notes & Instructions:</span>
+                <span id="modal_batch_notes_text" class="note-text"></span>
+            </div>
+
+            <!-- Itemized Ingredients Breakdown Section -->
+            <div class="order-detail-items-section">
+                <div class="items-header">
+                    <span>Required Ingredients</span>
+                    <span id="modal_batch_ingredients_count" class="items-count-pill">0 ingredients</span>
+                </div>
+                <div class="prod-modal-ingredients-wrapper">
+                    <table class="prod-modal-ing-table">
+                        <thead>
+                            <tr>
+                                <th>Ingredient</th>
+                                <th>Required</th>
+                                <th>In Stock</th>
+                                <th style="text-align: right;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modal_batch_ingredients_tbody">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div class="order-detail-modal-actions" style="display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 0.75rem; flex-wrap: wrap;">
+                <div id="modal_batch_status_actions" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <!-- Dynamic Start / Complete / Cancel forms -->
+                </div>
+                <button type="button" id="btn_close_batch_detail_modal" onclick="closeBatchDetailModal()" class="btn-order-detail-close">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
     window.PRODUCTS_CATALOG = @json($productsJson);
+    const CSRF_TOKEN = '{{ csrf_token() }}';
+
+    window.openBatchDetailModal = function (triggerEl) {
+        let batch = null;
+
+        if (typeof triggerEl === 'object' && triggerEl !== null) {
+            const row = triggerEl.closest('tr');
+            if (row) {
+                const rawData = row.getAttribute('data-batch');
+                if (rawData) {
+                    try {
+                        batch = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+                    } catch (e) {
+                        console.error('Failed to parse batch JSON:', e);
+                    }
+                }
+            }
+        } else if (typeof triggerEl === 'number' || typeof triggerEl === 'string') {
+            const row = document.querySelector(`tr[data-batch-id="${triggerEl}"]`);
+            if (row) {
+                const rawData = row.getAttribute('data-batch');
+                if (rawData) {
+                    try {
+                        batch = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+                    } catch (e) {}
+                }
+            }
+        }
+
+        if (batch) {
+            populateBatchDetailModal(batch);
+            const modal = document.getElementById('batchDetailModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        } else {
+            // Fallback: Fetch from server via AJAX
+            const batchId = (typeof triggerEl === 'object' && triggerEl?.closest('tr'))
+                ? triggerEl.closest('tr').getAttribute('data-batch-id')
+                : triggerEl;
+            if (!batchId) return;
+
+            fetch(`/admin/production/${batchId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.batch) {
+                    populateBatchDetailModal(data.batch);
+                    const modal = document.getElementById('batchDetailModal');
+                    if (modal) {
+                        modal.style.display = 'flex';
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+            })
+            .catch(err => console.error('Error loading batch:', err));
+        }
+    };
+
+    window.populateBatchDetailModal = function (batch) {
+        // 1. Batch header & date
+        document.getElementById('modal_batch_code').textContent = batch.batch_number || `#${batch.id}`;
+        document.getElementById('modal_batch_sched_date').textContent = batch.created_at ? `Created ${batch.created_at}` : (batch.scheduled_at || '');
+
+        // 2. Status badge
+        const statusMap = {
+            'scheduled': { text: 'Scheduled', class: 'scheduled' },
+            'in_progress': { text: 'In Progress', class: 'in_progress' },
+            'completed': { text: 'Completed', class: 'completed' },
+            'cancelled': { text: 'Cancelled', class: 'cancelled' }
+        };
+        const st = statusMap[batch.status] || { text: batch.status_label || batch.status, class: batch.status };
+        document.getElementById('modal_batch_status_badge').innerHTML = `<span class="badge-status ${st.class}">${st.text}</span>`;
+
+        // 3. Product & Quantity
+        document.getElementById('modal_batch_product_emoji').textContent = batch.product?.image_emoji || '🥖';
+        document.getElementById('modal_batch_product_name').textContent = batch.product?.name || 'Bakery Product';
+        document.getElementById('modal_batch_product_sub').innerHTML = `${batch.product?.category || 'Bakery'} &bull; Store Stock: <strong>${batch.product?.stock ?? 0} units</strong>`;
+        document.getElementById('modal_batch_qty_val').textContent = batch.quantity;
+
+        // 4. Lifecycle timeline
+        document.getElementById('modal_timeline_scheduled').textContent = batch.scheduled_at || '-';
+        document.getElementById('modal_timeline_started').textContent = batch.started_at || (batch.status === 'scheduled' ? 'Pending' : '-');
+
+        const completedDot = document.getElementById('modal_dot_completed');
+        const completedLabel = document.getElementById('modal_timeline_completed_label');
+        const startedDot = document.getElementById('modal_dot_started');
+
+        if (startedDot) {
+            startedDot.className = 'timeline-step-dot in-progress' + (batch.started_at ? ' active' : '');
+        }
+
+        if (batch.status === 'cancelled') {
+            completedLabel.textContent = 'Cancelled';
+            document.getElementById('modal_timeline_completed').textContent = 'Cancelled';
+            if (completedDot) completedDot.className = 'timeline-step-dot cancelled active';
+        } else if (batch.completed_at) {
+            completedLabel.textContent = 'Completed';
+            document.getElementById('modal_timeline_completed').textContent = batch.completed_at;
+            if (completedDot) completedDot.className = 'timeline-step-dot completed active';
+        } else {
+            completedLabel.textContent = 'Completed';
+            document.getElementById('modal_timeline_completed').textContent = batch.status === 'in_progress' ? 'In Progress' : 'Pending';
+            if (completedDot) completedDot.className = 'timeline-step-dot completed';
+        }
+
+        // 5. Personnel & Recipe
+        document.getElementById('modal_batch_baker_avatar').textContent = batch.baker?.initials || 'UB';
+        document.getElementById('modal_batch_baker_name').textContent = batch.baker?.name ? `${batch.baker.name} (${batch.baker.role})` : 'Unassigned';
+        document.getElementById('modal_batch_creator').textContent = `Scheduled by: ${batch.creator?.name || 'System'}`;
+
+        document.getElementById('modal_batch_recipe_name').textContent = batch.recipe?.name || 'No Recipe Configured';
+        const durSub = document.getElementById('modal_batch_duration_sub');
+        if (batch.duration) {
+            durSub.textContent = `Duration: ${batch.duration}`;
+            durSub.style.display = 'block';
+        } else {
+            durSub.style.display = 'none';
+        }
+
+        // 6. Notes & Recipe Instructions
+        const notesBox = document.getElementById('modal_batch_notes_box');
+        const notesText = document.getElementById('modal_batch_notes_text');
+        const instructions = batch.recipe?.instructions;
+        const notes = batch.notes;
+        let combinedNotes = '';
+        if (instructions && instructions !== 'No detailed instructions provided.') {
+            combinedNotes += `Recipe: ${instructions}`;
+        }
+        if (notes) {
+            combinedNotes += (combinedNotes ? ' | ' : '') + `Notes: ${notes}`;
+        }
+
+        if (combinedNotes) {
+            notesText.textContent = combinedNotes;
+            notesBox.style.display = 'flex';
+        } else {
+            notesBox.style.display = 'none';
+        }
+
+        // 7. Itemized Ingredients Breakdown
+        const tbody = document.getElementById('modal_batch_ingredients_tbody');
+        const countPill = document.getElementById('modal_batch_ingredients_count');
+        tbody.innerHTML = '';
+        const ingredients = batch.ingredients || [];
+        countPill.textContent = `${ingredients.length} ${ingredients.length === 1 ? 'ingredient' : 'ingredients'}`;
+
+        if (ingredients.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #a1a1aa; padding: 1rem;">No ingredients required for this batch.</td></tr>`;
+        } else {
+            ingredients.forEach(ing => {
+                const tr = document.createElement('tr');
+                const isSufficient = ing.is_sufficient;
+                tr.innerHTML = `
+                    <td style="font-weight: 600;">${ing.name}</td>
+                    <td style="font-weight: 700;">${ing.required_total} ${ing.unit}</td>
+                    <td>${ing.current_stock} ${ing.unit}</td>
+                    <td style="text-align: right;">
+                        <span class="badge-status ${isSufficient ? 'completed' : 'cancelled'}" style="font-size: 0.68rem; padding: 0.15rem 0.45rem;">
+                            ${isSufficient ? '✓ In Stock' : '⚠ Short (' + ing.shortage + ' ' + ing.unit + ')'}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 8. Actions
+        const actionsContainer = document.getElementById('modal_batch_status_actions');
+        actionsContainer.innerHTML = '';
+
+        if (batch.can_start) {
+            actionsContainer.innerHTML += `
+                <form action="${batch.update_url}" method="POST" style="display: inline-flex; margin: 0;">
+                    <input type="hidden" name="_token" value="${CSRF_TOKEN}">
+                    <input type="hidden" name="status" value="in_progress">
+                    <button type="submit" class="btn-prod-action btn-prod-start" style="height: 32px; padding: 0 0.9rem; font-size: 0.76rem;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <span>Start Baking</span>
+                    </button>
+                </form>
+            `;
+        }
+
+        if (batch.can_complete) {
+            actionsContainer.innerHTML += `
+                <form action="${batch.update_url}" method="POST" style="display: inline-flex; margin: 0;">
+                    <input type="hidden" name="_token" value="${CSRF_TOKEN}">
+                    <input type="hidden" name="status" value="completed">
+                    <button type="submit" class="btn-prod-action btn-prod-complete" style="height: 32px; padding: 0 0.9rem; font-size: 0.76rem;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Complete Production</span>
+                    </button>
+                </form>
+            `;
+        }
+
+        if (batch.can_cancel) {
+            actionsContainer.innerHTML += `
+                <form action="${batch.update_url}" method="POST" onsubmit="return confirm('Cancel this batch?');" style="display: inline-flex; margin: 0;">
+                    <input type="hidden" name="_token" value="${CSRF_TOKEN}">
+                    <input type="hidden" name="status" value="cancelled">
+                    <button type="submit" class="btn-order-detail-close" style="color: #ef4444 !important; border-color: rgba(239, 68, 68, 0.3) !important; background: rgba(239, 68, 68, 0.08) !important; padding: 0.45rem 0.9rem !important; font-size: 0.74rem !important;">
+                        Cancel Batch
+                    </button>
+                </form>
+            `;
+        }
+    };
+
+    window.closeBatchDetailModal = function () {
+        const modal = document.getElementById('batchDetailModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    };
+
+    // Close on escape key
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeBatchDetailModal();
+        }
+    });
 
     document.addEventListener('DOMContentLoaded', function () {
         const modal = document.getElementById('modal_schedule_batch');

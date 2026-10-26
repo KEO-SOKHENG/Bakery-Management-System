@@ -216,35 +216,14 @@
                 @if(in_array($role, ['admin', 'manager']))
                     <div class="sidebar-section-header" data-lang-key="system">System</div>
 
-                    <!-- Settings Group (Expandable Submenu like Inventory) -->
-                    @php
-                        $settingsOpen = request()->is('admin/settings*') || request()->is('admin/notifications*');
-                    @endphp
-                    <div class="sidebar-group {{ $settingsOpen ? 'is-open' : '' }}" id="group_settings">
-                        <a href="{{ route('admin.settings') }}" class="sidebar-nav-item {{ $settingsOpen ? 'active' : '' }}">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                            <span data-lang-key="settings">Settings</span>
-                            @if(($realUnreadCount ?? 0) > 0)
-                                <span class="sidebar-badge" style="margin-left: auto; margin-right: 4px; background: #ef4444; color: #fff; font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 9999px;">{{ $realUnreadCount }}</span>
-                            @endif
-                            <span class="sidebar-dropdown-btn" id="group_settings_btn" role="button" tabindex="0" title="Toggle Settings" aria-label="Toggle Settings Submenu" style="{{ ($realUnreadCount ?? 0) > 0 ? 'margin-left: 0;' : '' }}">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                            </span>
-                        </a>
-                        <div class="sidebar-submenu">
-                            <a href="{{ route('admin.settings') }}" class="sidebar-submenu-item {{ request()->is('admin/settings*') ? 'active' : '' }}">
-                                <span class="submenu-dot"></span>
-                                <span data-lang-key="general">General</span>
-                            </a>
-                            <a href="{{ route('admin.notifications') }}" class="sidebar-submenu-item {{ request()->is('admin/notifications*') ? 'active' : '' }}">
-                                <span class="submenu-dot"></span>
-                                <span data-lang-key="notifications">Notifications</span>
-                                @if(($realUnreadCount ?? 0) > 0)
-                                    <span class="sidebar-badge" style="margin-left: auto; background: #ef4444; color: #fff; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 9999px;">{{ $realUnreadCount }}</span>
-                                @endif
-                            </a>
-                        </div>
-                    </div>
+                    <!-- Settings (Direct Single Item) -->
+                    <a href="{{ route('admin.settings') }}" class="sidebar-nav-item {{ (request()->is('admin/settings*') || request()->is('admin/notifications*')) ? 'active' : '' }}" id="nav_settings">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <span data-lang-key="settings">Settings</span>
+                        @if(($realUnreadCount ?? 0) > 0)
+                            <span class="sidebar-badge" style="margin-left: auto; background: #ef4444; color: #fff; font-size: 0.7rem; font-weight: 700; padding: 1px 6px; border-radius: 9999px;">{{ $realUnreadCount }}</span>
+                        @endif
+                    </a>
                 @endif
             </nav>
 

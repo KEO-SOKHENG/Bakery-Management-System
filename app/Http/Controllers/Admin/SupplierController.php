@@ -41,7 +41,7 @@ class SupplierController extends Controller
         return view('admin.suppliers', compact('suppliers', 'stats'));
     }
 
-    public function show(Supplier $supplier)
+    public function show(Request $request, Supplier $supplier)
     {
         $supplier->loadMissing([
             'ingredients',
@@ -56,6 +56,48 @@ class SupplierController extends Controller
             'received_orders' => $supplier->purchaseOrders->where('status', 'received')->count(),
             'total_spend'     => (float) $supplier->purchaseOrders->where('status', 'received')->sum('total_cost'),
         ];
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'supplier' => [
+                    'id'             => $supplier->id,
+                    'name'           => $supplier->name,
+                    'contact_person' => $supplier->contact_person,
+                    'phone'          => $supplier->phone,
+                    'email'          => $supplier->email,
+                    'address'        => $supplier->address,
+                    'status'         => $supplier->status,
+                    'notes'          => $supplier->notes,
+                    'created_at'     => $supplier->created_at ? $supplier->created_at->format('M d, Y') : null,
+                    'ingredients'    => $supplier->ingredients->map(function ($ing) {
+                        return [
+                            'id'               => $ing->id,
+                            'name'             => $ing->name,
+                            'unit'             => $ing->unit,
+                            'quantity'         => (float) $ing->quantity,
+                            'cost'             => (float) $ing->cost,
+                            'minimum_quantity' => (float) $ing->minimum_quantity,
+                            'is_low_stock'     => $ing->isLowStock(),
+                            'is_out_of_stock'  => $ing->isOutOfStock(),
+                        ];
+                    }),
+                    'purchase_orders' => $supplier->purchaseOrders->take(10)->map(function ($po) {
+                        return [
+                            'id'                     => $po->id,
+                            'po_number'              => $po->po_number,
+                            'order_date'             => $po->order_date ? $po->order_date->format('M d, Y') : '—',
+                            'expected_delivery_date' => $po->expected_delivery_date ? $po->expected_delivery_date->format('M d, Y') : '—',
+                            'status'                 => $po->status,
+                            'total_cost'             => (float) $po->total_cost,
+                            'items_count'            => $po->items->count(),
+                            'url'                    => route('admin.purchase-orders.show', $po->id),
+                        ];
+                    }),
+                ],
+                'stats' => $stats,
+            ]);
+        }
 
         return view('admin.suppliers.show', compact('supplier', 'stats'));
     }

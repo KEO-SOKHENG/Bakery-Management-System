@@ -69,7 +69,7 @@ class NotificationController extends Controller
             });
         }
 
-        $notifications = $query->orderByDesc('created_at')->paginate(15)->withQueryString();
+        $notifications = $query->orderByDesc('created_at')->get();
 
         // User statistics
         $stats = [

@@ -21,8 +21,12 @@ class SettingController extends Controller
     /**
      * Display the System Settings view.
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->get('tab') === 'notifications') {
+            return app(NotificationController::class)->index($request);
+        }
+
         /** @var User|null $user */
         $user = Auth::user();
         if (!$user instanceof User || !$user->hasPermission('settings.view')) {

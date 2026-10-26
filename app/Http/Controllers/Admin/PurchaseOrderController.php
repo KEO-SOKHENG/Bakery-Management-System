@@ -60,13 +60,6 @@ class PurchaseOrderController extends Controller
         ];
 
         $suppliers = Supplier::where('status', 'active')->orderBy('name')->get();
-
-        return view('admin.purchase_orders.index', compact('purchaseOrders', 'stats', 'suppliers'));
-    }
-
-    public function create()
-    {
-        $suppliers = Supplier::where('status', 'active')->orderBy('name')->get();
         $ingredients = Ingredient::where('status', 'active')->with('supplier')->orderBy('name')->get();
 
         $ingredientsJson = $ingredients->mapWithKeys(function ($ing) {
@@ -80,7 +73,12 @@ class PurchaseOrderController extends Controller
             ]];
         });
 
-        return view('admin.purchase_orders.create', compact('suppliers', 'ingredients', 'ingredientsJson'));
+        return view('admin.purchase_orders.index', compact('purchaseOrders', 'stats', 'suppliers', 'ingredients', 'ingredientsJson'));
+    }
+
+    public function create(Request $request)
+    {
+        return redirect()->route('admin.purchase-orders.index', array_merge($request->query(), ['action' => 'create']));
     }
 
     public function store(Request $request)
@@ -136,6 +134,19 @@ class PurchaseOrderController extends Controller
                 return $purchaseOrder;
             });
 
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Purchase Order #{$po->po_number} created successfully!",
+                    'purchase_order' => $po,
+                ]);
+            }
+
+            if ($request->filled('redirect_to') && $request->redirect_to === 'index') {
+                return redirect()->route('admin.purchase-orders.index')
+                    ->with('success', "Purchase Order #{$po->po_number} created successfully!");
+            }
+
             return redirect()->route('admin.purchase-orders.show', $po->id)
                 ->with('success', "Purchase Order #{$po->po_number} created successfully!");
         } catch (\Exception $e) {
@@ -143,9 +154,51 @@ class PurchaseOrderController extends Controller
         }
     }
 
-    public function show(PurchaseOrder $purchaseOrder)
+    public function show(Request $request, PurchaseOrder $purchaseOrder)
     {
         $purchaseOrder->loadMissing(['supplier', 'items.ingredient', 'user']);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'purchase_order' => [
+                    'id'                     => $purchaseOrder->id,
+                    'po_number'              => $purchaseOrder->po_number,
+                    'status'                 => $purchaseOrder->status,
+                    'total_cost'             => (float) $purchaseOrder->total_cost,
+                    'order_date'             => $purchaseOrder->order_date ? $purchaseOrder->order_date->format('M d, Y') : '—',
+                    'expected_delivery_date' => $purchaseOrder->expected_delivery_date ? $purchaseOrder->expected_delivery_date->format('M d, Y') : 'Flexible / Unspecified',
+                    'received_date'          => $purchaseOrder->received_date ? $purchaseOrder->received_date->format('M d, Y H:i') : null,
+                    'created_at'             => $purchaseOrder->created_at ? $purchaseOrder->created_at->format('M d, Y H:i') : null,
+                    'notes'                  => $purchaseOrder->notes,
+                    'creator_name'           => $purchaseOrder->user->name ?? 'System Admin',
+                    'supplier'               => $purchaseOrder->supplier ? [
+                        'id'             => $purchaseOrder->supplier->id,
+                        'name'           => $purchaseOrder->supplier->name,
+                        'contact_person' => $purchaseOrder->supplier->contact_person,
+                        'phone'          => $purchaseOrder->supplier->phone,
+                        'email'          => $purchaseOrder->supplier->email,
+                        'address'        => $purchaseOrder->supplier->address,
+                    ] : null,
+                    'items'                  => $purchaseOrder->items->map(function ($item) {
+                        return [
+                            'name'           => $item->ingredient->name ?? 'Ingredient',
+                            'current_stock'  => $item->ingredient ? (float) $item->ingredient->quantity : 0,
+                            'quantity'       => (float) $item->quantity,
+                            'unit'           => $item->unit,
+                            'purchase_price' => (float) $item->purchase_price,
+                            'subtotal'       => (float) $item->subtotal,
+                        ];
+                    }),
+                    'routes'                 => [
+                        'edit'    => route('admin.purchase-orders.edit', $purchaseOrder->id),
+                        'order'   => route('admin.purchase-orders.order', $purchaseOrder->id),
+                        'receive' => route('admin.purchase-orders.receive', $purchaseOrder->id),
+                        'cancel'  => route('admin.purchase-orders.cancel', $purchaseOrder->id),
+                    ],
+                ]
+            ]);
+        }
 
         return view('admin.purchase_orders.show', compact('purchaseOrder'));
     }

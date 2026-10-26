@@ -27,7 +27,7 @@
         <a href="{{ route('admin.suppliers') }}" class="btn btn-secondary" style="padding: 0.6rem 1.1rem; border-radius: 9999px; border: 1px solid var(--border-color, #e2e8f0); text-decoration: none; color: var(--text-primary, #1e293b); background: var(--bg-card, #ffffff); font-weight: 600;">
             &larr; Back to Suppliers
         </a>
-        <a href="{{ route('admin.purchase-orders.create', ['supplier_id' => $supplier->id]) }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; background: #4d2c20; color: #fff; border-radius: 9999px; text-decoration: none; font-weight: 700; box-shadow: 0 4px 12px rgba(77, 44, 32, 0.25);">
+        <a href="{{ route('admin.purchase-orders.index', ['action' => 'create', 'supplier_id' => $supplier->id]) }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.25rem; background: #4d2c20; color: #fff; border-radius: 9999px; text-decoration: none; font-weight: 700; box-shadow: 0 4px 12px rgba(77, 44, 32, 0.25);">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
             <span>Create Purchase Order</span>
         </a>
